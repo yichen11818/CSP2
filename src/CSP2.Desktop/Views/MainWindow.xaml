@@ -8,7 +8,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
-        Title="CSP2 - Counter-Strike 2 Server Panel" 
+        Title="{converters:Localization App.Title}" 
         Height="800" 
         Width="1200"
         WindowStartupLocation="CenterScreen"
@@ -195,7 +195,7 @@
                         <Border Grid.Row="0" Padding="20,24" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="12,0,0,0">
                             <Grid>
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="CSP2" 
+                                    <TextBlock Text="{converters:Localization App.Name}" 
                                                FontSize="32" 
                                                FontWeight="Bold"
                                                Foreground="White">
@@ -203,7 +203,7 @@
                                             <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="Black"/>
                                         </TextBlock.Effect>
                                     </TextBlock>
-                                    <TextBlock Text="CS2 服务器管理面板" 
+                                    <TextBlock Text="{converters:Localization App.Description}" 
                                                FontSize="12" 
                                                Foreground="#93c5fd"
                                                Margin="0,8,0,0"
@@ -237,12 +237,12 @@
                         <StackPanel Grid.Row="1" Margin="0,20,0,0">
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToServerManagementCommand}"
-                                    ToolTip="服务器管理">
+                                    ToolTip="{converters:Localization Nav.ServerManagement}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" 
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="🖥️" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="服务器管理"/>
+                                        <TextBlock Text="{converters:Localization Nav.ServerManagement}"/>
                                     </StackPanel>
                                     <TextBlock Text="🖥️" 
                                               FontSize="20" 
@@ -264,12 +264,12 @@
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToLogConsoleCommand}"
                                     Margin="0,5,0,0"
-                                    ToolTip="日志控制台">
+                                    ToolTip="{converters:Localization Nav.LogConsole}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="日志控制台"/>
+                                        <TextBlock Text="{converters:Localization Nav.LogConsole}"/>
                                     </StackPanel>
                                     <TextBlock Text="📋" 
                                               FontSize="20" 
@@ -291,12 +291,12 @@
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToPluginMarketCommand}"
                                     Margin="0,5,0,0"
-                                    ToolTip="插件市场">
+                                    ToolTip="{converters:Localization Nav.PluginMarket}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="🧩" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="插件市场"/>
+                                        <TextBlock Text="{converters:Localization Nav.PluginMarket}"/>
                                     </StackPanel>
                                     <TextBlock Text="🧩" 
                                               FontSize="20" 
@@ -318,7 +318,7 @@
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToDownloadManagerCommand}"
                                     Margin="0,5,0,0"
-                                    ToolTip="下载管理">
+                                    ToolTip="{converters:Localization Nav.DownloadManager}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -327,7 +327,7 @@
                                     <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="📥" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="下载管理"/>
+                                        <TextBlock Text="{converters:Localization Nav.DownloadManager}"/>
                                         <Border Background="{StaticResource PrimaryBrush}"
                                                 CornerRadius="10"
                                                 Padding="6,2"
@@ -369,12 +369,12 @@
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToSettingsCommand}"
                                     Margin="0,5,0,0"
-                                    ToolTip="设置">
+                                    ToolTip="{converters:Localization Nav.Settings}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="设置"/>
+                                        <TextBlock Text="{converters:Localization Nav.Settings}"/>
                                     </StackPanel>
                                     <TextBlock Text="⚙️" 
                                               FontSize="20" 
@@ -397,13 +397,13 @@
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToDebugConsoleCommand}"
                                     Margin="0,5,0,0"
-                                    ToolTip="Debug控制台"
+                                    ToolTip="{converters:Localization Nav.DebugConsole}"
                                     Visibility="{Binding IsDebugMode, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="🐛" FontSize="16" Margin="0,0,10,0"/>
-                                        <TextBlock Text="Debug控制台"/>
+                                        <TextBlock Text="{converters:Localization Nav.DebugConsole}"/>
                                     </StackPanel>
                                     <TextBlock Text="🐛" 
                                               FontSize="20" 
@@ -469,7 +469,7 @@
                         <Border Grid.Row="3" Padding="20,16" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="0,0,0,12">
                             <Grid>
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="版本 v0.1.0" 
+                                    <TextBlock Text="{converters:Localization App.Version}" 
                                                FontSize="11" 
                                                Foreground="#93c5fd"
                                                Opacity="0.8"/>
@@ -478,7 +478,7 @@
                                             Padding="6,2"
                                             Margin="0,6,0,0"
                                             HorizontalAlignment="Left">
-                                        <TextBlock Text="开发版本" 
+                                        <TextBlock Text="{converters:Localization App.DevVersion}" 
                                                    FontSize="10" 
                                                    Foreground="White"
                                                    FontWeight="SemiBold"/>
@@ -549,12 +549,12 @@
                                 <Button Style="{StaticResource WindowControlButtonStyle}"
                                         Content="&#xE921;"
                                         Click="MinimizeButton_Click"
-                                        ToolTip="最小化"
+                                        ToolTip="{converters:Localization Common.Minimize}"
                                         shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                                 <Button Style="{StaticResource CloseButtonStyle}"
                                         Content="&#xE8BB;"
                                         Click="CloseButton_Click"
-                                        ToolTip="关闭"
+                                        ToolTip="{converters:Localization Common.Close}"
                                         shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                             </StackPanel>
                         </Grid>
@@ -581,7 +581,7 @@
                                         VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0"/>
-                                        <TextBlock Text="就绪" 
+                                        <TextBlock Text="{converters:Localization Status.Ready}" 
                                                    FontSize="12"
                                                    Foreground="{StaticResource SuccessDarkBrush}"
                                                    FontWeight="SemiBold"/>
@@ -593,11 +593,17 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding SelectedMenuItem, StringFormat='当前页面: {0}'}"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextTertiaryBrush}"
-                                       VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" 
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{converters:Localization Status.CurrentPageLabel}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding SelectedMenuItem}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextTertiaryBrush}"/>
+                            </StackPanel>
                         </Grid>
                     </Border>
                     
@@ -611,7 +617,7 @@
                                Width="56"
                                Height="56"
                                Cursor="Hand"
-                               ToolTip="下载管理器"
+                               ToolTip="{converters:Localization Nav.DownloadManager}"
                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:ServerInstallPageViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200">
@@ -36,11 +37,11 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="下载 CS2 服务器" 
+                    <TextBlock Text="{converters:Localization ServerInstall.SelectMode}" 
                                FontSize="36" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="选择下载方式或使用现有安装" 
+                    <TextBlock Text="{converters:Localization ServerInstall.SelectModeDesc}" 
                                FontSize="16" 
                                Foreground="{StaticResource TextSecondaryBrush}"
                                Margin="0,8,0,0"/>
@@ -73,7 +74,7 @@
                         <TextBlock Text="1" FontSize="18" FontWeight="Bold" Foreground="White" 
                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="选择方式" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="{converters:Localization ServerInstall.Step1}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
@@ -93,7 +94,7 @@
                         <TextBlock Text="2" FontSize="18" FontWeight="Bold" Foreground="White" 
                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="填写信息并确认" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="{converters:Localization ServerInstall.Step2}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -104,7 +105,7 @@
             <Grid>
                 <!-- 步骤1：选择安装方式 -->
                 <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}">
-                    <TextBlock Text="请选择安装方式" 
+                    <TextBlock Text="{converters:Localization ServerInstall.SelectModeDesc}" 
                                FontSize="24" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"
@@ -136,14 +137,14 @@
                                                HorizontalAlignment="Center"/>
                                 </Border>
 
-                                <TextBlock Text="使用 SteamCMD 下载"
+                                <TextBlock Text="{converters:Localization ServerInstall.SteamCmdMode}"
                                            FontSize="22"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            HorizontalAlignment="Center"
                                            Margin="0,0,0,12"/>
                                 
-                                <TextBlock Text="自动下载最新的 CS2 服务器文件"
+                                <TextBlock Text="{converters:Localization ServerInstall.SteamCmdModeDesc}"
                                            FontSize="15"
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            HorizontalAlignment="Center"
@@ -156,7 +157,7 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="✅ 推荐"
+                                        <TextBlock Text="{converters:Localization ServerInstall.SteamCmdTagRecommended}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource SuccessBrush}"
                                                    FontWeight="SemiBold"/>
@@ -165,7 +166,7 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="自动更新"
+                                        <TextBlock Text="{converters:Localization ServerInstall.SteamCmdTagAutoUpdate}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource InfoBrush}"/>
                                     </Border>
@@ -173,13 +174,13 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="独立管理"
+                                        <TextBlock Text="{converters:Localization ServerInstall.SteamCmdTagManaged}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource InfoBrush}"/>
                                     </Border>
                                 </StackPanel>
 
-                                <TextBlock Text="约 30GB · 需要时间下载"
+                                <TextBlock Text="{converters:Localization ServerInstall.SteamCmdSizeNote}"
                                            FontSize="12"
                                            Foreground="{StaticResource TextTertiaryBrush}"
                                            HorizontalAlignment="Center"
@@ -206,7 +207,7 @@
                                                HorizontalAlignment="Center"/>
                                 </Border>
 
-                                <TextBlock Text="使用现有安装"
+                                <TextBlock Text="{converters:Localization ServerInstall.ExistingMode}"
                                            FontSize="22"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"
@@ -225,7 +226,7 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="💡 节省空间"
+                                        <TextBlock Text="{converters:Localization ServerInstall.ExistingTagFast}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource WarningBrush}"
                                                    FontWeight="SemiBold"/>
@@ -234,7 +235,7 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="共享文件"
+                                        <TextBlock Text="{converters:Localization ServerInstall.ExistingTagShared}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource InfoBrush}"/>
                                     </Border>
@@ -242,13 +243,13 @@
                                             CornerRadius="12"
                                             Padding="12,6"
                                             Margin="4">
-                                        <TextBlock Text="快速启动"
+                                        <TextBlock Text="{converters:Localization ServerInstall.ExistingTagFast}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource InfoBrush}"/>
                                     </Border>
                                 </StackPanel>
 
-                                <TextBlock Text="使用已有的CS2文件 · 立即可用"
+                                <TextBlock Text="{converters:Localization ServerInstall.ExistingSizeNote}"
                                            FontSize="12"
                                            Foreground="{StaticResource TextTertiaryBrush}"
                                            HorizontalAlignment="Center"
@@ -260,14 +261,14 @@
 
                 <!-- 步骤2：配置服务器 -->
                 <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}">
-                    <TextBlock Text="配置服务器信息" 
+                    <TextBlock Text="{converters:Localization ServerInstall.ServerInfo}" 
                                FontSize="24" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"
                                Margin="0,0,0,24"/>
 
                     <!-- 服务器名称 -->
-                    <TextBlock Text="服务器名称" 
+                    <TextBlock Text="{converters:Localization ServerInstall.ServerName}" 
                                FontSize="14" 
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}"
@@ -278,7 +279,7 @@
 
                     <!-- 安装路径（SteamCMD模式） -->
                     <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=steamcmd}">
-                        <TextBlock Text="安装路径" 
+                        <TextBlock Text="{converters:Localization ServerInstall.DownloadPath}" 
                                    FontSize="14" 
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -292,13 +293,13 @@
                                      Text="{Binding InstallPath, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource ModernTextBox}"/>
                             <Button Grid.Column="1"
-                                    Content="📁 浏览"
+                                    Content="{converters:Localization ServerInstall.BrowsePath}"
                                     Command="{Binding BrowseInstallPathCommand}"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Margin="12,0,0,0"
                                     Padding="16,10"/>
                         </Grid>
-                        <TextBlock Text="服务器文件将下载到此目录" 
+                        <TextBlock Text="{converters:Localization ServerInstall.DownloadPathDesc}" 
                                    FontSize="12" 
                                    Foreground="{StaticResource TextTertiaryBrush}"
                                    Margin="0,0,0,24"/>
@@ -306,7 +307,7 @@
 
                     <!-- 选择现有安装（现有安装模式） -->
                     <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=existing}">
-                        <TextBlock Text="选择现有安装" 
+                        <TextBlock Text="{converters:Localization ServerInstall.SelectInstallation}" 
                                    FontSize="14" 
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -360,7 +361,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Content="← 取消"
+            <Button Content="{converters:Localization Common.Cancel}"
                     Command="{Binding CancelCommand}"
                     Style="{StaticResource SecondaryButtonStyle}"
                     HorizontalAlignment="Left"
@@ -369,7 +370,7 @@
                     FontSize="15"/>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="← 上一步"
+                <Button Content="{converters:Localization ServerInstall.BackToStepOne}"
                         Command="{Binding BackToStepOneCommand}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Padding="24,14"
@@ -377,7 +378,7 @@
                         FontSize="15"
                         Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
 
-                <Button Content="✅ 确认添加 →"
+                <Button Content="{converters:Localization ServerInstall.StartInstall}"
                         Command="{Binding StartInstallCommand}"
                         Style="{StaticResource SuccessButtonStyle}"
                         Padding="24,14"

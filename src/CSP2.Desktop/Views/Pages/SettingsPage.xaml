@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
@@ -17,11 +18,11 @@
 
         <!-- 标题栏 -->
         <StackPanel Grid.Row="0" Margin="0,0,0,32">
-            <TextBlock Text="⚙️ 设置" 
+            <TextBlock Text="{converters:Localization Settings.Title}" 
                        FontSize="32" 
                        FontWeight="Bold"
                        Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBlock Text="配置应用程序和服务器选项" 
+            <TextBlock Text="{converters:Localization Settings.Subtitle}" 
                        FontSize="14" 
                        Foreground="{StaticResource TextSecondaryBrush}"
                        Margin="0,8,0,0"/>
@@ -52,11 +53,11 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="外观" 
+                                <TextBlock Text="{converters:Localization Settings.Appearance}" 
                                            FontSize="20" 
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="自定义界面主题和语言选项" 
+                                <TextBlock Text="{converters:Localization Settings.AppearanceDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -71,11 +72,11 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="主题" 
+                                <TextBlock Text="{converters:Localization Settings.Theme}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="选择应用程序的主题样式" 
+                                <TextBlock Text="{converters:Localization Settings.ThemeDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -97,11 +98,11 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="语言" 
+                                <TextBlock Text="{converters:Localization Settings.Language}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="更改界面显示语言" 
+                                <TextBlock Text="{converters:Localization Settings.LanguageDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -139,11 +140,11 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="更新" 
+                                <TextBlock Text="{converters:Localization Settings.Update}" 
                                            FontSize="20" 
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="管理应用程序更新设置" 
+                                <TextBlock Text="{converters:Localization Settings.UpdateDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -162,11 +163,11 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="自动检查更新" 
+                                    <TextBlock Text="{converters:Localization Settings.AutoCheckUpdates}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="启动时自动检查应用程序更新" 
+                                    <TextBlock Text="{converters:Localization Settings.AutoCheckUpdatesDesc}" 
                                                FontSize="13" 
                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
@@ -190,11 +191,11 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="关闭时最小化到托盘" 
+                                    <TextBlock Text="{converters:Localization Settings.MinimizeToTray}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="点击关闭按钮时最小化到系统托盘而不是退出程序" 
+                                    <TextBlock Text="{converters:Localization Settings.MinimizeToTrayDesc}" 
                                                FontSize="13" 
                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
@@ -230,11 +231,11 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="SteamCMD" 
+                                <TextBlock Text="{converters:Localization Settings.SteamCmd}" 
                                            FontSize="20" 
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="管理 Steam 命令行工具配置" 
+                                <TextBlock Text="{converters:Localization Settings.SteamCmdDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -268,7 +269,7 @@
                                 </Border>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="状态"
+                                    <TextBlock Text="{converters:Localization Settings.Status}"
                                                FontSize="13"
                                                FontWeight="Medium"
                                                Foreground="{StaticResource TextTertiaryBrush}"/>
@@ -284,7 +285,7 @@
                                         Content="🔄"
                                         Command="{Binding CheckSteamCmdStatusCommand}"
                                         Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="检查状态"
+                                        ToolTip="{converters:Localization Settings.CheckStatus}"
                                         VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
@@ -298,13 +299,13 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0"
-                                    Content="⬇️ 安装 SteamCMD"
+                                    Content="{converters:Localization Settings.InstallSteamCmd}"
                                     Command="{Binding InstallSteamCmdCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     HorizontalAlignment="Stretch"/>
 
                             <Button Grid.Column="2"
-                                    Content="🗑️ 卸载 SteamCMD"
+                                    Content="{converters:Localization Settings.UninstallSteamCmd}"
                                     Command="{Binding UninstallSteamCmdCommand}"
                                     Style="{StaticResource DangerButtonStyle}"
                                     HorizontalAlignment="Stretch"/>
@@ -334,11 +335,11 @@
                         <!-- 安装路径 -->
                         <StackPanel Margin="0,0,0,20">
                             <StackPanel Margin="0,0,0,12">
-                                <TextBlock Text="安装路径" 
+                                <TextBlock Text="{converters:Localization Settings.InstallPath}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="SteamCMD 的安装位置" 
+                                <TextBlock Text="{converters:Localization Settings.InstallPathDesc}" 
                                            FontSize="13" 
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
@@ -356,7 +357,7 @@
                                          Margin="0,0,12,0"/>
 
                                 <Button Grid.Column="1"
-                                        Content="📁 浏览"
+                                        Content="{converters:Localization Settings.Browse}"
                                         Command="{Binding BrowseSteamCmdPathCommand}"
                                         Style="{StaticResource SecondaryButtonStyle}"/>
                             </Grid>
@@ -373,11 +374,11 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="自动下载 SteamCMD" 
+                                    <TextBlock Text="{converters:Localization Settings.AutoDownloadSteamCmd}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="如果未安装，自动下载 SteamCMD" 
+                                    <TextBlock Text="{converters:Localization Settings.AutoDownloadSteamCmdDesc}" 
                                                FontSize="13" 
                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
@@ -408,14 +409,14 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                        Content="↺ 恢复默认"
+                        Content="{converters:Localization Settings.RestoreDefaults}"
                         Command="{Binding ResetSettingsCommand}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Padding="24,12"
                         HorizontalAlignment="Left"/>
 
                 <Button Grid.Column="1"
-                        Content="💾 保存设置"
+                        Content="{converters:Localization Settings.Save}"
                         Command="{Binding SaveSettingsCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Padding="32,12"/>

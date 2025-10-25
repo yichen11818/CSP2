@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:ServerManagementViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
@@ -89,22 +90,22 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="🖥️ 服务器管理" 
+                    <TextBlock Text="{converters:Localization ServerMgmt.Title}" 
                                FontSize="32" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="管理和监控你的 CS2 服务器实例" 
+                    <TextBlock Text="{converters:Localization ServerMgmt.Subtitle}" 
                                FontSize="14" 
                                Foreground="{StaticResource TextSecondaryBrush}"
                                Margin="0,8,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                    <Button Content="⬇️ 安装服务器"
+                    <Button Content="{converters:Localization ServerMgmt.InstallServer}"
                             Command="{Binding InstallServerCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"/>
                     
-                    <Button Content="➕ 添加服务器"
+                    <Button Content="{converters:Localization ServerMgmt.AddServer}"
                             Command="{Binding AddServerCommand}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Margin="12,0,0,0"/>
@@ -112,7 +113,7 @@
                     <Button Content="🔄"
                             Command="{Binding RefreshCommand}"
                             Style="{StaticResource IconButtonStyle}"
-                            ToolTip="刷新服务器列表"
+                            ToolTip="{converters:Localization ServerMgmt.Refresh}"
                             Margin="12,0,0,0"
                             Width="40"
                             Height="40"
@@ -227,7 +228,7 @@
                                     <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" 
                                             CornerRadius="8" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock Text="端口" 
+                                            <TextBlock Text="{converters:Localization ServerMgmt.Port}" 
                                                       FontSize="11" 
                                                       Foreground="{StaticResource TextTertiaryBrush}"
                                                       FontWeight="Medium"/>
@@ -242,7 +243,7 @@
                                     <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" 
                                             CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="地图" 
+                                            <TextBlock Text="{converters:Localization ServerMgmt.Map}" 
                                                       FontSize="11" 
                                                       Foreground="{StaticResource TextTertiaryBrush}"
                                                       FontWeight="Medium"/>
@@ -257,7 +258,7 @@
                                     <Border Grid.Column="2" Background="{StaticResource SurfaceBrush}" 
                                             CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="最大玩家" 
+                                            <TextBlock Text="{converters:Localization ServerMgmt.MaxPlayers}" 
                                                       FontSize="11" 
                                                       Foreground="{StaticResource TextTertiaryBrush}"
                                                       FontWeight="Medium"/>
@@ -272,7 +273,7 @@
                                     <Border Grid.Column="3" Background="{StaticResource SurfaceBrush}" 
                                             CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="Tick Rate" 
+                                            <TextBlock Text="{converters:Localization ServerMgmt.TickRate}" 
                                                       FontSize="11" 
                                                       Foreground="{StaticResource TextTertiaryBrush}"
                                                       FontWeight="Medium"/>
@@ -295,20 +296,20 @@
                                     
                                     <!-- 主要操作 -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                        <Button Content="▶️ 启动"
+                                        <Button Content="{converters:Localization ServerMgmt.Start}"
                                                 Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SuccessButtonStyle}"
                                                 Padding="16,10"/>
 
-                                        <Button Content="⏹️ 停止"
+                                        <Button Content="{converters:Localization ServerMgmt.Stop}"
                                                 Command="{Binding DataContext.StopServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource DangerButtonStyle}"
                                                 Padding="16,10"
                                                 Margin="10,0,0,0"/>
 
-                                        <Button Content="🔄 重启"
+                                        <Button Content="{converters:Localization ServerMgmt.Restart}"
                                                 Command="{Binding DataContext.RestartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource WarningButtonStyle}"
@@ -318,13 +319,13 @@
                                     
                                     <!-- 次要操作 -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button Content="📋 日志"
+                                        <Button Content="{converters:Localization ServerMgmt.ViewLog}"
                                                 Command="{Binding DataContext.ViewServerLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Padding="16,10"/>
 
-                                        <Button Content="⚙️ 设置"
+                                        <Button Content="{converters:Localization ServerMgmt.Settings}"
                                                 Command="{Binding DataContext.EditServerSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SecondaryButtonStyle}"
@@ -334,7 +335,7 @@
                                         <Button Content="💣"
                                                 Command="{Binding DataContext.UninstallServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                ToolTip="卸载服务器（删除文件）"
+                                                ToolTip="{converters:Localization ServerMgmt.UninstallTooltip}"
                                                 Width="40"
                                                 Height="40"
                                                 FontSize="16"
@@ -357,7 +358,7 @@
                                         <Button Content="🗑️"
                                                 Command="{Binding DataContext.DeleteServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                ToolTip="删除服务器（仅配置）"
+                                                ToolTip="{converters:Localization ServerMgmt.DeleteTooltip}"
                                                 Width="40"
                                                 Height="40"
                                                 FontSize="16"
@@ -399,13 +400,13 @@
                                VerticalAlignment="Center"
                                Opacity="0.6"/>
                 </Border>
-                <TextBlock Text="还没有服务器" 
+                <TextBlock Text="{converters:Localization ServerMgmt.NoServers}" 
                            FontSize="24" 
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,24,0,0"/>
-                <TextBlock Text="点击上方【安装服务器】或【添加服务器】按钮开始管理你的 CS2 服务器" 
+                <TextBlock Text="{converters:Localization ServerMgmt.NoServersHint}" 
                            FontSize="14" 
                            Foreground="{StaticResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"
