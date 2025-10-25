@@ -104,7 +104,7 @@
             <Button Grid.Column="1"
                     Content="复制全部"
                     Click="CopyButton_Click"
-                    Style="{StaticResource SecondaryButton}"
+                    Style="{StaticResource SecondaryButtonStyle}"
                     Width="100"
                     Margin="0,0,12,0"/>
 
@@ -112,7 +112,7 @@
             <Button Grid.Column="2"
                     Content="关闭"
                     Click="CloseButton_Click"
-                    Style="{StaticResource PrimaryButton}"
+                    Style="{StaticResource PrimaryButtonStyle}"
                     Width="100"/>
         </Grid>
     </Grid>
