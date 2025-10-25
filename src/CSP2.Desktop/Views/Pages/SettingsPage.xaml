@@ -1,12 +1,12 @@
-<Page x:Class="CSP2.Desktop.Views.Pages.SettingsPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
-      d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
-      mc:Ignorable="d" 
-      d:DesignHeight="600" d:DesignWidth="900">
+<UserControl x:Class="CSP2.Desktop.Views.Pages.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
 
     <Grid Margin="30">
         <Grid.RowDefinitions>
@@ -154,6 +154,96 @@
                                    Foreground="#1f2937"
                                    Margin="0,0,0,20"/>
 
+                        <!-- 状态信息 -->
+                        <Border Background="#f9fafb" 
+                                BorderBrush="#e5e7eb"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="15"
+                                Margin="0,0,0,15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="状态："
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding SteamCmdStatus}"
+                                           FontSize="14"
+                                           Foreground="#374151"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"/>
+
+                                <Button Grid.Column="2"
+                                        Content="🔄 检查"
+                                        Command="{Binding CheckSteamCmdStatusCommand}"
+                                        Background="#f3f4f6"
+                                        Foreground="#374151"
+                                        Padding="15,6"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        FontSize="13"
+                                        Height="30"
+                                        VerticalAlignment="Center">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- 安装按钮 -->
+                        <Button Content="⬇️ 安装 SteamCMD"
+                                Command="{Binding InstallSteamCmdCommand}"
+                                Background="{StaticResource PrimaryBrush}"
+                                Foreground="White"
+                                Padding="20,10"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,15">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <!-- 安装进度 -->
+                        <Border Background="#f9fafb" 
+                                BorderBrush="#e5e7eb"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="15"
+                                Margin="0,0,0,15"
+                                Visibility="{Binding IsInstallingsteamCmd, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding InstallMessage}"
+                                           FontSize="13"
+                                           Foreground="#374151"
+                                           Margin="0,0,0,10"
+                                           TextWrapping="Wrap"/>
+                                <ProgressBar Value="{Binding InstallProgress}"
+                                             Height="6"
+                                             Maximum="100"
+                                             Background="#e5e7eb"
+                                             Foreground="{StaticResource PrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
                         <!-- 安装路径 -->
                         <Grid Margin="0,0,0,15">
                             <Grid.RowDefinitions>
@@ -276,5 +366,5 @@
             </Button>
         </Grid>
     </Grid>
-</Page>
+</UserControl>
 

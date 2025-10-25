@@ -6,7 +6,7 @@ namespace CSP2.Desktop.Views.Pages;
 /// <summary>
 /// SettingsPage.xaml 的交互逻辑
 /// </summary>
-public partial class SettingsPage : Page
+public partial class SettingsPage : UserControl
 {
     public SettingsPage(SettingsViewModel viewModel)
     {
