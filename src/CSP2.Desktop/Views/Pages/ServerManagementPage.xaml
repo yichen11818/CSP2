@@ -331,29 +331,6 @@
                                                 Padding="16,10"
                                                 Margin="10,0,0,0"/>
 
-                                        <Button Content="🔧"
-                                                Command="{Binding DataContext.ResetServerStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                ToolTip="重置状态（修复卡住）"
-                                                Width="40"
-                                                Height="40"
-                                                FontSize="16"
-                                                Margin="10,0,0,0">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource InfoLightBrush}"/>
-                                                            <Setter Property="Foreground" Value="{StaticResource InfoBrush}"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter Property="Opacity" Value="0.3"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-
                                         <Button Content="💣"
                                                 Command="{Binding DataContext.UninstallServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"

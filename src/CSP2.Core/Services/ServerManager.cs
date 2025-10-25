@@ -226,6 +226,14 @@ public class ServerManager : IServerManager
             var process = await _platformProvider.StartServerProcessAsync(
                 executablePath, arguments, workingDirectory);
 
+            // 检查进程是否立即退出
+            if (process.HasExited)
+            {
+                _logger.LogError("进程启动后立即退出，退出代码: {ExitCode}", process.ExitCode);
+                ChangeServerStatus(server, ServerStatus.Crashed);
+                return false;
+            }
+
             // 创建服务器进程包装
             var serverProcess = new ServerProcess
             {
@@ -241,6 +249,18 @@ public class ServerManager : IServerManager
             server.LastStartedAt = DateTime.Now;
             await UpdateServerAsync(server);
 
+            // 延迟一点再设置为运行状态，确保进程稳定
+            await Task.Delay(500);
+            
+            // 再次检查进程是否还在运行
+            if (process.HasExited)
+            {
+                _logger.LogError("进程启动后很快退出，退出代码: {ExitCode}", process.ExitCode);
+                _runningServers.Remove(serverId);
+                ChangeServerStatus(server, ServerStatus.Crashed);
+                return false;
+            }
+
             ChangeServerStatus(server, ServerStatus.Running);
             _logger.LogInformation("服务器已启动: {Name}", server.Name);
 
@@ -249,6 +269,10 @@ public class ServerManager : IServerManager
         catch (Exception ex)
         {
             _logger.LogError(ex, "启动服务器失败: {Name}", server.Name);
+            
+            // 确保从运行列表中移除
+            _runningServers.Remove(serverId);
+            
             ChangeServerStatus(server, ServerStatus.Crashed);
             return false;
         }
@@ -257,9 +281,17 @@ public class ServerManager : IServerManager
     public async Task<bool> StopServerAsync(string serverId, bool force = false)
     {
         var server = await GetServerByIdAsync(serverId);
-        if (server == null || !_runningServers.ContainsKey(serverId))
+        if (server == null)
         {
             return false;
+        }
+
+        // 即使不在运行列表中，也尝试更新状态
+        if (!_runningServers.ContainsKey(serverId))
+        {
+            _logger.LogWarning("服务器不在运行列表中，直接设置为停止状态: {Name}", server.Name);
+            ChangeServerStatus(server, ServerStatus.Stopped);
+            return true;
         }
 
         try
@@ -267,6 +299,16 @@ public class ServerManager : IServerManager
             ChangeServerStatus(server, ServerStatus.Stopping);
 
             var serverProcess = _runningServers[serverId];
+            
+            // 检查进程是否已经退出
+            if (serverProcess.Process.HasExited)
+            {
+                _logger.LogInformation("进程已经退出，直接清理: {Name}", server.Name);
+                _runningServers.Remove(serverId);
+                ChangeServerStatus(server, ServerStatus.Stopped);
+                return true;
+            }
+
             await _platformProvider.StopServerProcessAsync(serverProcess.Process, force);
 
             _runningServers.Remove(serverId);
@@ -278,6 +320,11 @@ public class ServerManager : IServerManager
         catch (Exception ex)
         {
             _logger.LogError(ex, "停止服务器失败: {Name}", server.Name);
+            
+            // 即使出错也要移除并更新状态
+            _runningServers.Remove(serverId);
+            ChangeServerStatus(server, ServerStatus.Stopped);
+            
             return false;
         }
     }
@@ -491,14 +538,32 @@ public class ServerManager : IServerManager
         // 监控进程退出
         Task.Run(async () =>
         {
-            await Task.Run(() => process.WaitForExit());
-            
-            _runningServers.Remove(serverId);
-            var server = await GetServerByIdAsync(serverId);
-            if (server != null)
+            try
             {
-                var newStatus = process.ExitCode == 0 ? ServerStatus.Stopped : ServerStatus.Crashed;
-                ChangeServerStatus(server, newStatus);
+                await Task.Run(() => process.WaitForExit());
+                
+                _logger.LogInformation("服务器进程已退出，ServerId: {ServerId}, ExitCode: {ExitCode}", 
+                    serverId, process.ExitCode);
+                
+                _runningServers.Remove(serverId);
+                var server = await GetServerByIdAsync(serverId);
+                if (server != null)
+                {
+                    var newStatus = process.ExitCode == 0 ? ServerStatus.Stopped : ServerStatus.Crashed;
+                    ChangeServerStatus(server, newStatus);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "监控进程退出时发生错误: {ServerId}", serverId);
+                
+                // 确保清理
+                _runningServers.Remove(serverId);
+                var server = await GetServerByIdAsync(serverId);
+                if (server != null)
+                {
+                    ChangeServerStatus(server, ServerStatus.Crashed);
+                }
             }
         });
     }
