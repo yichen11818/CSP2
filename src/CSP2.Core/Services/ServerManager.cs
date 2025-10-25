@@ -46,6 +46,13 @@ public class ServerManager : IServerManager
 
     public async Task<Server> AddServerAsync(string name, string installPath, ServerConfig? config = null)
     {
+        // 验证服务器路径
+        if (!await ValidateServerInstallationAsync(installPath))
+        {
+            throw new InvalidOperationException($"服务器路径无效或CS2服务器文件不存在: {installPath}\n" +
+                "请确保路径包含有效的CS2服务器文件，或使用InstallServerAsync安装服务器。");
+        }
+
         var server = new Server
         {
             Id = Guid.NewGuid().ToString(),
@@ -61,6 +68,37 @@ public class ServerManager : IServerManager
 
         _logger.LogInformation("已添加服务器: {Name} ({Id})", name, server.Id);
         return server;
+    }
+
+    /// <summary>
+    /// 验证服务器安装是否有效
+    /// </summary>
+    private async Task<bool> ValidateServerInstallationAsync(string installPath)
+    {
+        if (!Directory.Exists(installPath))
+        {
+            _logger.LogWarning("服务器路径不存在: {Path}", installPath);
+            return false;
+        }
+
+        // 检查关键文件是否存在
+        var executablePath = Path.Combine(installPath, "game", "bin", "win64", "cs2.exe");
+        if (!File.Exists(executablePath))
+        {
+            _logger.LogWarning("找不到CS2可执行文件: {Path}", executablePath);
+            return false;
+        }
+
+        // 检查game目录结构
+        var gameDir = Path.Combine(installPath, "game");
+        if (!Directory.Exists(gameDir))
+        {
+            _logger.LogWarning("找不到game目录: {Path}", gameDir);
+            return false;
+        }
+
+        _logger.LogInformation("服务器安装验证通过: {Path}", installPath);
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> UpdateServerAsync(Server server)
@@ -226,19 +264,47 @@ public class ServerManager : IServerManager
         var args = new List<string>
         {
             "-dedicated",
+            $"-ip {config.IpAddress}",
             $"-port {config.Port}",
-            $"+map {config.Map}",
             $"-maxplayers {config.MaxPlayers}",
+            $"-tickrate {config.TickRate}",
             $"+game_type {config.GameType}",
             $"+game_mode {config.GameMode}",
-            $"-tickrate {config.TickRate}"
+            $"+mapgroup {config.MapGroup}",
+            $"+map {config.Map}"
         };
 
+        // 添加控制台参数
+        if (config.EnableConsole)
+        {
+            args.Add("-console");
+        }
+
+        // 添加服务器名称
+        if (!string.IsNullOrEmpty(config.ServerName))
+        {
+            args.Add($"+hostname \"{config.ServerName}\"");
+        }
+
+        // 添加服务器密码
+        if (!string.IsNullOrEmpty(config.ServerPassword))
+        {
+            args.Add($"+sv_password \"{config.ServerPassword}\"");
+        }
+
+        // 添加RCON密码
+        if (!string.IsNullOrEmpty(config.RconPassword))
+        {
+            args.Add($"+rcon_password \"{config.RconPassword}\"");
+        }
+
+        // 添加Steam令牌
         if (!string.IsNullOrEmpty(config.SteamToken))
         {
             args.Add($"+sv_setsteamaccount {config.SteamToken}");
         }
 
+        // 添加自定义参数
         foreach (var (key, value) in config.CustomArgs)
         {
             args.Add($"{key} {value}");
