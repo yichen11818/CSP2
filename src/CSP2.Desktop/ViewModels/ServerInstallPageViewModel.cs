@@ -241,8 +241,8 @@ public partial class ServerInstallPageViewModel : ObservableObject
     {
         _logger.LogInformation("开始SteamCMD下载流程");
         
-        // 先创建占位符服务器
-        var server = await _serverManager.AddServerAsync(ServerName, InstallPath, config);
+        // 先创建占位符服务器（不验证路径，因为文件还未下载）
+        var server = await _serverManager.AddServerWithoutValidationAsync(ServerName, InstallPath, config);
         server.InstallSource = ServerInstallSource.SteamCmd;
         server.IsManagedByCSP2 = true;
         server.Status = ServerStatus.Stopped; // 初始状态为停止，下载完成后可启动

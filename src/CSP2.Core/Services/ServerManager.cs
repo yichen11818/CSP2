@@ -75,6 +75,29 @@ public class ServerManager : IServerManager
         return server;
     }
 
+    public async Task<Server> AddServerWithoutValidationAsync(string name, string installPath, ServerConfig? config = null)
+    {
+        _logger.LogDebug("开始添加服务器(跳过验证): Name={Name}, Path={Path}", name, installPath);
+
+        var server = new Server
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = name,
+            InstallPath = installPath,
+            Config = config ?? new ServerConfig(),
+            Status = ServerStatus.Stopped,
+            CreatedAt = DateTime.Now
+        };
+
+        _logger.LogDebug("生成服务器ID: {Id}", server.Id);
+        _servers.Add(server);
+        await _configService.SaveServersAsync(_servers);
+        _logger.LogDebug("服务器配置已保存");
+
+        _logger.LogInformation("已添加服务器(跳过验证): {Name} ({Id})", name, server.Id);
+        return server;
+    }
+
     /// <summary>
     /// 验证服务器安装是否有效
     /// </summary>

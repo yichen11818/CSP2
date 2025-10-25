@@ -30,6 +30,15 @@ public interface IServerManager
     Task<Server> AddServerAsync(string name, string installPath, ServerConfig? config = null);
 
     /// <summary>
+    /// 添加服务器（不验证路径，用于下载中的占位符）
+    /// </summary>
+    /// <param name="name">服务器名称</param>
+    /// <param name="installPath">安装路径</param>
+    /// <param name="config">配置信息</param>
+    /// <returns>创建的服务器对象</returns>
+    Task<Server> AddServerWithoutValidationAsync(string name, string installPath, ServerConfig? config = null);
+
+    /// <summary>
     /// 更新服务器信息
     /// </summary>
     /// <param name="server">服务器对象</param>

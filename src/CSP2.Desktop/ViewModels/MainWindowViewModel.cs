@@ -143,7 +143,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         CurrentPage = page;
         SelectedMenuItem = "";
-        StatusText = "安装服务器";
+        StatusText = "下载服务器";
     }
 
     [RelayCommand]
