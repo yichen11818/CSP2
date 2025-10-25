@@ -22,7 +22,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
     private readonly Action? _onCancel;
 
     [ObservableProperty]
-    private int _currentStep = 1; // 1=选择方式, 2=配置服务器, 3=安装中
+    private int _currentStep = 1; // 1=选择方式, 2=填写信息, 3=下载中
 
     [ObservableProperty]
     private string _selectedMode = ""; // "steamcmd" or "existing"
@@ -39,32 +39,14 @@ public partial class ServerInstallPageViewModel : ObservableObject
     [ObservableProperty]
     private string _scanMessage = "正在扫描...";
 
-    // 服务器配置
+    // 服务器基本信息
     [ObservableProperty]
     private string _serverName = "我的 CS2 服务器";
 
     [ObservableProperty]
     private string _installPath = "";
 
-    [ObservableProperty]
-    private string _ipAddress = "0.0.0.0";
-
-    [ObservableProperty]
-    private int _port = 27015;
-
-    [ObservableProperty]
-    private string _map = "de_dust2";
-
-    [ObservableProperty]
-    private int _maxPlayers = 10;
-
-    [ObservableProperty]
-    private int _tickRate = 128;
-
-    [ObservableProperty]
-    private string _mapGroup = "mg_active";
-
-    // 安装进度
+    // 下载进度
     [ObservableProperty]
     private bool _isInstalling = false;
 
@@ -190,7 +172,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
 
         if (SelectedMode == "steamcmd" && string.IsNullOrWhiteSpace(InstallPath))
         {
-            System.Windows.MessageBox.Show("请选择安装路径", "验证失败", 
+            System.Windows.MessageBox.Show("请选择下载路径", "验证失败", 
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
@@ -202,56 +184,48 @@ public partial class ServerInstallPageViewModel : ObservableObject
             return;
         }
 
-        if (Port < 1024 || Port > 65535)
-        {
-            System.Windows.MessageBox.Show("端口必须在 1024-65535 之间", "验证失败", 
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-            return;
-        }
-
-        CurrentStep = 3;
         IsInstalling = true;
 
         try
         {
+            // 使用默认配置
             var config = new ServerConfig
             {
-                IpAddress = IpAddress,
-                Port = Port,
-                Map = Map,
-                MaxPlayers = MaxPlayers,
-                TickRate = TickRate,
-                MapGroup = MapGroup,
+                IpAddress = "0.0.0.0",
+                Port = 27015,
+                Map = "de_dust2",
+                MaxPlayers = 10,
+                TickRate = 128,
+                MapGroup = "mg_active",
                 ServerName = ServerName
             };
 
-            Server? server = null;
-
             if (SelectedMode == "steamcmd")
             {
-                server = await InstallWithSteamCmdAsync(config);
+                // SteamCMD下载：先创建占位符Server，立即返回主页面，后台下载
+                await StartSteamCmdInstallAsync(config);
             }
             else if (SelectedMode == "existing")
             {
-                server = await AddExistingServerAsync(config);
-            }
-
-            if (server != null)
-            {
-                ProgressIcon = "✅";
-                InstallMessage = "安装完成！";
+                // 现有安装：同步添加，完成后返回
+                CurrentStep = 3;
+                var server = await AddExistingServerAsync(config);
                 
-                await Task.Delay(1500);
-                _onInstallComplete?.Invoke(server);
+                if (server != null)
+                {
+                    ProgressIcon = "✅";
+                    InstallMessage = "添加完成！";
+                    
+                    await Task.Delay(1500);
+                    _onInstallComplete?.Invoke(server);
+                }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "安装服务器失败");
-            ProgressIcon = "❌";
-            InstallMessage = $"安装失败: {ex.Message}";
-            
-            await Task.Delay(3000);
+            _logger.LogError(ex, "操作失败");
+            System.Windows.MessageBox.Show($"操作失败: {ex.Message}", "错误",
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             CurrentStep = 2;
         }
         finally
@@ -260,69 +234,75 @@ public partial class ServerInstallPageViewModel : ObservableObject
         }
     }
 
-    private async Task<Server?> InstallWithSteamCmdAsync(ServerConfig config)
+    /// <summary>
+    /// 开始SteamCMD下载（立即返回，后台下载）
+    /// </summary>
+    private async Task StartSteamCmdInstallAsync(ServerConfig config)
     {
-        _logger.LogInformation("开始使用SteamCMD安装服务器");
+        _logger.LogInformation("开始SteamCMD下载流程");
         
-        // 检查 SteamCMD
-        InstallProgress = 0;
-        InstallMessage = "正在检查 SteamCMD...";
-        
-        if (!await _steamCmdService.IsSteamCmdInstalledAsync())
-        {
-            var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                System.Windows.MessageBox.Show(
-                    "SteamCMD 未安装。是否现在安装？\n\n" +
-                    "SteamCMD 是下载和管理 CS2 服务器文件所必需的工具。",
-                    "需要 SteamCMD",
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Question));
-
-            if (result == System.Windows.MessageBoxResult.No)
-            {
-                throw new InvalidOperationException("用户取消安装 SteamCMD");
-            }
-            
-            InstallMessage = "正在安装 SteamCMD...";
-            
-            var downloadProgress = new Progress<DownloadProgress>(p =>
-            {
-                InstallProgress = p.Percentage * 0.3;
-                InstallMessage = p.Message;
-            });
-
-            var steamCmdPath = _steamCmdService.GetSteamCmdPath();
-            if (!await _steamCmdService.InstallSteamCmdAsync(steamCmdPath, downloadProgress))
-            {
-                throw new InvalidOperationException("SteamCMD 安装失败");
-            }
-        }
-
-        // 下载CS2服务器
-        InstallProgress = 30;
-        InstallMessage = "正在下载 CS2 服务器文件（约30GB）...";
-
-        var installProgress = new Progress<InstallProgress>(p =>
-        {
-            InstallProgress = 30 + (p.Percentage * 0.7);
-            InstallMessage = p.Message;
-        });
-
-        if (!await _steamCmdService.InstallOrUpdateServerAsync(InstallPath, false, installProgress))
-        {
-            throw new InvalidOperationException("CS2 服务器下载失败");
-        }
-
-        // 添加服务器
-        InstallMessage = "正在添加服务器到列表...";
+        // 先创建占位符服务器
         var server = await _serverManager.AddServerAsync(ServerName, InstallPath, config);
-        
         server.InstallSource = ServerInstallSource.SteamCmd;
         server.IsManagedByCSP2 = true;
+        server.Status = ServerStatus.Stopped; // 初始状态为停止，下载完成后可启动
         await _serverManager.UpdateServerAsync(server);
+        
+        // 立即返回到主页面
+        _onInstallComplete?.Invoke(server);
+        
+        // 在后台执行下载
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await InstallWithSteamCmdAsync(server.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "后台下载失败");
+            }
+        });
+    }
 
-        InstallProgress = 100;
-        return server;
+    /// <summary>
+    /// 实际执行SteamCMD下载（后台任务）
+    /// </summary>
+    private async Task InstallWithSteamCmdAsync(string serverId)
+    {
+        _logger.LogInformation("后台下载服务器文件: {ServerId}", serverId);
+        
+        try
+        {
+            // 检查 SteamCMD
+            if (!await _steamCmdService.IsSteamCmdInstalledAsync())
+            {
+                _logger.LogInformation("SteamCMD未安装，开始安装");
+                
+                var steamCmdPath = _steamCmdService.GetSteamCmdPath();
+                if (!await _steamCmdService.InstallSteamCmdAsync(steamCmdPath, null))
+                {
+                    throw new InvalidOperationException("SteamCMD 安装失败");
+                }
+            }
+
+            // 下载CS2服务器文件（SteamCmdService会自动将任务添加到DownloadManager）
+            _logger.LogInformation("开始下载CS2服务器文件到: {Path}", InstallPath);
+            
+            if (!await _steamCmdService.InstallOrUpdateServerAsync(InstallPath, false, null))
+            {
+                throw new InvalidOperationException("CS2 服务器下载失败");
+            }
+
+            _logger.LogInformation("服务器文件下载完成: {ServerId}", serverId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "服务器文件下载失败: {ServerId}", serverId);
+            
+            // 可以选择更新服务器状态为错误
+            // 或者通过事件通知UI
+        }
     }
 
     private async Task<Server?> AddExistingServerAsync(ServerConfig config)

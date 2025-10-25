@@ -36,11 +36,11 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="安装 CS2 服务器" 
+                    <TextBlock Text="下载 CS2 服务器" 
                                FontSize="36" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="选择安装方式或使用现有安装" 
+                    <TextBlock Text="选择下载方式或使用现有安装" 
                                FontSize="16" 
                                Foreground="{StaticResource TextSecondaryBrush}"
                                Margin="0,8,0,0"/>
@@ -100,7 +100,7 @@
                         <TextBlock Text="2" FontSize="18" FontWeight="Bold" Foreground="White" 
                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="配置服务器" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="填写信息" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
@@ -120,7 +120,7 @@
                         <TextBlock Text="3" FontSize="18" FontWeight="Bold" Foreground="White" 
                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="开始安装" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="开始下载" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -355,90 +355,20 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <!-- 网络配置 -->
-                    <Border Background="{StaticResource SurfaceBrush}"
+                    <!-- 配置说明 -->
+                    <Border Background="{StaticResource InfoPaleBrush}"
                             CornerRadius="12"
-                            Padding="24"
+                            Padding="20"
                             Margin="0,0,0,24">
-                        <StackPanel>
-                            <TextBlock Text="网络配置" 
-                                       FontSize="18" 
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                       Margin="0,0,0,20"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="IP地址" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <TextBox Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="端口" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 游戏配置 -->
-                    <Border Background="{StaticResource SurfaceBrush}"
-                            CornerRadius="12"
-                            Padding="24">
-                        <StackPanel>
-                            <TextBlock Text="游戏配置" 
-                                       FontSize="18" 
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                       Margin="0,0,0,20"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="16"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Row="0" Grid.Column="0">
-                                    <TextBlock Text="初始地图" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <TextBox Text="{Binding Map, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="0" Grid.Column="2">
-                                    <TextBlock Text="最大玩家" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <TextBox Text="{Binding MaxPlayers, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="Tick Rate" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <ComboBox SelectedValue="{Binding TickRate}"
-                                              Style="{StaticResource ModernComboBox}">
-                                        <ComboBoxItem Content="64" Tag="64"/>
-                                        <ComboBoxItem Content="128" Tag="128" IsSelected="True"/>
-                                    </ComboBox>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="地图组" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                    <TextBox Text="{Binding MapGroup, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="ℹ️" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}">
+                                <Run Text="服务器配置（端口、地图等）可以在添加后通过"/>
+                                <Run Text="编辑服务器设置" FontWeight="Bold"/>
+                                <Run Text="或"/>
+                                <Run Text="启动参数" FontWeight="Bold"/>
+                                <Run Text="进行修改"/>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -458,7 +388,7 @@
                                    HorizontalAlignment="Center"/>
                     </Border>
 
-                    <TextBlock Text="正在安装服务器..."
+                    <TextBlock Text="正在下载服务器文件..."
                                FontSize="28"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"
@@ -520,7 +450,7 @@
                         FontSize="15"
                         Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
 
-                <Button Content="✅ 开始安装 →"
+                <Button Content="✅ 开始下载 →"
                         Command="{Binding StartInstallCommand}"
                         Style="{StaticResource SuccessButtonStyle}"
                         Padding="24,14"

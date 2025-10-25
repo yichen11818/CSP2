@@ -170,16 +170,34 @@ public class SteamCmdService : ISteamCmdService
     public async Task<bool> InstallOrUpdateServerAsync(string serverPath, bool validate = false, 
         IProgress<InstallProgress>? progress = null)
     {
+        DownloadTask? downloadTask = null;
+        
         try
         {
             _logger.LogInformation("开始安装/更新CS2服务器到: {Path}", serverPath);
             _logger.LogDebug("验证模式: {Validate}", validate);
+
+            // 创建下载任务
+            if (_downloadManager != null)
+            {
+                downloadTask = new DownloadTask
+                {
+                    Name = "CS2服务器",
+                    Description = $"下载CS2服务器文件到 {Path.GetFileName(serverPath)}",
+                    TaskType = DownloadTaskType.SteamCmd,
+                    Status = DownloadTaskStatus.Downloading,
+                    TotalSize = 30L * 1024 * 1024 * 1024 // 约30GB（估算值）
+                };
+                _downloadManager.AddTask(downloadTask);
+            }
 
             // 确保SteamCMD已安装
             _logger.LogDebug("检查SteamCMD是否已安装");
             if (!await IsSteamCmdInstalledAsync())
             {
                 _logger.LogWarning("SteamCMD未安装，需要先安装SteamCMD");
+                _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 0, "正在安装SteamCMD...");
+                
                 progress?.Report(new InstallProgress
                 {
                     Percentage = 0,
@@ -212,6 +230,8 @@ public class SteamCmdService : ISteamCmdService
             Directory.CreateDirectory(serverPath);
             _logger.LogDebug("创建服务器目录: {Path}", serverPath);
 
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 30, "正在下载CS2服务器文件（约30GB）...");
+            
             progress?.Report(new InstallProgress
             {
                 Percentage = 30,
@@ -245,6 +265,8 @@ public class SteamCmdService : ISteamCmdService
 
             using (var process = new Process { StartInfo = startInfo })
             {
+                var lastProgress = 30.0;
+                
                 process.OutputDataReceived += (sender, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
@@ -252,11 +274,16 @@ public class SteamCmdService : ISteamCmdService
                         _logger.LogDebug("SteamCMD: {Output}", e.Data);
                         
                         // 尝试解析进度
-                        if (e.Data.Contains("Update state") || e.Data.Contains("progress"))
+                        if (e.Data.Contains("Update state") || e.Data.Contains("progress") || e.Data.Contains("downloading"))
                         {
+                            // 模拟进度增长（因为SteamCMD不提供精确进度）
+                            lastProgress = Math.Min(lastProgress + 1, 95);
+                            
+                            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", lastProgress, e.Data.Trim());
+                            
                             progress?.Report(new InstallProgress
                             {
-                                Percentage = 50, // 简化进度显示
+                                Percentage = lastProgress,
                                 Message = e.Data.Trim(),
                                 CurrentStep = "下载服务器文件",
                                 TotalSteps = 2,
@@ -283,10 +310,15 @@ public class SteamCmdService : ISteamCmdService
                 if (process.ExitCode != 0)
                 {
                     _logger.LogError("SteamCMD执行失败，退出码: {ExitCode}", process.ExitCode);
+                    _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, 
+                        $"SteamCMD执行失败，退出码: {process.ExitCode}");
                     return false;
                 }
             }
 
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 100, "CS2服务器安装完成");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Completed);
+            
             progress?.Report(new InstallProgress
             {
                 Percentage = 100,
@@ -302,6 +334,7 @@ public class SteamCmdService : ISteamCmdService
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装/更新CS2服务器失败");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, ex.Message);
             return false;
         }
     }
