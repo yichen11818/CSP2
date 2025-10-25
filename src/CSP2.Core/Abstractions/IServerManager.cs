@@ -74,6 +74,28 @@ public interface IServerManager
     Task<bool> SendCommandAsync(string serverId, string command);
 
     /// <summary>
+    /// 获取服务器日志目录
+    /// </summary>
+    /// <param name="serverId">服务器ID</param>
+    /// <returns>日志目录路径</returns>
+    string GetServerLogDirectory(string serverId);
+
+    /// <summary>
+    /// 获取服务器日志文件列表
+    /// </summary>
+    /// <param name="serverId">服务器ID</param>
+    /// <returns>日志文件路径列表</returns>
+    Task<List<string>> GetServerLogFilesAsync(string serverId);
+
+    /// <summary>
+    /// 读取日志文件内容
+    /// </summary>
+    /// <param name="logFilePath">日志文件路径</param>
+    /// <param name="maxLines">最大读取行数</param>
+    /// <returns>日志内容</returns>
+    Task<string> ReadLogFileAsync(string logFilePath, int maxLines = 1000);
+
+    /// <summary>
     /// 日志接收事件
     /// </summary>
     event EventHandler<LogReceivedEventArgs>? LogReceived;

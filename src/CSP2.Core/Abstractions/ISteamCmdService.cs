@@ -44,5 +44,11 @@ public interface ISteamCmdService
     /// </summary>
     /// <returns>安装路径</returns>
     string GetSteamCmdPath();
+
+    /// <summary>
+    /// 卸载SteamCMD
+    /// </summary>
+    /// <returns>是否成功</returns>
+    Task<bool> UninstallSteamCmdAsync();
 }
 

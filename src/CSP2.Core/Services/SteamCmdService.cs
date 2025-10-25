@@ -14,6 +14,7 @@ public class SteamCmdService : ISteamCmdService
     private readonly IConfigurationService _configService;
     private readonly ILogger<SteamCmdService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly IDownloadManager? _downloadManager;
 
     private const string SteamCmdDownloadUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
     private const int Cs2AppId = 730; // CS2的AppID
@@ -21,11 +22,13 @@ public class SteamCmdService : ISteamCmdService
     public SteamCmdService(
         IConfigurationService configService,
         ILogger<SteamCmdService> logger,
-        HttpClient httpClient)
+        HttpClient httpClient,
+        IDownloadManager? downloadManager = null)
     {
         _configService = configService;
         _logger = logger;
         _httpClient = httpClient;
+        _downloadManager = downloadManager;
     }
 
     public async Task<bool> IsSteamCmdInstalledAsync()
@@ -37,12 +40,29 @@ public class SteamCmdService : ISteamCmdService
 
     public async Task<bool> InstallSteamCmdAsync(string installPath, IProgress<DownloadProgress>? progress = null)
     {
+        DownloadTask? downloadTask = null;
+
+        // 如果有下载管理器，创建下载任务
+        if (_downloadManager != null)
+        {
+            downloadTask = new DownloadTask
+            {
+                Name = "SteamCMD",
+                Description = "下载并安装SteamCMD",
+                TaskType = DownloadTaskType.SteamCmd,
+                Status = DownloadTaskStatus.Downloading
+            };
+            _downloadManager.AddTask(downloadTask);
+        }
+
         try
         {
             _logger.LogInformation("开始下载SteamCMD到: {Path}", installPath);
+            _logger.LogDebug("SteamCMD下载URL: {Url}", SteamCmdDownloadUrl);
 
             // 创建安装目录
             Directory.CreateDirectory(installPath);
+            _logger.LogDebug("创建安装目录: {Path}", installPath);
 
             // 下载SteamCMD
             var zipPath = Path.Combine(installPath, "steamcmd.zip");
@@ -55,11 +75,20 @@ public class SteamCmdService : ISteamCmdService
                 BytesDownloaded = 0
             });
 
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 0, "正在下载SteamCMD...");
+
             using (var response = await _httpClient.GetAsync(SteamCmdDownloadUrl, HttpCompletionOption.ResponseHeadersRead))
             {
                 response.EnsureSuccessStatusCode();
                 
                 var totalBytes = response.Content.Headers.ContentLength ?? 0;
+                _logger.LogDebug("SteamCMD文件大小: {Size} MB", totalBytes / 1024 / 1024);
+                
+                if (downloadTask != null)
+                {
+                    downloadTask.TotalSize = totalBytes;
+                }
+                
                 var buffer = new byte[8192];
                 var totalRead = 0L;
 
@@ -74,17 +103,26 @@ public class SteamCmdService : ISteamCmdService
                         await fileStream.WriteAsync(buffer, 0, bytesRead);
                         totalRead += bytesRead;
 
+                        if (downloadTask != null)
+                        {
+                            downloadTask.DownloadedSize = totalRead;
+                        }
+
                         // 每100ms更新一次进度
                         if ((DateTime.Now - lastProgressUpdate).TotalMilliseconds > 100)
                         {
                             var percentage = totalBytes > 0 ? (double)totalRead / totalBytes * 100 : 0;
+                            var message = $"正在下载SteamCMD... {totalRead / 1024 / 1024}MB / {totalBytes / 1024 / 1024}MB";
+                            
                             progress?.Report(new DownloadProgress
                             {
                                 Percentage = percentage,
-                                Message = $"正在下载SteamCMD... {totalRead / 1024 / 1024}MB / {totalBytes / 1024 / 1024}MB",
+                                Message = message,
                                 TotalBytes = totalBytes,
                                 BytesDownloaded = totalRead
                             });
+
+                            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", percentage, message);
                             lastProgressUpdate = DateTime.Now;
                         }
                     }
@@ -99,14 +137,24 @@ public class SteamCmdService : ISteamCmdService
                 BytesDownloaded = 0
             });
 
-            // 解压
-            ZipFile.ExtractToDirectory(zipPath, installPath, true);
-            File.Delete(zipPath);
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 95, "正在解压SteamCMD...");
+
+            // 在后台线程解压，避免阻塞UI
+            _logger.LogDebug("开始解压SteamCMD到: {Path}", installPath);
+            await Task.Run(() =>
+            {
+                ZipFile.ExtractToDirectory(zipPath, installPath, true);
+                File.Delete(zipPath);
+            });
+            _logger.LogDebug("SteamCMD解压完成");
 
             // 保存SteamCMD路径到配置
             var settings = await _configService.LoadAppSettingsAsync();
             settings.SteamCmd.InstallPath = installPath;
             await _configService.SaveAppSettingsAsync(settings);
+            _logger.LogDebug("SteamCMD路径已保存到配置");
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 100, "SteamCMD安装完成");
 
             _logger.LogInformation("SteamCMD安装成功: {Path}", installPath);
             return true;
@@ -114,6 +162,7 @@ public class SteamCmdService : ISteamCmdService
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装SteamCMD失败");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, ex.Message);
             return false;
         }
     }
@@ -124,10 +173,13 @@ public class SteamCmdService : ISteamCmdService
         try
         {
             _logger.LogInformation("开始安装/更新CS2服务器到: {Path}", serverPath);
+            _logger.LogDebug("验证模式: {Validate}", validate);
 
             // 确保SteamCMD已安装
+            _logger.LogDebug("检查SteamCMD是否已安装");
             if (!await IsSteamCmdInstalledAsync())
             {
+                _logger.LogWarning("SteamCMD未安装，需要先安装SteamCMD");
                 progress?.Report(new InstallProgress
                 {
                     Percentage = 0,
@@ -158,6 +210,7 @@ public class SteamCmdService : ISteamCmdService
 
             // 创建服务器目录
             Directory.CreateDirectory(serverPath);
+            _logger.LogDebug("创建服务器目录: {Path}", serverPath);
 
             progress?.Report(new InstallProgress
             {
@@ -176,6 +229,7 @@ public class SteamCmdService : ISteamCmdService
             var arguments = $"+force_install_dir \"{serverPath}\" +login anonymous +app_update {Cs2AppId} {validateParam} +quit";
 
             _logger.LogInformation("执行SteamCMD命令: {Exe} {Args}", steamCmdExe, arguments);
+            _logger.LogDebug("CS2 AppID: {AppId}", Cs2AppId);
 
             // 启动SteamCMD进程
             var startInfo = new ProcessStartInfo
@@ -260,16 +314,95 @@ public class SteamCmdService : ISteamCmdService
 
     public string GetSteamCmdPath()
     {
-        // 先尝试从配置中读取
-        var settings = _configService.LoadAppSettingsAsync().GetAwaiter().GetResult();
-        if (!string.IsNullOrEmpty(settings.SteamCmd.InstallPath))
+        // 先尝试从配置中读取（使用同步访问，避免死锁）
+        try
         {
-            return settings.SteamCmd.InstallPath;
+            var task = Task.Run(async () => await _configService.LoadAppSettingsAsync());
+            var settings = task.GetAwaiter().GetResult();
+            if (!string.IsNullOrEmpty(settings.SteamCmd.InstallPath))
+            {
+                return settings.SteamCmd.InstallPath;
+            }
+        }
+        catch
+        {
+            // 如果读取配置失败，使用默认路径
         }
 
         // 默认路径：应用数据目录下的steamcmd文件夹
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         return Path.Combine(appDataPath, "CSP2", "steamcmd");
+    }
+
+    public async Task<bool> UninstallSteamCmdAsync()
+    {
+        DownloadTask? downloadTask = null;
+
+        // 如果有下载管理器，创建卸载任务
+        if (_downloadManager != null)
+        {
+            downloadTask = new DownloadTask
+            {
+                Name = "SteamCMD",
+                Description = "卸载SteamCMD",
+                TaskType = DownloadTaskType.Other,
+                Status = DownloadTaskStatus.Downloading
+            };
+            _downloadManager.AddTask(downloadTask);
+        }
+
+        try
+        {
+            var steamCmdPath = GetSteamCmdPath();
+            _logger.LogInformation("开始卸载SteamCMD: {Path}", steamCmdPath);
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 10, "正在检查SteamCMD安装...");
+
+            // 检查目录是否存在
+            if (!Directory.Exists(steamCmdPath))
+            {
+                _logger.LogWarning("SteamCMD目录不存在: {Path}", steamCmdPath);
+                _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 100, "SteamCMD未安装");
+                return true; // 已经不存在了，算作成功
+            }
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 30, "正在删除SteamCMD文件...");
+
+            // 删除目录及其所有内容
+            Directory.Delete(steamCmdPath, recursive: true);
+            _logger.LogDebug("SteamCMD目录已删除: {Path}", steamCmdPath);
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 80, "正在清理配置...");
+
+            // 清除配置中的路径
+            var settings = await _configService.LoadAppSettingsAsync();
+            settings.SteamCmd.InstallPath = string.Empty;
+            await _configService.SaveAppSettingsAsync(settings);
+            _logger.LogDebug("SteamCMD配置已清除");
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 100, "SteamCMD卸载完成");
+
+            _logger.LogInformation("SteamCMD卸载成功: {Path}", steamCmdPath);
+            return true;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "卸载SteamCMD失败：权限不足");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, "权限不足，无法删除文件");
+            return false;
+        }
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "卸载SteamCMD失败：文件被占用");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, "文件被占用，请关闭相关进程后重试");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "卸载SteamCMD失败");
+            _downloadManager?.UpdateTaskStatus(downloadTask?.Id ?? "", DownloadTaskStatus.Failed, ex.Message);
+            return false;
+        }
     }
 }
 

@@ -62,6 +62,23 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 #### 方式二：从源码编译
 
+**快速方式（Windows）**：
+
+根目录提供了便捷的启动脚本：
+
+```bash
+# 方式1：主菜单（推荐）
+双击 start.bat
+
+# 方式2：快速启动Debug模式
+双击 run-debug.bat
+
+# 方式3：快速启动正常模式
+双击 run-release.bat
+```
+
+**手动编译**：
+
 ```bash
 # 1. 克隆仓库
 git clone https://github.com/yichen11818/csp2.git
@@ -77,6 +94,14 @@ dotnet build --configuration Release
 cd src/CSP2.Desktop/bin/Release/net8.0-windows
 ./CSP2.Desktop.exe
 ```
+
+**可用的BAT脚本**：
+- `start.bat` - 主菜单（推荐使用）
+- `run-debug.bat` - 编译并启动Debug模式
+- `run-release.bat` - 编译并启动正常模式
+- `build.bat` - 仅编译项目
+- `clean.bat` - 清理编译输出
+- `rebuild-debug.bat` - 完全重新编译并启动Debug
 
 ---
 

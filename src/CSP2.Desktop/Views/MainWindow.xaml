@@ -4,173 +4,639 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+        xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="CSP2 - Counter-Strike 2 Server Panel" 
         Height="800" 
         Width="1200"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResize">
+    
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="10"/>
+    </shell:WindowChrome.WindowChrome>
     
     <Window.Resources>
-        <!-- 导航按钮样式 -->
-        <Style x:Key="NavButtonStyle" TargetType="Button">
+        <!-- Converters -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        
+        <!-- 窗口控制按钮样式 -->
+        <Style x:Key="WindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="#6b7280"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="20,15"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                            VerticalAlignment="Center"/>
+                                CornerRadius="4"
+                                Margin="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2563eb"/>
+                    <Setter Property="Background" Value="#e5e7eb"/>
+                    <Setter Property="Foreground" Value="#3b82f6"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         
+        <!-- 关闭按钮特殊样式 -->
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowControlButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#fee2e2"/>
+                    <Setter Property="Foreground" Value="#dc2626"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- 导航按钮样式 -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="border"
+                                                          Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                          To="#ffffff15" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="border"
+                                                          Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                          To="Transparent" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
         <!-- 选中的导航按钮样式 -->
         <Style x:Key="NavButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-            <Setter Property="Background" Value="#2563eb"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#ffffff20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
     </Window.Resources>
     
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <!-- 左侧导航栏 -->
-            <ColumnDefinition Width="220"/>
-            <!-- 主内容区 -->
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <!-- 外层边框和阴影 -->
+    <Border Background="{StaticResource BackgroundBrush}" 
+            CornerRadius="12"
+            BorderThickness="1"
+            BorderBrush="{StaticResource BorderBrush}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" 
+                            ShadowDepth="0" 
+                            Opacity="0.15" 
+                            Color="{StaticResource ShadowColor}"/>
+        </Border.Effect>
+        
+        <Grid>
+                <Grid.ColumnDefinitions>
+                    <!-- 左侧导航栏 -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- 主内容区 -->
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- 左侧导航栏 -->
-        <Border Grid.Column="0" Background="{StaticResource PrimaryBrush}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <!-- Logo区域 -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- 导航菜单 -->
-                    <RowDefinition Height="*"/>
-                    <!-- 版本信息 -->
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                <!-- 左侧导航栏 -->
+                <Border Grid.Column="0" 
+                        Background="{StaticResource PrimaryBrush}"
+                        CornerRadius="12,0,0,12">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Width" Value="220"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                               To="70" Duration="0:0:0.3">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseInOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                               To="220" Duration="0:0:0.3">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseInOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <!-- Logo区域 -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- 导航菜单 -->
+                            <RowDefinition Height="*"/>
+                            <!-- 展开/收起按钮 -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- 版本信息 -->
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Logo -->
-                <Border Grid.Row="0" Padding="20" Background="#1e40af">
-                    <StackPanel>
-                        <TextBlock Text="CSP2" 
-                                   FontSize="28" 
-                                   FontWeight="Bold"
-                                   Foreground="White"/>
-                        <TextBlock Text="CS2 服务器面板" 
-                                   FontSize="12" 
-                                   Foreground="#93c5fd"
-                                   Margin="0,5,0,0"/>
-                    </StackPanel>
+                        <!-- Logo -->
+                        <Border Grid.Row="0" Padding="20,24" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="12,0,0,0">
+                            <Grid>
+                                <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="CSP2" 
+                                               FontSize="32" 
+                                               FontWeight="Bold"
+                                               Foreground="White">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="Black"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                    <TextBlock Text="CS2 服务器管理面板" 
+                                               FontSize="12" 
+                                               Foreground="#93c5fd"
+                                               Margin="0,8,0,0"
+                                               Opacity="0.9"/>
+                                </StackPanel>
+                                <Border Background="White"
+                                        Width="40"
+                                        Height="40"
+                                        CornerRadius="10"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="🖥️" 
+                                               FontSize="24"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- 导航菜单 -->
+                        <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                            <Button Style="{StaticResource NavButtonStyle}"
+                                    Command="{Binding NavigateToServerManagementCommand}"
+                                    ToolTip="服务器管理">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" 
+                                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="🖥️" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="服务器管理"/>
+                                    </StackPanel>
+                                    <TextBlock Text="🖥️" 
+                                              FontSize="20" 
+                                              HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Button>
+                            
+                            <Button Style="{StaticResource NavButtonStyle}"
+                                    Command="{Binding NavigateToLogConsoleCommand}"
+                                    Margin="0,5,0,0"
+                                    ToolTip="日志控制台">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal"
+                                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="日志控制台"/>
+                                    </StackPanel>
+                                    <TextBlock Text="📋" 
+                                              FontSize="20" 
+                                              HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Button>
+                            
+                            <Button Style="{StaticResource NavButtonStyle}"
+                                    Command="{Binding NavigateToPluginMarketCommand}"
+                                    Margin="0,5,0,0"
+                                    ToolTip="插件市场">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal"
+                                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="🧩" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="插件市场"/>
+                                    </StackPanel>
+                                    <TextBlock Text="🧩" 
+                                              FontSize="20" 
+                                              HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Button>
+                            
+                            <Button Style="{StaticResource NavButtonStyle}"
+                                    Command="{Binding NavigateToSettingsCommand}"
+                                    Margin="0,5,0,0"
+                                    ToolTip="设置">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal"
+                                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="设置"/>
+                                    </StackPanel>
+                                    <TextBlock Text="⚙️" 
+                                              FontSize="20" 
+                                              HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Button>
+                            
+                            <!-- Debug控制台 (仅Debug模式显示) -->
+                            <Button Style="{StaticResource NavButtonStyle}"
+                                    Command="{Binding NavigateToDebugConsoleCommand}"
+                                    Margin="0,5,0,0"
+                                    ToolTip="Debug控制台"
+                                    Visibility="{Binding IsDebugMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal"
+                                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="🐛" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="Debug控制台"/>
+                                    </StackPanel>
+                                    <TextBlock Text="🐛" 
+                                              FontSize="20" 
+                                              HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+                        
+                        <!-- 展开/收起按钮 -->
+                        <Border Grid.Row="2" 
+                                Background="#1e40af"
+                                Padding="5">
+                            <Button Command="{Binding ToggleSidebarCommand}"
+                                   Background="Transparent"
+                                   BorderThickness="0"
+                                   Foreground="White"
+                                   Cursor="Hand"
+                                   HorizontalAlignment="Center"
+                                   Padding="10,8"
+                                   ToolTip="展开/收起侧边栏">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                               CornerRadius="4"
+                                               Padding="{TemplateBinding Padding}">
+                                            <TextBlock Text="{TemplateBinding Content}"
+                                                      Foreground="{TemplateBinding Foreground}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#2563eb"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="◀"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                <Setter Property="Content" Value="▶"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Border>
+
+                        <!-- 版本信息 -->
+                        <Border Grid.Row="3" Padding="20,16" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="0,0,0,12">
+                            <Grid>
+                                <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="版本 v0.1.0" 
+                                               FontSize="11" 
+                                               Foreground="#93c5fd"
+                                               Opacity="0.8"/>
+                                    <Border Background="#ffffff10"
+                                            CornerRadius="4"
+                                            Padding="6,2"
+                                            Margin="0,6,0,0"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="开发版本" 
+                                                   FontSize="10" 
+                                                   Foreground="White"
+                                                   FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="v0.1" 
+                                           FontSize="9"
+                                           HorizontalAlignment="Center"
+                                           Foreground="#93c5fd"
+                                           Opacity="0.8">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!-- 导航菜单 -->
-                <StackPanel Grid.Row="1" Margin="0,20,0,0">
-                    <Button Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateToServerManagementCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🖥️" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="服务器管理"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateToLogConsoleCommand}"
-                            Margin="0,5,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="日志控制台"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateToPluginMarketCommand}"
-                            Margin="0,5,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🧩" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="插件市场"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateToSettingsCommand}"
-                            Margin="0,5,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="设置"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                <!-- 右侧主内容区 -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <!-- 版本信息 -->
-                <Border Grid.Row="2" Padding="20,10" Background="#1e40af">
-                    <StackPanel>
-                        <TextBlock Text="版本 v0.1.0" 
-                                   FontSize="11" 
-                                   Foreground="#93c5fd"/>
-                        <TextBlock Text="开发中" 
-                                   FontSize="10" 
-                                   Foreground="#93c5fd"
-                                   Margin="0,3,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
+                    <!-- 页面内容容器 -->
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="0,12,0,0">
+                        <Grid>
+                            <!-- 页面内容 -->
+                            <ContentControl Content="{Binding CurrentPage}" />
+                            
+                            <!-- 顶部拖动区域 -->
+                            <Border Height="40" 
+                                   VerticalAlignment="Top"
+                                   Background="Transparent"
+                                   MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                                   Panel.ZIndex="999"
+                                   Cursor="SizeAll">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="Black" Opacity="0.02"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+                            
+                            <!-- 窗口控制按钮（右上角） -->
+                            <StackPanel HorizontalAlignment="Right" 
+                                       VerticalAlignment="Top"
+                                       Orientation="Horizontal"
+                                       Panel.ZIndex="1000"
+                                       shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Button Style="{StaticResource WindowControlButtonStyle}"
+                                        Content="&#xE921;"
+                                        Click="MinimizeButton_Click"
+                                        ToolTip="最小化"
+                                        shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                <Button Style="{StaticResource CloseButtonStyle}"
+                                        Content="&#xE8BB;"
+                                        Click="CloseButton_Click"
+                                        ToolTip="关闭"
+                                        shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-        <!-- 右侧主内容区 -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- 页面内容容器 -->
-            <Border Grid.Row="0" Background="White">
-                <ContentControl Content="{Binding CurrentPage}" />
-            </Border>
-
-            <!-- 状态栏 -->
-            <Border Grid.Row="1" 
-                    Background="#f3f4f6" 
-                    BorderBrush="#e5e7eb"
-                    BorderThickness="0,1,0,0"
-                    Padding="15,8">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <!-- 状态栏 -->
+                    <Border Grid.Row="1" 
+                            Background="{StaticResource BackgroundBrush}" 
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,12,0"
+                            Padding="20,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Border Background="{StaticResource SuccessLightBrush}"
+                                        CornerRadius="6"
+                                        Padding="8,4"
+                                        Margin="0,0,10,0"
+                                        VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="就绪" 
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource SuccessDarkBrush}"
+                                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="{Binding StatusText}" 
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding SelectedMenuItem, StringFormat='当前页面: {0}'}"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
                     
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding StatusText}" 
-                               FontSize="12"
-                               Foreground="#6b7280"
-                               VerticalAlignment="Center"/>
-                    
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding SelectedMenuItem, StringFormat='当前: {0}'}"
-                               FontSize="12"
-                               Foreground="#6b7280"
-                               VerticalAlignment="Center"/>
+                    <!-- 下载悬浮球 -->
+                    <Grid Grid.Row="1"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Bottom"
+                          Margin="0,0,60,15"
+                          Visibility="{Binding HasActiveDownloads, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Command="{Binding OpenDownloadManagerCommand}"
+                               Width="56"
+                               Height="56"
+                               Cursor="Hand"
+                               ToolTip="下载管理器"
+                               shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Grid>
+                                        <!-- 外层发光边框 -->
+                                        <Ellipse Fill="{StaticResource PrimaryBrush}"
+                                                Opacity="0.3">
+                                            <Ellipse.RenderTransform>
+                                                <ScaleTransform ScaleX="1.1" ScaleY="1.1" CenterX="28" CenterY="28"/>
+                                            </Ellipse.RenderTransform>
+                                        </Ellipse>
+                                        
+                                        <!-- 主圆球 -->
+                                        <Ellipse Fill="{StaticResource PrimaryBrush}">
+                                            <Ellipse.Effect>
+                                                <DropShadowEffect BlurRadius="10" 
+                                                                ShadowDepth="0" 
+                                                                Opacity="0.5" 
+                                                                Color="#3b82f6"/>
+                                            </Ellipse.Effect>
+                                        </Ellipse>
+                                        
+                                        <!-- 进度圆环 -->
+                                        <Grid>
+                                            <Ellipse Stroke="#1e40af"
+                                                   StrokeThickness="3"
+                                                   Margin="4"/>
+                                            
+                                            <!-- 下载图标和数量 -->
+                                            <StackPanel HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock Text="⬇️" 
+                                                          FontSize="20"
+                                                          HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding ActiveDownloadCount}"
+                                                          FontSize="11"
+                                                          FontWeight="Bold"
+                                                          Foreground="White"
+                                                          HorizontalAlignment="Center"
+                                                          Margin="0,-3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Trigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                       To="1.1" Duration="0:0:0.2"/>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                       To="1.1" Duration="0:0:0.2"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.EnterActions>
+                                            <Trigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                       To="1.0" Duration="0:0:0.2"/>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                       To="1.0" Duration="0:0:0.2"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.ExitActions>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Button.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="28" CenterY="28"/>
+                            </Button.RenderTransform>
+                        </Button>
+                    </Grid>
                 </Grid>
-            </Border>
         </Grid>
-    </Grid>
+    </Border>
 </Window>
 

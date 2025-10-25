@@ -191,6 +191,10 @@ public partial class SettingsViewModel : ObservableObject
                 SteamCmdStatus = "❌ 未安装";
                 _logger.LogInformation("SteamCMD 未安装");
             }
+
+            // 通知命令状态变化
+            InstallSteamCmdCommand.NotifyCanExecuteChanged();
+            UninstallSteamCmdCommand.NotifyCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -254,5 +258,62 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     private bool CanInstallSteamCmd() => !IsInstallingsteamCmd && !IsSteamCmdInstalled;
+
+    /// <summary>
+    /// 卸载 SteamCMD
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanUninstallSteamCmd))]
+    private async Task UninstallSteamCmdAsync()
+    {
+        try
+        {
+            // 确认对话框
+            var result = MessageBox.Show(
+                "确定要卸载 SteamCMD 吗？\n\n这将删除所有 SteamCMD 相关文件。",
+                "确认卸载",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            _logger.LogInformation("开始卸载 SteamCMD");
+            IsInstallingsteamCmd = true;
+            InstallProgress = 0;
+            InstallMessage = "正在卸载 SteamCMD...";
+
+            var success = await _steamCmdService.UninstallSteamCmdAsync();
+
+            if (success)
+            {
+                _logger.LogInformation("SteamCMD 卸载成功");
+                InstallMessage = "✅ 卸载成功！";
+                InstallProgress = 100;
+                await CheckSteamCmdStatusAsync();
+                MessageBox.Show("SteamCMD 已成功卸载！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                _logger.LogError("SteamCMD 卸载失败");
+                InstallMessage = "❌ 卸载失败";
+                MessageBox.Show("SteamCMD 卸载失败，请查看日志了解详细信息。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "卸载 SteamCMD 时出错");
+            InstallMessage = $"❌ 错误: {ex.Message}";
+            MessageBox.Show($"卸载 SteamCMD 时出错：\n\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsInstallingsteamCmd = false;
+            InstallProgress = 0;
+        }
+    }
+
+    private bool CanUninstallSteamCmd() => !IsInstallingsteamCmd && IsSteamCmdInstalled;
 }
 

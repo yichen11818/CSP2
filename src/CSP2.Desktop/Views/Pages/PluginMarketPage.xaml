@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
 
-    <Grid Margin="30">
+    <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -16,99 +16,122 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <Grid Grid.Row="0" Margin="0,0,0,20">
+        <Grid Grid.Row="0" Margin="0,0,0,24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
-                <TextBlock Text="插件市场" 
-                           FontSize="28" 
+                <TextBlock Text="🧩 插件市场" 
+                           FontSize="32" 
                            FontWeight="Bold"
-                           Foreground="#1f2937"/>
-                <TextBlock Text="浏览和安装 CS2 服务器插件" 
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="浏览和安装 CS2 服务器插件，增强服务器功能" 
                            FontSize="14" 
-                           Foreground="#6b7280"
-                           Margin="0,5,0,0"/>
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,8,0,0"/>
             </StackPanel>
 
             <Button Grid.Column="1"
-                    Content="🔄 刷新"
+                    Content="🔄"
                     Command="{Binding RefreshCommand}"
-                    Background="#f3f4f6"
-                    Foreground="#374151"
-                    Padding="15,10"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    FontSize="14">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+                    Style="{StaticResource IconButtonStyle}"
+                    ToolTip="刷新插件列表"
+                    Width="40"
+                    Height="40"
+                    FontSize="16"
+                    VerticalAlignment="Top"/>
         </Grid>
 
         <!-- 过滤栏 -->
-        <Grid Grid.Row="1" Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="1" 
+                Style="{StaticResource CardStyle}"
+                Padding="20"
+                Margin="0,0,0,24">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- 服务器选择 -->
-            <TextBlock Grid.Column="0"
-                       Text="目标服务器:"
-                       VerticalAlignment="Center"
-                       FontSize="14"
-                       Foreground="#374151"
-                       Margin="0,0,10,0"/>
+                <!-- 服务器选择 -->
+                <TextBlock Grid.Column="0"
+                           Text="目标服务器"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           Margin="0,0,12,0"/>
 
-            <ComboBox Grid.Column="1"
-                      ItemsSource="{Binding Servers}"
-                      SelectedItem="{Binding SelectedServer}"
-                      DisplayMemberPath="Name"
-                      Height="35"
-                      VerticalContentAlignment="Center"
-                      FontSize="14"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding Servers}"
+                          SelectedItem="{Binding SelectedServer}"
+                          DisplayMemberPath="Name"
+                          Style="{StaticResource ModernComboBox}"/>
 
-            <!-- 搜索框 -->
-            <TextBox Grid.Column="3"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     Height="35"
-                     VerticalContentAlignment="Center"
-                     Padding="12,0"
-                     FontSize="14"
-                     BorderBrush="#e5e7eb"
-                     BorderThickness="1">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </TextBox.Resources>
-            </TextBox>
+                <!-- 搜索框 -->
+                <Border Grid.Column="3"
+                        Background="{StaticResource BackgroundBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="🔍"
+                                   FontSize="16"
+                                   Margin="12,0,8,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource Gray400Brush}"/>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 VerticalContentAlignment="Center"
+                                 Padding="0,8,12,8"
+                                 FontSize="14">
+                            <TextBox.Resources>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                                            Focusable="False"
+                                                            HorizontalScrollBarVisibility="Hidden"
+                                                            VerticalScrollBarVisibility="Hidden"/>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </Grid>
+                </Border>
 
-            <!-- 分类筛选 -->
-            <TextBlock Grid.Column="5"
-                       Text="分类:"
-                       VerticalAlignment="Center"
-                       FontSize="14"
-                       Foreground="#374151"
-                       Margin="0,0,10,0"/>
+                <!-- 分类筛选 -->
+                <TextBlock Grid.Column="5"
+                           Text="分类"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           Margin="0,0,12,0"/>
 
-            <ComboBox Grid.Column="6"
-                      ItemsSource="{Binding Categories}"
-                      SelectedItem="{Binding SelectedCategory}"
-                      Height="35"
-                      VerticalContentAlignment="Center"
-                      FontSize="14"/>
-        </Grid>
+                <ComboBox Grid.Column="6"
+                          ItemsSource="{Binding Categories}"
+                          SelectedItem="{Binding SelectedCategory}"
+                          Style="{StaticResource ModernComboBox}"/>
+            </Grid>
+        </Border>
 
         <!-- 插件列表 -->
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -121,19 +144,24 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#e5e7eb" 
-                                BorderThickness="1" 
-                                CornerRadius="8"
-                                Padding="20"
-                                Margin="0,0,15,15"
-                                Width="280"
-                                Background="White">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="5" 
-                                                ShadowDepth="2" 
-                                                Opacity="0.1" 
-                                                Color="Black"/>
-                            </Border.Effect>
+                        <Border Padding="20"
+                                Margin="0,0,16,16"
+                                Width="300">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
+                                    <Setter Property="Padding" Value="20"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.15" Color="{StaticResource ShadowColor}"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
 
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -147,82 +175,91 @@
                                 <!-- 插件名称 -->
                                 <TextBlock Grid.Row="0"
                                            Text="{Binding Name}"
-                                           FontSize="18"
+                                           FontSize="20"
                                            FontWeight="Bold"
-                                           Foreground="#1f2937"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
 
                                 <!-- 作者和版本 -->
-                                <Grid Grid.Row="1" Margin="0,5,0,0">
+                                <Grid Grid.Row="1" Margin="0,8,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0"
-                                               Text="{Binding Author}"
-                                               FontSize="12"
-                                               Foreground="#6b7280"/>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="👤"
+                                                   FontSize="12"
+                                                   Margin="0,0,4,0"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Author}"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
 
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding Version}"
-                                               FontSize="12"
-                                               Foreground="#6b7280"/>
+                                    <Border Grid.Column="1"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            CornerRadius="10"
+                                            Padding="8,4">
+                                        <TextBlock Text="{Binding Version}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </Border>
                                 </Grid>
 
                                 <!-- 描述 -->
                                 <TextBlock Grid.Row="2"
                                            Text="{Binding DescriptionZh}"
-                                           FontSize="13"
-                                           Foreground="#6b7280"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            TextTrimming="CharacterEllipsis"
-                                           MaxHeight="60"
-                                           Margin="0,10,0,0"/>
+                                           MaxHeight="70"
+                                           LineHeight="20"
+                                           Margin="0,12,0,0"/>
 
                                 <!-- 标签 -->
                                 <StackPanel Grid.Row="3" 
                                             Orientation="Horizontal"
-                                            Margin="0,10,0,0">
-                                    <Border Background="#dbeafe"
-                                            CornerRadius="4"
-                                            Padding="8,4"
-                                            Margin="0,0,5,0">
+                                            Margin="0,16,0,0">
+                                    <Border Background="{StaticResource PrimaryPaleBrush}"
+                                            CornerRadius="12"
+                                            Padding="10,6"
+                                            Margin="0,0,8,0">
                                         <TextBlock Text="{Binding Framework}"
                                                    FontSize="11"
-                                                   Foreground="#1e40af"/>
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource PrimaryDarkBrush}"/>
                                     </Border>
 
-                                    <Border Background="#fef3c7"
-                                            CornerRadius="4"
-                                            Padding="8,4"
+                                    <Border Background="{StaticResource WarningLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="10,6"
                                             Visibility="{Binding Featured, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="推荐"
-                                                   FontSize="11"
-                                                   Foreground="#92400e"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⭐"
+                                                       FontSize="11"
+                                                       Margin="0,0,4,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="推荐"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource WarningDarkBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
                                     </Border>
                                 </StackPanel>
 
                                 <!-- 安装按钮 -->
                                 <Button Grid.Row="4"
-                                        Content="📥 安装"
+                                        Content="📥 安装插件"
                                         Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                         CommandParameter="{Binding}"
-                                        Background="{StaticResource PrimaryBrush}"
-                                        Foreground="White"
-                                        Padding="0,10"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Margin="0,15,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <Button.Resources>
-                                        <Style TargetType="Border">
-                                            <Setter Property="CornerRadius" Value="6"/>
-                                        </Style>
-                                    </Button.Resources>
-                                </Button>
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Margin="0,16,0,0"
+                                        HorizontalAlignment="Stretch"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -231,41 +268,74 @@
         </ScrollViewer>
 
         <!-- 空状态提示 -->
-        <StackPanel Grid.Row="2" 
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Center"
-                    Visibility="{Binding FilteredPlugins.Count, Converter={StaticResource CountToVisibilityConverter}}">
-            <TextBlock Text="🧩" 
-                       FontSize="64" 
-                       HorizontalAlignment="Center"
-                       Opacity="0.3"/>
-            <TextBlock Text="没有找到插件" 
-                       FontSize="20" 
-                       FontWeight="SemiBold"
-                       Foreground="#6b7280"
-                       HorizontalAlignment="Center"
-                       Margin="0,10,0,0"/>
-            <TextBlock Text="尝试调整搜索条件或分类" 
-                       FontSize="14" 
-                       Foreground="#9ca3af"
-                       HorizontalAlignment="Center"
-                       Margin="0,5,0,0"/>
-        </StackPanel>
+        <Border Grid.Row="2" 
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center"
+                Visibility="{Binding FilteredPlugins.Count, Converter={StaticResource CountToVisibilityConverter}}">
+            <StackPanel MaxWidth="400">
+                <Border Background="{StaticResource SurfaceBrush}"
+                        Width="120"
+                        Height="120"
+                        CornerRadius="60"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="🧩" 
+                               FontSize="64" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Opacity="0.6"/>
+                </Border>
+                <TextBlock Text="没有找到插件" 
+                           FontSize="24" 
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,24,0,0"/>
+                <TextBlock Text="尝试调整搜索条件或分类，或者稍后再试" 
+                           FontSize="14" 
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
 
         <!-- 加载提示 -->
         <Grid Grid.Row="2"
               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
               Background="#80FFFFFF">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="⏳" 
-                           FontSize="48" 
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="加载中..." 
-                           FontSize="16" 
-                           Foreground="#6b7280"
-                           HorizontalAlignment="Center"
-                           Margin="0,10,0,0"/>
-            </StackPanel>
+            <Border Background="{StaticResource CardBackgroundBrush}"
+                    CornerRadius="16"
+                    Padding="40,32"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.15" Color="{StaticResource ShadowColor}"/>
+                </Border.Effect>
+                <StackPanel>
+                    <Border Background="{StaticResource PrimaryPaleBrush}"
+                            Width="64"
+                            Height="64"
+                            CornerRadius="32"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" 
+                                   FontSize="32" 
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="加载插件中..." 
+                               FontSize="18" 
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,16,0,0"/>
+                    <TextBlock Text="请稍候" 
+                               FontSize="14" 
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

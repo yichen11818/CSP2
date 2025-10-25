@@ -46,9 +46,12 @@ public class ServerManager : IServerManager
 
     public async Task<Server> AddServerAsync(string name, string installPath, ServerConfig? config = null)
     {
+        _logger.LogDebug("开始添加服务器: Name={Name}, Path={Path}", name, installPath);
+        
         // 验证服务器路径
         if (!await ValidateServerInstallationAsync(installPath))
         {
+            _logger.LogError("服务器路径验证失败: {Path}", installPath);
             throw new InvalidOperationException($"服务器路径无效或CS2服务器文件不存在: {installPath}\n" +
                 "请确保路径包含有效的CS2服务器文件，或使用InstallServerAsync安装服务器。");
         }
@@ -63,8 +66,10 @@ public class ServerManager : IServerManager
             CreatedAt = DateTime.Now
         };
 
+        _logger.LogDebug("生成服务器ID: {Id}", server.Id);
         _servers.Add(server);
         await _configService.SaveServersAsync(_servers);
+        _logger.LogDebug("服务器配置已保存");
 
         _logger.LogInformation("已添加服务器: {Name} ({Id})", name, server.Id);
         return server;
@@ -136,6 +141,8 @@ public class ServerManager : IServerManager
 
     public async Task<bool> StartServerAsync(string serverId)
     {
+        _logger.LogDebug("开始启动服务器: {ServerId}", serverId);
+        
         var server = await GetServerByIdAsync(serverId);
         if (server == null)
         {
@@ -152,9 +159,12 @@ public class ServerManager : IServerManager
         try
         {
             ChangeServerStatus(server, ServerStatus.Starting);
+            _logger.LogDebug("服务器状态: Starting");
 
             // 构建启动参数
             var executablePath = Path.Combine(server.InstallPath, "game", "bin", "win64", "cs2.exe");
+            _logger.LogDebug("CS2可执行文件路径: {Path}", executablePath);
+            
             if (!File.Exists(executablePath))
             {
                 _logger.LogError("找不到CS2可执行文件: {Path}", executablePath);
@@ -163,7 +173,10 @@ public class ServerManager : IServerManager
             }
 
             var arguments = BuildStartupArguments(server.Config);
+            _logger.LogDebug("启动参数: {Args}", arguments);
+            
             var workingDirectory = Path.Combine(server.InstallPath, "game", "bin", "win64");
+            _logger.LogDebug("工作目录: {Dir}", workingDirectory);
 
             // 启动进程
             var process = await _platformProvider.StartServerProcessAsync(
@@ -259,6 +272,63 @@ public class ServerManager : IServerManager
         }
     }
 
+    /// <summary>
+    /// 获取服务器日志目录
+    /// </summary>
+    public string GetServerLogDirectory(string serverId)
+    {
+        var server = _servers.FirstOrDefault(s => s.Id == serverId);
+        if (server == null)
+        {
+            throw new InvalidOperationException($"服务器不存在: {serverId}");
+        }
+
+        return Path.Combine(server.InstallPath, "game", "csgo", "logs");
+    }
+
+    /// <summary>
+    /// 获取服务器日志文件列表
+    /// </summary>
+    public async Task<List<string>> GetServerLogFilesAsync(string serverId)
+    {
+        var logDir = GetServerLogDirectory(serverId);
+        
+        if (!Directory.Exists(logDir))
+        {
+            _logger.LogWarning("日志目录不存在: {Dir}", logDir);
+            return new List<string>();
+        }
+
+        var logFiles = Directory.GetFiles(logDir, "L*.log")
+            .OrderByDescending(f => File.GetLastWriteTime(f))
+            .ToList();
+
+        return await Task.FromResult(logFiles);
+    }
+
+    /// <summary>
+    /// 读取日志文件内容
+    /// </summary>
+    public async Task<string> ReadLogFileAsync(string logFilePath, int maxLines = 1000)
+    {
+        if (!File.Exists(logFilePath))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            var lines = await File.ReadAllLinesAsync(logFilePath);
+            var recentLines = lines.TakeLast(maxLines);
+            return string.Join(Environment.NewLine, recentLines);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "读取日志文件失败: {Path}", logFilePath);
+            return $"读取日志失败: {ex.Message}";
+        }
+    }
+
     private string BuildStartupArguments(ServerConfig config)
     {
         var args = new List<string>
@@ -278,6 +348,22 @@ public class ServerManager : IServerManager
         if (config.EnableConsole)
         {
             args.Add("-console");
+        }
+
+        // 添加进程优先级
+        if (!string.IsNullOrEmpty(config.ProcessPriority))
+        {
+            args.Add(config.ProcessPriority);
+        }
+
+        // 添加日志配置
+        if (config.EnableLogging)
+        {
+            args.Add("+log on");
+            args.Add("+mp_logfile 1");
+            args.Add("+sv_logfile 1");
+            args.Add("+sv_logecho 1");
+            args.Add("+mp_logdetail 3");
         }
 
         // 添加服务器名称

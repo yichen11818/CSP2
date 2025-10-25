@@ -1,5 +1,6 @@
 using System.Windows;
 using System.IO;
+using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,8 @@ namespace CSP2.Desktop;
 public partial class App : Application
 {
     private IHost? _host;
+    private static Mutex? _mutex;
+    private const string MutexName = "CSP2_SingleInstance_Mutex";
 
     public App()
     {
@@ -44,12 +47,31 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // 检查单实例
+        bool createdNew;
+        _mutex = new Mutex(true, MutexName, out createdNew);
+
+        if (!createdNew)
+        {
+            MessageBox.Show("CSP2 已经在运行中！\n\n请检查系统托盘图标。", 
+                "CSP2", MessageBoxButton.OK, MessageBoxImage.Information);
+            Shutdown();
+            return;
+        }
+
+        // 检查是否为Debug模式
+        var isDebugMode = e.Args.Contains("--debug") || 
+                         Environment.GetEnvironmentVariable("CSP2_DEBUG") == "true";
+        ViewModels.DebugLogger.IsDebugMode = isDebugMode;
+
         // 配置Serilog日志
         var logsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
         Directory.CreateDirectory(logsDirectory);
 
+        var logLevel = isDebugMode ? LogEventLevel.Debug : LogEventLevel.Information;
+
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            .MinimumLevel.Is(logLevel)
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .MinimumLevel.Override("System", LogEventLevel.Warning)
             .Enrich.FromLogContext()
@@ -64,7 +86,13 @@ public partial class App : Application
             .CreateLogger();
 
         Log.Information("=== CSP2 面板启动 ===");
+        Log.Information("运行模式: {Mode}", isDebugMode ? "DEBUG" : "RELEASE");
         Log.Information("日志目录: {LogsDirectory}", logsDirectory);
+        
+        if (isDebugMode)
+        {
+            ViewModels.DebugLogger.Info("Startup", "Debug模式已启用 - 详细日志记录已开启");
+        }
 
         try
         {
@@ -96,17 +124,21 @@ public partial class App : Application
 
                     // 注册核心服务
                     services.AddSingleton<IConfigurationService, ConfigurationService>();
+                    services.AddSingleton<IDownloadManager, DownloadManager>();
                     services.AddSingleton<ISteamCmdService, SteamCmdService>();
                     services.AddSingleton<IServerManager, ServerManager>();
                     services.AddSingleton<IPluginRepositoryService, PluginRepositoryService>();
                     services.AddSingleton<IPluginManager, PluginManager>();
+                    services.AddSingleton<CS2PathDetector>();
 
                     // 注册ViewModels
-                    services.AddTransient<MainWindowViewModel>();
+                    services.AddSingleton<MainWindowViewModel>(); // 改为单例以保持下载状态
+                    services.AddTransient<DownloadManagerViewModel>();
                     services.AddTransient<ServerManagementViewModel>();
                     services.AddTransient<LogConsoleViewModel>();
                     services.AddTransient<PluginMarketViewModel>();
                     services.AddTransient<SettingsViewModel>();
+                    services.AddSingleton<DebugConsoleViewModel>(); // Debug控制台使用单例
 
                     // 注册Views
                     services.AddTransient<MainWindow>();
@@ -114,6 +146,7 @@ public partial class App : Application
                     services.AddTransient<Views.Pages.LogConsolePage>();
                     services.AddTransient<Views.Pages.PluginMarketPage>();
                     services.AddTransient<Views.Pages.SettingsPage>();
+                    services.AddTransient<Views.Pages.DebugConsolePage>();
                 })
                 .Build();
 
@@ -145,6 +178,10 @@ public partial class App : Application
             _host.Dispose();
             Log.Information("Host服务已停止");
         }
+
+        // 释放互斥锁
+        _mutex?.ReleaseMutex();
+        _mutex?.Dispose();
 
         Log.Information("=== CSP2 面板已退出 ===");
         Log.CloseAndFlush(); // 确保所有日志都被写入

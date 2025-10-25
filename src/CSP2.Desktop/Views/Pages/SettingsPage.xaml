@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
 
-    <Grid Margin="30">
+    <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -16,151 +16,209 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,30">
-            <TextBlock Text="设置" 
-                       FontSize="28" 
+        <StackPanel Grid.Row="0" Margin="0,0,0,32">
+            <TextBlock Text="⚙️ 设置" 
+                       FontSize="32" 
                        FontWeight="Bold"
-                       Foreground="#1f2937"/>
+                       Foreground="{StaticResource TextPrimaryBrush}"/>
             <TextBlock Text="配置应用程序和服务器选项" 
                        FontSize="14" 
-                       Foreground="#6b7280"
-                       Margin="0,5,0,0"/>
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,8,0,0"/>
         </StackPanel>
 
         <!-- 设置内容 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- 外观设置 -->
-                <Border BorderBrush="#e5e7eb" 
-                        BorderThickness="1" 
-                        CornerRadius="8"
-                        Padding="25"
-                        Background="White"
+                <Border Style="{StaticResource CardStyle}"
+                        Padding="28"
                         Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="🎨 外观" 
-                                   FontSize="18" 
-                                   FontWeight="Bold"
-                                   Foreground="#1f2937"
-                                   Margin="0,0,0,20"/>
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Background="{StaticResource PrimaryPaleBrush}"
+                                    Width="48"
+                                    Height="48"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0">
+                                <TextBlock Text="🎨" 
+                                           FontSize="24"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="外观" 
+                                           FontSize="20" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="自定义界面主题和语言选项" 
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Grid>
 
                         <!-- 主题 -->
-                        <Grid Margin="0,0,0,15">
+                        <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="220"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <TextBlock Text="主题" 
-                                           FontSize="14" 
+                                           FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="#374151"/>
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
                                 <TextBlock Text="选择应用程序的主题样式" 
-                                           FontSize="12" 
-                                           Foreground="#9ca3af"
-                                           Margin="0,3,0,0"/>
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
                             </StackPanel>
 
                             <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding Themes}"
                                       SelectedItem="{Binding Theme}"
-                                      Width="200"
+                                      Width="220"
                                       HorizontalAlignment="Left"
-                                      Height="35"
-                                      VerticalContentAlignment="Center"
-                                      FontSize="14"/>
+                                      Style="{StaticResource ModernComboBox}"/>
                         </Grid>
 
                         <!-- 语言 -->
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="220"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <TextBlock Text="语言" 
-                                           FontSize="14" 
+                                           FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="#374151"/>
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
                                 <TextBlock Text="更改界面显示语言" 
-                                           FontSize="12" 
-                                           Foreground="#9ca3af"
-                                           Margin="0,3,0,0"/>
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
                             </StackPanel>
 
                             <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding Languages}"
                                       SelectedItem="{Binding Language}"
-                                      Width="200"
+                                      Width="220"
                                       HorizontalAlignment="Left"
-                                      Height="35"
-                                      VerticalContentAlignment="Center"
-                                      FontSize="14"/>
+                                      Style="{StaticResource ModernComboBox}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- 更新设置 -->
-                <Border BorderBrush="#e5e7eb" 
-                        BorderThickness="1" 
-                        CornerRadius="8"
-                        Padding="25"
-                        Background="White"
+                <Border Style="{StaticResource CardStyle}"
+                        Padding="28"
                         Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="🔄 更新" 
-                                   FontSize="18" 
-                                   FontWeight="Bold"
-                                   Foreground="#1f2937"
-                                   Margin="0,0,0,20"/>
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Background="{StaticResource InfoLightBrush}"
+                                    Width="48"
+                                    Height="48"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0">
+                                <TextBlock Text="🔄" 
+                                           FontSize="24"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="更新" 
+                                           FontSize="20" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="管理应用程序更新设置" 
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Grid>
 
                         <!-- 自动检查更新 -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="自动检查更新" 
-                                           FontSize="14" 
-                                           FontWeight="SemiBold"
-                                           Foreground="#374151"/>
-                                <TextBlock Text="启动时自动检查应用程序更新" 
-                                           FontSize="12" 
-                                           Foreground="#9ca3af"
-                                           Margin="0,3,0,0"/>
-                            </StackPanel>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="自动检查更新" 
+                                               FontSize="15" 
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="启动时自动检查应用程序更新" 
+                                               FontSize="13" 
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
 
-                            <CheckBox Grid.Column="1"
-                                      IsChecked="{Binding AutoCheckUpdates}"
-                                      VerticalAlignment="Center"/>
-                        </Grid>
+                                <CheckBox Grid.Column="1"
+                                          IsChecked="{Binding AutoCheckUpdates}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
 
                 <!-- SteamCMD设置 -->
-                <Border BorderBrush="#e5e7eb" 
-                        BorderThickness="1" 
-                        CornerRadius="8"
-                        Padding="25"
-                        Background="White">
+                <Border Style="{StaticResource CardStyle}"
+                        Padding="28">
                     <StackPanel>
-                        <TextBlock Text="⚙️ SteamCMD" 
-                                   FontSize="18" 
-                                   FontWeight="Bold"
-                                   Foreground="#1f2937"
-                                   Margin="0,0,0,20"/>
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Background="{StaticResource WarningLightBrush}"
+                                    Width="48"
+                                    Height="48"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0">
+                                <TextBlock Text="⚙️" 
+                                           FontSize="24"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="SteamCMD" 
+                                           FontSize="20" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="管理 Steam 命令行工具配置" 
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Grid>
 
                         <!-- 状态信息 -->
-                        <Border Background="#f9fafb" 
-                                BorderBrush="#e5e7eb"
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="15"
-                                Margin="0,0,0,15">
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,20">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -168,101 +226,96 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="状态："
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="#374151"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"/>
+                                <Border Grid.Column="0"
+                                        Background="{StaticResource SuccessLightBrush}"
+                                        Width="32"
+                                        Height="32"
+                                        CornerRadius="16"
+                                        Margin="0,0,12,0">
+                                    <Ellipse Width="12" Height="12" 
+                                            Fill="{StaticResource SuccessBrush}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                                </Border>
 
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding SteamCmdStatus}"
-                                           FontSize="14"
-                                           Foreground="#374151"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="Wrap"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="状态"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextTertiaryBrush}"/>
+                                    <TextBlock Text="{Binding SteamCmdStatus}"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
 
                                 <Button Grid.Column="2"
-                                        Content="🔄 检查"
+                                        Content="🔄"
                                         Command="{Binding CheckSteamCmdStatusCommand}"
-                                        Background="#f3f4f6"
-                                        Foreground="#374151"
-                                        Padding="15,6"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        FontSize="13"
-                                        Height="30"
-                                        VerticalAlignment="Center">
-                                    <Button.Resources>
-                                        <Style TargetType="Border">
-                                            <Setter Property="CornerRadius" Value="4"/>
-                                        </Style>
-                                    </Button.Resources>
-                                </Button>
+                                        Style="{StaticResource IconButtonStyle}"
+                                        ToolTip="检查状态"
+                                        VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
-                        <!-- 安装按钮 -->
-                        <Button Content="⬇️ 安装 SteamCMD"
-                                Command="{Binding InstallSteamCmdCommand}"
-                                Background="{StaticResource PrimaryBrush}"
-                                Foreground="White"
-                                Padding="20,10"
-                                BorderThickness="0"
-                                Cursor="Hand"
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,0,0,15">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="6"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
+                        <!-- 安装/卸载按钮 -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Content="⬇️ 安装 SteamCMD"
+                                    Command="{Binding InstallSteamCmdCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    HorizontalAlignment="Stretch"/>
+
+                            <Button Grid.Column="2"
+                                    Content="🗑️ 卸载 SteamCMD"
+                                    Command="{Binding UninstallSteamCmdCommand}"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    HorizontalAlignment="Stretch"/>
+                        </Grid>
 
                         <!-- 安装进度 -->
-                        <Border Background="#f9fafb" 
-                                BorderBrush="#e5e7eb"
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="15"
-                                Margin="0,0,0,15"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,20"
                                 Visibility="{Binding IsInstallingsteamCmd, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
                                 <TextBlock Text="{Binding InstallMessage}"
-                                           FontSize="13"
-                                           Foreground="#374151"
-                                           Margin="0,0,0,10"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,12"
                                            TextWrapping="Wrap"/>
                                 <ProgressBar Value="{Binding InstallProgress}"
-                                             Height="6"
-                                             Maximum="100"
-                                             Background="#e5e7eb"
-                                             Foreground="{StaticResource PrimaryBrush}"/>
+                                             Style="{StaticResource ModernProgressBar}"
+                                             Height="8"
+                                             Maximum="100"/>
                             </StackPanel>
                         </Border>
 
                         <!-- 安装路径 -->
-                        <Grid Margin="0,0,0,15">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0">
+                        <StackPanel Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="安装路径" 
-                                           FontSize="14" 
+                                           FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="#374151"/>
-                                <TextBlock Text="SteamCMD的安装位置" 
-                                           FontSize="12" 
-                                           Foreground="#9ca3af"
-                                           Margin="0,3,0,0"/>
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="SteamCMD 的安装位置" 
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,4,0,0"/>
                             </StackPanel>
 
-                            <Grid Grid.Row="1" Margin="0,10,0,0">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -270,101 +323,75 @@
 
                                 <TextBox Grid.Column="0"
                                          Text="{Binding SteamCmdPath}"
-                                         Height="35"
-                                         VerticalContentAlignment="Center"
-                                         Padding="12,0"
-                                         FontSize="14"
-                                         BorderBrush="#e5e7eb"
-                                         BorderThickness="1"
-                                         Margin="0,0,10,0"/>
+                                         Style="{StaticResource ModernTextBox}"
+                                         Margin="0,0,12,0"/>
 
                                 <Button Grid.Column="1"
-                                        Content="浏览..."
+                                        Content="📁 浏览"
                                         Command="{Binding BrowseSteamCmdPathCommand}"
-                                        Background="#f3f4f6"
-                                        Foreground="#374151"
-                                        Padding="20,8"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        FontSize="14"
-                                        Height="35">
-                                    <Button.Resources>
-                                        <Style TargetType="Border">
-                                            <Setter Property="CornerRadius" Value="6"/>
-                                        </Style>
-                                    </Button.Resources>
-                                </Button>
+                                        Style="{StaticResource SecondaryButtonStyle}"/>
                             </Grid>
-                        </Grid>
+                        </StackPanel>
 
                         <!-- 自动下载 -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="自动下载SteamCMD" 
-                                           FontSize="14" 
-                                           FontWeight="SemiBold"
-                                           Foreground="#374151"/>
-                                <TextBlock Text="如果未安装，自动下载SteamCMD" 
-                                           FontSize="12" 
-                                           Foreground="#9ca3af"
-                                           Margin="0,3,0,0"/>
-                            </StackPanel>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="自动下载 SteamCMD" 
+                                               FontSize="15" 
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="如果未安装，自动下载 SteamCMD" 
+                                               FontSize="13" 
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
 
-                            <CheckBox Grid.Column="1"
-                                      IsChecked="{Binding AutoDownloadSteamCmd}"
-                                      VerticalAlignment="Center"/>
-                        </Grid>
+                                <CheckBox Grid.Column="1"
+                                          IsChecked="{Binding AutoDownloadSteamCmd}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
         <!-- 底部按钮 -->
-        <Grid Grid.Row="2" Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="2" 
+                Background="{StaticResource BackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="0,20,0,0"
+                Margin="0,24,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0"
-                    Content="恢复默认"
-                    Command="{Binding ResetSettingsCommand}"
-                    Background="#f3f4f6"
-                    Foreground="#374151"
-                    Padding="20,10"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    FontSize="14"
-                    HorizontalAlignment="Left">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+                <Button Grid.Column="0"
+                        Content="↺ 恢复默认"
+                        Command="{Binding ResetSettingsCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Padding="24,12"
+                        HorizontalAlignment="Left"/>
 
-            <Button Grid.Column="1"
-                    Content="💾 保存设置"
-                    Command="{Binding SaveSettingsCommand}"
-                    Background="{StaticResource PrimaryBrush}"
-                    Foreground="White"
-                    Padding="30,10"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    FontSize="14"
-                    FontWeight="SemiBold">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
-        </Grid>
+                <Button Grid.Column="1"
+                        Content="💾 保存设置"
+                        Command="{Binding SaveSettingsCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Padding="32,12"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
 

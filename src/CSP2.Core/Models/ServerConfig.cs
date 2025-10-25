@@ -71,6 +71,16 @@ public class ServerConfig
     public bool EnableConsole { get; set; } = true;
 
     /// <summary>
+    /// 进程优先级（-high, -normal, -low）
+    /// </summary>
+    public string ProcessPriority { get; set; } = "-high";
+
+    /// <summary>
+    /// 是否启用日志
+    /// </summary>
+    public bool EnableLogging { get; set; } = true;
+
+    /// <summary>
     /// 自定义启动参数
     /// </summary>
     public Dictionary<string, string> CustomArgs { get; set; } = new();

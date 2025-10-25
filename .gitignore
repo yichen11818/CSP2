@@ -94,3 +94,5 @@ servers/
 
 ## Docs
 docs/
+
+*.bat
