@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
 namespace CSP2.Desktop.ViewModels;
@@ -14,6 +15,7 @@ public partial class PluginMarketViewModel : ObservableObject
     private readonly IPluginRepositoryService _pluginRepositoryService;
     private readonly IPluginManager _pluginManager;
     private readonly IServerManager _serverManager;
+    private readonly ILogger<PluginMarketViewModel> _logger;
 
     [ObservableProperty]
     private ObservableCollection<PluginInfo> _plugins = new();
@@ -50,11 +52,16 @@ public partial class PluginMarketViewModel : ObservableObject
     public PluginMarketViewModel(
         IPluginRepositoryService pluginRepositoryService,
         IPluginManager pluginManager,
-        IServerManager serverManager)
+        IServerManager serverManager,
+        ILogger<PluginMarketViewModel> logger)
     {
         _pluginRepositoryService = pluginRepositoryService;
         _pluginManager = pluginManager;
         _serverManager = serverManager;
+        _logger = logger;
+
+        _logger.LogInformation("PluginMarketViewModel 初始化");
+        DebugLogger.Debug("PluginMarketViewModel", "构造函数开始执行");
 
         _ = LoadDataAsync();
     }
@@ -65,9 +72,13 @@ public partial class PluginMarketViewModel : ObservableObject
     private async Task LoadDataAsync()
     {
         IsLoading = true;
+        _logger.LogInformation("开始加载插件市场数据");
+        DebugLogger.Debug("LoadDataAsync", "IsLoading = true");
+
         try
         {
             // 加载服务器列表
+            DebugLogger.Debug("LoadDataAsync", "加载服务器列表");
             var servers = await _serverManager.GetServersAsync();
             Servers.Clear();
             foreach (var server in servers)
@@ -75,25 +86,30 @@ public partial class PluginMarketViewModel : ObservableObject
                 Servers.Add(server);
             }
             SelectedServer = servers.FirstOrDefault();
+            _logger.LogInformation("加载了 {Count} 个服务器", servers.Count);
 
             // 加载插件列表
+            DebugLogger.Debug("LoadDataAsync", "加载插件列表");
             var manifest = await _pluginRepositoryService.GetManifestAsync();
             Plugins.Clear();
             foreach (var plugin in manifest.Plugins)
             {
                 Plugins.Add(plugin);
             }
+            _logger.LogInformation("加载了 {Count} 个插件", manifest.Plugins.Count);
 
             // 初始化过滤列表
             ApplyFilter();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"加载数据失败: {ex.Message}");
+            _logger.LogError(ex, "加载插件市场数据失败");
+            DebugLogger.Error("LoadDataAsync", $"加载数据失败: {ex.Message}", ex);
         }
         finally
         {
             IsLoading = false;
+            DebugLogger.Debug("LoadDataAsync", "IsLoading = false");
         }
     }
 
@@ -136,15 +152,20 @@ public partial class PluginMarketViewModel : ObservableObject
     {
         if (SelectedServer == null)
         {
-            System.Diagnostics.Debug.WriteLine("请先选择一个服务器");
+            _logger.LogWarning("安装插件失败: 未选择服务器");
+            DebugLogger.Warning("InstallPluginAsync", "请先选择一个服务器");
             return;
         }
+
+        _logger.LogInformation("开始安装插件: {PluginName} 到服务器: {ServerName}", 
+            plugin.Name, SelectedServer.Name);
+        DebugLogger.Info("InstallPluginAsync", $"安装插件: {plugin.Name} -> {SelectedServer.Name}");
 
         try
         {
             var progress = new Progress<ProgressInfo>(p =>
             {
-                System.Diagnostics.Debug.WriteLine($"安装进度: {p.Percentage}% - {p.Message}");
+                DebugLogger.Debug("InstallPluginAsync", $"安装进度: {p.Percentage}% - {p.Message}");
             });
 
             var result = await _pluginManager.InstallPluginAsync(
@@ -154,16 +175,19 @@ public partial class PluginMarketViewModel : ObservableObject
 
             if (result.Success)
             {
-                System.Diagnostics.Debug.WriteLine($"插件 {plugin.Name} 安装成功");
+                _logger.LogInformation("插件 {PluginName} 安装成功", plugin.Name);
+                DebugLogger.Info("InstallPluginAsync", $"插件 {plugin.Name} 安装成功");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"插件安装失败: {result.ErrorMessage}");
+                _logger.LogError("插件 {PluginName} 安装失败: {Error}", plugin.Name, result.ErrorMessage);
+                DebugLogger.Error("InstallPluginAsync", $"插件安装失败: {result.ErrorMessage}");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"安装插件失败: {ex.Message}");
+            _logger.LogError(ex, "安装插件 {PluginName} 时发生异常", plugin.Name);
+            DebugLogger.Error("InstallPluginAsync", $"安装插件失败: {ex.Message}", ex);
         }
     }
 

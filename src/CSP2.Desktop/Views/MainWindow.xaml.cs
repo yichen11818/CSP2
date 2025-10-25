@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Windows.Forms;
 using CSP2.Desktop.ViewModels;
+using System;
 
 namespace CSP2.Desktop.Views;
 
@@ -31,28 +32,40 @@ public partial class MainWindow : Window
     /// </summary>
     private void InitializeNotifyIcon()
     {
-        _notifyIcon = new NotifyIcon
+        try
         {
-            Icon = SystemIcons.Application, // 使用默认应用图标
-            Text = "CSP2 - Counter-Strike 2 Server Panel",
-            Visible = true
-        };
+            DebugLogger.Debug("MainWindow", "初始化系统托盘图标");
+            
+            _notifyIcon = new NotifyIcon
+            {
+                Icon = SystemIcons.Application, // 使用默认应用图标
+                Text = "CSP2 - Counter-Strike 2 Server Panel",
+                Visible = true
+            };
 
-        // 双击托盘图标显示窗口
-        _notifyIcon.DoubleClick += (s, e) => ShowWindow();
+            // 双击托盘图标显示窗口
+            _notifyIcon.DoubleClick += (s, e) => ShowWindow();
 
-        // 创建右键菜单
-        var contextMenu = new ContextMenuStrip();
-        
-        var showMenuItem = new ToolStripMenuItem("显示主窗口", null, (s, e) => ShowWindow());
-        showMenuItem.Font = new Font(showMenuItem.Font, System.Drawing.FontStyle.Bold);
-        contextMenu.Items.Add(showMenuItem);
-        
-        contextMenu.Items.Add(new ToolStripSeparator());
-        
-        contextMenu.Items.Add(new ToolStripMenuItem("退出", null, (s, e) => ExitApplication()));
+            // 创建右键菜单
+            var contextMenu = new ContextMenuStrip();
+            
+            var showMenuItem = new ToolStripMenuItem("显示主窗口", null, (s, e) => ShowWindow());
+            showMenuItem.Font = new Font(showMenuItem.Font, System.Drawing.FontStyle.Bold);
+            contextMenu.Items.Add(showMenuItem);
+            
+            contextMenu.Items.Add(new ToolStripSeparator());
+            
+            contextMenu.Items.Add(new ToolStripMenuItem("退出", null, (s, e) => ExitApplication()));
 
-        _notifyIcon.ContextMenuStrip = contextMenu;
+            _notifyIcon.ContextMenuStrip = contextMenu;
+            
+            DebugLogger.Debug("MainWindow", "系统托盘图标初始化完成");
+        }
+        catch (Exception ex)
+        {
+            DebugLogger.Error("MainWindow", $"初始化系统托盘图标失败: {ex.Message}", ex);
+            // 托盘图标初始化失败不影响主程序运行，只记录错误
+        }
     }
 
     /// <summary>
@@ -93,9 +106,17 @@ public partial class MainWindow : Window
     /// </summary>
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ButtonState == MouseButtonState.Pressed)
+        try
         {
-            this.DragMove();
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+        catch (Exception ex)
+        {
+            // DragMove 在某些情况下可能会抛出异常（如双击时）
+            DebugLogger.Debug("MainWindow", $"窗口拖动异常: {ex.Message}");
         }
     }
 

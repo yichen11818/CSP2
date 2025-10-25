@@ -31,15 +31,35 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
             var ex = e.ExceptionObject as Exception;
+            
+            // 记录到日志系统
+            Log.Fatal(ex, "未处理的异常 (AppDomain)");
+            ViewModels.DebugLogger.Error("UnhandledException", $"严重错误: {ex?.Message}", ex);
+            
             MessageBox.Show($"未处理的异常！\n\n{ex?.Message}\n\n{ex?.StackTrace}", 
                 "严重错误", MessageBoxButton.OK, MessageBoxImage.Error);
         };
 
         DispatcherUnhandledException += (s, e) =>
         {
+            // 记录到日志系统
+            Log.Error(e.Exception, "UI线程未处理的异常");
+            ViewModels.DebugLogger.Error("DispatcherException", $"UI线程异常: {e.Exception.Message}", e.Exception);
+            
             MessageBox.Show($"UI线程异常！\n\n{e.Exception.Message}\n\n{e.Exception.StackTrace}", 
                 "UI错误", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
+        };
+
+        // 捕获Task中未观察到的异常
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            // 记录到日志系统
+            Log.Error(e.Exception, "Task中未观察到的异常");
+            ViewModels.DebugLogger.Error("UnobservedTaskException", $"异步任务异常: {e.Exception.Message}", e.Exception);
+            
+            // 标记异常已处理，防止程序崩溃
+            e.SetObserved();
         };
     }
 

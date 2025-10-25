@@ -152,6 +152,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenDownloadManager()
     {
+        DebugLogger.Debug("OpenDownloadManager", "打开下载管理器窗口");
+        
         try
         {
             var downloadWindow = new Views.DownloadManagerWindow();
@@ -159,9 +161,11 @@ public partial class MainWindowViewModel : ObservableObject
             downloadWindow.DataContext = viewModel;
             downloadWindow.Owner = Application.Current.MainWindow;
             downloadWindow.ShowDialog();
+            DebugLogger.Debug("OpenDownloadManager", "下载管理器窗口已关闭");
         }
         catch (Exception ex)
         {
+            DebugLogger.Error("OpenDownloadManager", $"打开下载管理器失败: {ex.Message}", ex);
             StatusText = $"打开下载管理器失败: {ex.Message}";
         }
     }

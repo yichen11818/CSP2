@@ -96,3 +96,5 @@ servers/
 docs/
 
 *.bat
+
+CLAUDE.md

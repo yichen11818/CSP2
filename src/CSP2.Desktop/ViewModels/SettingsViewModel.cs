@@ -69,6 +69,9 @@ public partial class SettingsViewModel : ObservableObject
         _steamCmdService = steamCmdService;
         _logger = logger;
         
+        _logger.LogInformation("SettingsViewModel 初始化");
+        DebugLogger.Debug("SettingsViewModel", "构造函数开始执行");
+        
         // 加载设置
         _ = LoadSettingsAsync();
         
@@ -81,6 +84,9 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     private async Task LoadSettingsAsync()
     {
+        _logger.LogInformation("开始加载应用设置");
+        DebugLogger.Debug("LoadSettingsAsync", "开始加载设置");
+        
         try
         {
             var settings = await _configurationService.LoadAppSettingsAsync();
@@ -93,10 +99,14 @@ public partial class SettingsViewModel : ObservableObject
             // 加载SteamCMD设置
             SteamCmdPath = settings.SteamCmd?.InstallPath ?? @"C:\CSP2\steamcmd";
             AutoDownloadSteamCmd = settings.SteamCmd?.AutoDownload ?? true;
+            
+            _logger.LogInformation("应用设置加载成功");
+            DebugLogger.Debug("LoadSettingsAsync", "设置加载成功");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"加载设置失败: {ex.Message}");
+            _logger.LogError(ex, "加载应用设置失败");
+            DebugLogger.Error("LoadSettingsAsync", $"加载设置失败: {ex.Message}", ex);
         }
     }
 
@@ -106,6 +116,9 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveSettingsAsync()
     {
+        _logger.LogInformation("开始保存应用设置");
+        DebugLogger.Debug("SaveSettingsAsync", "保存设置");
+        
         try
         {
             var settings = new AppSettings
@@ -124,14 +137,16 @@ public partial class SettingsViewModel : ObservableObject
             };
             
             await _configurationService.SaveAppSettingsAsync(settings);
-            System.Diagnostics.Debug.WriteLine("设置已保存");
+            _logger.LogInformation("应用设置保存成功");
+            DebugLogger.Info("SaveSettingsAsync", "设置已保存");
             
-            // TODO: 显示成功消息
+            MessageBox.Show("设置已保存！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"保存设置失败: {ex.Message}");
-            // TODO: 显示错误消息
+            _logger.LogError(ex, "保存应用设置失败");
+            DebugLogger.Error("SaveSettingsAsync", $"保存设置失败: {ex.Message}", ex);
+            MessageBox.Show($"保存设置失败：\n\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

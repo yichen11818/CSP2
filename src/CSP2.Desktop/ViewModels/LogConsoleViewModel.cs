@@ -32,8 +32,11 @@ public partial class LogConsoleViewModel : ObservableObject
     {
         _serverManager = serverManager;
         
+        DebugLogger.Debug("LogConsoleViewModel", "构造函数开始执行");
+        
         // 订阅日志事件
         _serverManager.LogReceived += OnLogReceived;
+        DebugLogger.Debug("LogConsoleViewModel", "已订阅日志接收事件");
         
         // 加载服务器列表
         _ = LoadServersAsync();
@@ -44,6 +47,8 @@ public partial class LogConsoleViewModel : ObservableObject
     /// </summary>
     private async Task LoadServersAsync()
     {
+        DebugLogger.Debug("LoadServersAsync", "开始加载服务器列表");
+        
         try
         {
             var servers = await _serverManager.GetServersAsync();
@@ -55,10 +60,11 @@ public partial class LogConsoleViewModel : ObservableObject
             
             // 默认选择第一个运行中的服务器
             SelectedServer = servers.FirstOrDefault(s => s.Status == ServerStatus.Running) ?? servers.FirstOrDefault();
+            DebugLogger.Debug("LoadServersAsync", $"加载了 {servers.Count} 个服务器");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"加载服务器列表失败: {ex.Message}");
+            DebugLogger.Error("LoadServersAsync", $"加载服务器列表失败: {ex.Message}", ex);
         }
     }
 
@@ -119,6 +125,8 @@ public partial class LogConsoleViewModel : ObservableObject
         if (SelectedServer == null || string.IsNullOrWhiteSpace(CommandText))
             return;
 
+        DebugLogger.Info("SendCommandAsync", $"发送命令到服务器 {SelectedServer.Name}: {CommandText}");
+
         try
         {
             // 添加命令到日志
@@ -132,13 +140,14 @@ public partial class LogConsoleViewModel : ObservableObject
 
             // 发送命令
             await _serverManager.SendCommandAsync(SelectedServer.Id, CommandText);
+            DebugLogger.Debug("SendCommandAsync", "命令发送成功");
             
             // 清空输入框
             CommandText = string.Empty;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"发送命令失败: {ex.Message}");
+            DebugLogger.Error("SendCommandAsync", $"发送命令失败: {ex.Message}", ex);
             
             var errorLog = new LogEntry
             {
