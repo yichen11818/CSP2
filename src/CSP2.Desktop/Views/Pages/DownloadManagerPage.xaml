@@ -201,7 +201,6 @@
                                         <Button Content="❌ 取消"
                                                 Command="{Binding DataContext.CancelTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource DangerButtonStyle}"
                                                 Padding="12,6"
                                                 Margin="0,0,8,0">
                                             <Button.Style>
