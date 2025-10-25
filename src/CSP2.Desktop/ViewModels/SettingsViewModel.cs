@@ -4,6 +4,7 @@ using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using CSP2.Desktop.Services;
 
@@ -156,6 +157,8 @@ public partial class SettingsViewModel : ObservableObject
                 DisplayName = $"{lang.Flag} {lang.DisplayName}"
             });
         }
+        _logger.LogInformation("已初始化 {Count} 种语言", Languages.Count);
+        DebugLogger.Debug("InitializeLanguages", $"语言列表: {string.Join(", ", Languages.Select(l => l.Code))}");
     }
 
     /// <summary>
@@ -175,7 +178,14 @@ public partial class SettingsViewModel : ObservableObject
             // 加载UI设置
             Theme = settings.Ui?.Theme ?? "浅色";
             var savedLangCode = _localizationService.CurrentLanguageCode;
+            _logger.LogInformation("尝试加载语言设置: {LangCode}, 语言列表数量: {Count}", savedLangCode, Languages.Count);
+            
             SelectedLanguage = Languages.FirstOrDefault(l => l.Code == savedLangCode) ?? Languages.FirstOrDefault();
+            
+            _logger.LogInformation("已设置 SelectedLanguage: {DisplayName} ({Code})", 
+                SelectedLanguage?.DisplayName ?? "null", 
+                SelectedLanguage?.Code ?? "null");
+            
             AutoCheckUpdates = settings.Ui?.AutoCheckUpdates ?? true;
             MinimizeToTray = settings.Ui?.MinimizeToTray ?? true;
             
@@ -208,21 +218,17 @@ public partial class SettingsViewModel : ObservableObject
         
         try
         {
-            var settings = new AppSettings
-            {
-                Ui = new UiSettings
-                {
-                    Theme = Theme,
-                    Language = SelectedLanguage?.Code ?? "zh-CN",
-                    AutoCheckUpdates = AutoCheckUpdates,
-                    MinimizeToTray = MinimizeToTray
-                },
-                SteamCmd = new SteamCmdSettings
-                {
-                    InstallPath = SteamCmdPath,
-                    AutoDownload = AutoDownloadSteamCmd
-                }
-            };
+            // 先加载现有设置，避免丢失其他字段
+            var settings = await _configurationService.LoadAppSettingsAsync();
+            
+            // 更新需要修改的字段
+            settings.Ui.Theme = Theme;
+            settings.Ui.Language = SelectedLanguage?.Code ?? "zh-CN";
+            settings.Ui.AutoCheckUpdates = AutoCheckUpdates;
+            settings.Ui.MinimizeToTray = MinimizeToTray;
+            
+            settings.SteamCmd.InstallPath = SteamCmdPath;
+            settings.SteamCmd.AutoDownload = AutoDownloadSteamCmd;
             
             await _configurationService.SaveAppSettingsAsync(settings);
             _logger.LogInformation("应用设置保存成功");

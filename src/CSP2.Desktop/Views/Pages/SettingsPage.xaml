@@ -109,7 +109,7 @@
 
                             <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding Languages}"
-                                      SelectedItem="{Binding Language}"
+                                      SelectedItem="{Binding SelectedLanguage}"
                                       Width="220"
                                       HorizontalAlignment="Left"
                                       Style="{StaticResource ModernComboBox}"/>
