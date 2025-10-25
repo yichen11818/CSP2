@@ -22,31 +22,63 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _theme = "浅色";
 
+    private bool _isLoadingSettings = false;
+
     [ObservableProperty]
     private LanguageDisplayInfo? _selectedLanguage;
     
     partial void OnSelectedLanguageChanged(LanguageDisplayInfo? value)
     {
-        if (value != null)
+        // 加载设置时不触发语言切换
+        if (_isLoadingSettings || value == null)
         {
-            try
-            {
-                _localizationService.ChangeLanguage(value.Code);
-                _logger.LogInformation("语言已切换到: {Language}", value.DisplayName);
-                DebugLogger.Info("Settings", $"语言切换成功: {value.DisplayName}");
-                
-                MessageBox.Show(
-                    Resources.Strings.ResourceManager.GetString("Msg_LanguageChanged") ?? "Language changed successfully. Some changes may require restart.",
-                    "CSP2",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "切换语言失败");
-                DebugLogger.Error("Settings", $"切换语言失败: {ex.Message}", ex);
-                MessageBox.Show($"Language change failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            return;
+        }
+
+        // 检查语言是否真的改变了
+        if (value.Code == _localizationService.CurrentLanguageCode)
+        {
+            return;
+        }
+
+        try
+        {
+            _localizationService.ChangeLanguage(value.Code);
+            _logger.LogInformation("语言已切换到: {Language}", value.DisplayName);
+            DebugLogger.Info("Settings", $"语言切换成功: {value.DisplayName}");
+            
+            // 自动保存语言设置
+            _ = SaveLanguageSettingAsync(value.Code);
+            
+            MessageBox.Show(
+                CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_LanguageChanged") ?? "Language changed successfully. Some changes may require restart.",
+                "CSP2",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "切换语言失败");
+            DebugLogger.Error("Settings", $"切换语言失败: {ex.Message}", ex);
+            MessageBox.Show($"Language change failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// 保存语言设置
+    /// </summary>
+    private async Task SaveLanguageSettingAsync(string languageCode)
+    {
+        try
+        {
+            var settings = await _configurationService.LoadAppSettingsAsync();
+            settings.Ui.Language = languageCode;
+            await _configurationService.SaveAppSettingsAsync(settings);
+            _logger.LogInformation("语言设置已自动保存");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "保存语言设置失败");
         }
     }
 
@@ -136,6 +168,8 @@ public partial class SettingsViewModel : ObservableObject
         
         try
         {
+            _isLoadingSettings = true;
+            
             var settings = await _configurationService.LoadAppSettingsAsync();
             
             // 加载UI设置
@@ -156,6 +190,10 @@ public partial class SettingsViewModel : ObservableObject
         {
             _logger.LogError(ex, "加载应用设置失败");
             DebugLogger.Error("LoadSettingsAsync", $"加载设置失败: {ex.Message}", ex);
+        }
+        finally
+        {
+            _isLoadingSettings = false;
         }
     }
 
