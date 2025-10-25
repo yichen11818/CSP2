@@ -52,8 +52,8 @@ public class ServerManager : IServerManager
         if (!await ValidateServerInstallationAsync(installPath))
         {
             _logger.LogError("服务器路径验证失败: {Path}", installPath);
-            throw new InvalidOperationException($"服务器路径无效或CS2服务器文件不存在: {installPath}\n" +
-                "请确保路径包含有效的CS2服务器文件，或使用InstallServerAsync安装服务器。");
+            throw new InvalidOperationException($"Invalid server path or CS2 server files not found: {installPath}\n" +
+                "Please ensure the path contains valid CS2 server files, or use InstallServerAsync to install the server.");
         }
 
         var server = new Server
@@ -191,7 +191,7 @@ public class ServerManager : IServerManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "删除服务器文件失败: {Path}", server.InstallPath);
-                throw new InvalidOperationException($"无法删除服务器文件: {ex.Message}", ex);
+                throw new InvalidOperationException($"Failed to delete server files: {ex.Message}", ex);
             }
         }
 
@@ -394,7 +394,7 @@ public class ServerManager : IServerManager
         var server = _servers.FirstOrDefault(s => s.Id == serverId);
         if (server == null)
         {
-            throw new InvalidOperationException($"服务器不存在: {serverId}");
+            throw new InvalidOperationException($"Server not found: {serverId}");
         }
 
         return Path.Combine(server.InstallPath, "game", "csgo", "logs");

@@ -62,7 +62,7 @@ public class ProviderRegistry
 
         if (supportedProviders.Count == 0)
         {
-            throw new InvalidOperationException("没有找到支持当前平台的Provider");
+            throw new InvalidOperationException("No provider found for the current platform");
         }
 
         var selected = supportedProviders.First();

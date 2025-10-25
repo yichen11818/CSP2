@@ -242,7 +242,7 @@ public class SteamCmdService : ISteamCmdService
 
                 if (!await InstallSteamCmdAsync(steamCmdPath, downloadProgress))
                 {
-                    throw new Exception("安装SteamCMD失败");
+                    throw new Exception("Failed to install SteamCMD");
                 }
             }
 
