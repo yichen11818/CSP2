@@ -2,6 +2,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CSP2.Core.Abstractions;
+using CSP2.Core.Services;
 using CSP2.Providers.Platforms.Windows;
 using CSP2.Providers.Frameworks.Metamod;
 using CSP2.Providers.Frameworks.CounterStrikeSharp;
@@ -24,12 +25,30 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                // 注册平台Provider
-                services.AddSingleton<IPlatformProvider, WindowsPlatformProvider>();
+                // 注册核心服务
+                services.AddSingleton<ProviderRegistry>();
+                services.AddSingleton<IConfigurationService, ConfigurationService>();
+                services.AddSingleton<IServerManager, ServerManager>();
+                services.AddSingleton<IPluginRepositoryService, PluginRepositoryService>();
+                services.AddSingleton<IPluginManager, PluginManager>();
 
-                // 注册框架Provider
-                services.AddSingleton<IFrameworkProvider, MetamodFrameworkProvider>();
-                services.AddSingleton<IFrameworkProvider, CSSFrameworkProvider>();
+                // 注册Providers到ProviderRegistry
+                services.AddSingleton(sp =>
+                {
+                    var registry = sp.GetRequiredService<ProviderRegistry>();
+                    
+                    // 注册平台Provider
+                    var windowsProvider = new WindowsPlatformProvider();
+                    registry.RegisterPlatformProvider(windowsProvider);
+                    
+                    // 注册框架Provider
+                    var metamodProvider = new MetamodFrameworkProvider();
+                    var cssProvider = new CSSFrameworkProvider();
+                    registry.RegisterFrameworkProvider(metamodProvider);
+                    registry.RegisterFrameworkProvider(cssProvider);
+                    
+                    return registry;
+                });
 
                 // 注册ViewModels
                 services.AddTransient<MainWindowViewModel>();
