@@ -389,7 +389,75 @@ public partial class ServerManagementViewModel : ObservableObject
 
     private bool CanDeleteServer(Server? server)
     {
-        return server != null && server.Status == ServerStatus.Stopped;
+        // 允许删除已停止、崩溃或卡住的服务器
+        return server != null && (server.Status == ServerStatus.Stopped || 
+                                  server.Status == ServerStatus.Crashed);
+    }
+
+    /// <summary>
+    /// 强制重置服务器状态命令
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanResetServerStatus))]
+    private async Task ResetServerStatusAsync(Server? server)
+    {
+        if (server == null) return;
+
+        try
+        {
+            _logger.LogInformation("请求重置服务器状态: {ServerName} (ID: {ServerId})", server.Name, server.Id);
+            
+            var confirmed = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                return System.Windows.MessageBox.Show(
+                    $"确定要重置服务器 '{server.Name}' 的状态吗？\n\n" +
+                    $"当前状态: {server.Status}\n\n" +
+                    "此操作将强制将服务器状态重置为【已停止】。\n" +
+                    "如果服务器进程仍在运行，请先手动结束进程。",
+                    "重置服务器状态",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+            });
+
+            if (confirmed != System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            // 强制设置为停止状态
+            server.Status = ServerStatus.Stopped;
+            await _serverManager.UpdateServerAsync(server);
+            
+            // 刷新UI
+            var index = Servers.IndexOf(server);
+            if (index >= 0)
+            {
+                Servers.RemoveAt(index);
+                Servers.Insert(index, server);
+            }
+            
+            // 通知命令刷新
+            StartServerCommand.NotifyCanExecuteChanged();
+            StopServerCommand.NotifyCanExecuteChanged();
+            RestartServerCommand.NotifyCanExecuteChanged();
+            DeleteServerCommand.NotifyCanExecuteChanged();
+            UninstallServerCommand.NotifyCanExecuteChanged();
+            
+            _logger.LogInformation("成功重置服务器状态: {ServerName}", server.Name);
+            ShowSuccess($"已重置服务器状态: {server.Name}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "重置服务器状态失败: {ServerName}", server.Name);
+            ShowError($"重置状态失败: {ex.Message}");
+        }
+    }
+
+    private bool CanResetServerStatus(Server? server)
+    {
+        // 只有非正常状态才能重置
+        return server != null && (server.Status == ServerStatus.Starting || 
+                                  server.Status == ServerStatus.Stopping ||
+                                  server.Status == ServerStatus.Crashed);
     }
 
     /// <summary>
@@ -485,9 +553,9 @@ public partial class ServerManagementViewModel : ObservableObject
 
     private bool CanUninstallServer(Server? server)
     {
-        // 只有停止状态且不是Steam安装的服务器才能卸载
+        // 允许卸载已停止、崩溃状态的服务器，但不能卸载Steam安装的
         return server != null && 
-               server.Status == ServerStatus.Stopped &&
+               (server.Status == ServerStatus.Stopped || server.Status == ServerStatus.Crashed) &&
                server.InstallSource != ServerInstallSource.ExistingSteam;
     }
 

@@ -227,17 +227,12 @@
                                         <ControlTemplate TargetType="Thumb">
                                             <Border x:Name="thumb"
                                                     Background="{StaticResource Gray400Brush}"
-                                                    CornerRadius="4">
-                                                <Border.Opacity>
-                                                    <MultiBinding Converter="{StaticResource ScrollBarOpacityConverter}">
-                                                        <Binding RelativeSource="{RelativeSource AncestorType=ScrollBar}" Path="IsMouseOver"/>
-                                                        <Binding RelativeSource="{RelativeSource Self}" Path="IsMouseOver"/>
-                                                    </MultiBinding>
-                                                </Border.Opacity>
-                                            </Border>
+                                                    CornerRadius="4"
+                                                    Opacity="0.5"/>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="thumb" Property="Background" Value="{StaticResource Gray500Brush}"/>
+                                                    <Setter TargetName="thumb" Property="Opacity" Value="1.0"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -260,23 +255,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ProgressBar">
-                    <Grid>
-                        <Border x:Name="PART_Track"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="4"/>
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="4">
                         <Border x:Name="PART_Indicator"
                                 HorizontalAlignment="Left"
                                 Background="{TemplateBinding Foreground}"
-                                CornerRadius="4">
-                            <Border.Width>
-                                <MultiBinding Converter="{StaticResource ProgressBarWidthConverter}">
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}"/>
-                                    <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                </MultiBinding>
-                            </Border.Width>
-                        </Border>
-                    </Grid>
+                                CornerRadius="4"/>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

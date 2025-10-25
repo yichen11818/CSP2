@@ -1,0 +1,535 @@
+<UserControl x:Class="CSP2.Desktop.Views.Pages.ServerInstallPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ServerInstallPageViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200">
+
+    <Grid Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题区域 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,32">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="{StaticResource PrimaryPaleBrush}"
+                        Width="80"
+                        Height="80"
+                        CornerRadius="40"
+                        Margin="0,0,24,0">
+                    <TextBlock Text="⬇️"
+                               FontSize="40"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="安装 CS2 服务器" 
+                               FontSize="36" 
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="选择安装方式或使用现有安装" 
+                               FontSize="16" 
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- 步骤指示器 -->
+            <Grid Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 步骤1 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="1" FontSize="18" FontWeight="Bold" Foreground="White" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="选择方式" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 步骤2 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{StaticResource Gray300Brush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="2" FontSize="18" FontWeight="Bold" Foreground="White" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="配置服务器" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 步骤3 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{StaticResource Gray300Brush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="3" FontSize="18" FontWeight="Bold" Foreground="White" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="开始安装" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <!-- 主内容区域 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <!-- 步骤1：选择安装方式 -->
+                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}">
+                    <TextBlock Text="请选择安装方式" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Margin="0,0,0,32"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- SteamCMD 选项 -->
+                        <Border Grid.Column="0"
+                                Style="{StaticResource HoverCardStyle}"
+                                Padding="32"
+                                Cursor="Hand"
+                                MouseDown="SteamCmdOption_Click">
+                            <StackPanel>
+                                <Border Background="{StaticResource PrimaryPaleBrush}"
+                                        Width="80"
+                                        Height="80"
+                                        CornerRadius="40"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,0,0,24">
+                                    <TextBlock Text="📦"
+                                               FontSize="40"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <TextBlock Text="使用 SteamCMD 下载"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,12"/>
+                                
+                                <TextBlock Text="自动下载最新的 CS2 服务器文件"
+                                           FontSize="15"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,16"/>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Border Background="{StaticResource SuccessLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="✅ 推荐"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource SuccessBrush}"
+                                                   FontWeight="SemiBold"/>
+                                    </Border>
+                                    <Border Background="{StaticResource InfoLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="自动更新"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource InfoBrush}"/>
+                                    </Border>
+                                    <Border Background="{StaticResource InfoLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="独立管理"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource InfoBrush}"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <TextBlock Text="约 30GB · 需要时间下载"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,16,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 使用现有安装选项 -->
+                        <Border Grid.Column="2"
+                                Style="{StaticResource HoverCardStyle}"
+                                Padding="32"
+                                Cursor="Hand"
+                                MouseDown="ExistingOption_Click">
+                            <StackPanel>
+                                <Border Background="{StaticResource InfoLightBrush}"
+                                        Width="80"
+                                        Height="80"
+                                        CornerRadius="40"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,0,0,24">
+                                    <TextBlock Text="📁"
+                                               FontSize="40"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <TextBlock Text="使用现有安装"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,12"/>
+                                
+                                <TextBlock Text="{Binding ScanMessage}"
+                                           FontSize="15"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
+                                           Margin="0,0,0,16"/>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Border Background="{StaticResource WarningLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="💡 节省空间"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource WarningBrush}"
+                                                   FontWeight="SemiBold"/>
+                                    </Border>
+                                    <Border Background="{StaticResource InfoLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="共享文件"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource InfoBrush}"/>
+                                    </Border>
+                                    <Border Background="{StaticResource InfoLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="12,6"
+                                            Margin="4">
+                                        <TextBlock Text="快速启动"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource InfoBrush}"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <TextBlock Text="使用已有的CS2文件 · 立即可用"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,16,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 步骤2：配置服务器 -->
+                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}">
+                    <TextBlock Text="配置服务器信息" 
+                               FontSize="24" 
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Margin="0,0,0,24"/>
+
+                    <!-- 服务器名称 -->
+                    <TextBlock Text="服务器名称" 
+                               FontSize="14" 
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}"
+                             Margin="0,0,0,24"/>
+
+                    <!-- 安装路径（SteamCMD模式） -->
+                    <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=steamcmd}">
+                        <TextBlock Text="安装路径" 
+                                   FontSize="14" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding InstallPath, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBox}"/>
+                            <Button Grid.Column="1"
+                                    Content="📁 浏览"
+                                    Command="{Binding BrowseInstallPathCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="12,0,0,0"
+                                    Padding="16,10"/>
+                        </Grid>
+                        <TextBlock Text="服务器文件将下载到此目录" 
+                                   FontSize="12" 
+                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   Margin="0,0,0,24"/>
+                    </StackPanel>
+
+                    <!-- 选择现有安装（现有安装模式） -->
+                    <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=existing}">
+                        <TextBlock Text="选择现有安装" 
+                                   FontSize="14" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding DetectedInstallations}"
+                                  SelectedItem="{Binding SelectedInstallation}"
+                                  Style="{StaticResource ModernComboBox}"
+                                  Margin="0,0,0,24">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding InstallPath}" 
+                                                   FontSize="12" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- 网络配置 -->
+                    <Border Background="{StaticResource SurfaceBrush}"
+                            CornerRadius="12"
+                            Padding="24"
+                            Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="网络配置" 
+                                       FontSize="18" 
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,20"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="IP地址" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="端口" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 游戏配置 -->
+                    <Border Background="{StaticResource SurfaceBrush}"
+                            CornerRadius="12"
+                            Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="游戏配置" 
+                                       FontSize="18" 
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,20"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="16"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="初始地图" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding Map, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="2">
+                                    <TextBlock Text="最大玩家" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding MaxPlayers, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="0">
+                                    <TextBlock Text="Tick Rate" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <ComboBox SelectedValue="{Binding TickRate}"
+                                              Style="{StaticResource ModernComboBox}">
+                                        <ComboBoxItem Content="64" Tag="64"/>
+                                        <ComboBoxItem Content="128" Tag="128" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="2">
+                                    <TextBlock Text="地图组" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding MapGroup, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 步骤3：安装进度 -->
+                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=3}"
+                            VerticalAlignment="Center">
+                    <Border Background="{StaticResource PrimaryPaleBrush}"
+                            Width="140"
+                            Height="140"
+                            CornerRadius="70"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,40">
+                        <TextBlock Text="{Binding ProgressIcon}"
+                                   FontSize="72"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock Text="正在安装服务器..."
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,16"/>
+                    
+                    <TextBlock Text="{Binding InstallMessage}"
+                               FontSize="16"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,40"
+                               MaxWidth="600"/>
+
+                    <Border Background="{StaticResource SurfaceBrush}"
+                            CornerRadius="16"
+                            Padding="32"
+                            MaxWidth="600">
+                        <StackPanel>
+                            <TextBlock Text="{Binding InstallProgress, StringFormat={}{0:F1}%}"
+                                       FontSize="40"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,20"/>
+
+                            <ProgressBar Value="{Binding InstallProgress}"
+                                         Style="{StaticResource ModernProgressBar}"
+                                         Height="14"
+                                         Maximum="100"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- 底部按钮 -->
+        <Grid Grid.Row="2" Margin="0,32,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Content="← 取消"
+                    Command="{Binding CancelCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    HorizontalAlignment="Left"
+                    Padding="24,14"
+                    Width="140"
+                    FontSize="15"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="← 上一步"
+                        Command="{Binding BackToStepOneCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Padding="24,14"
+                        Width="140"
+                        FontSize="15"
+                        Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
+
+                <Button Content="✅ 开始安装 →"
+                        Command="{Binding StartInstallCommand}"
+                        Style="{StaticResource SuccessButtonStyle}"
+                        Padding="24,14"
+                        Width="160"
+                        FontSize="15"
+                        Margin="16,0,0,0"
+                        Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
+

@@ -19,6 +19,7 @@
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter"/>
             <converters:ScrollBarOpacityConverter x:Key="ScrollBarOpacityConverter"/>
+            <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
