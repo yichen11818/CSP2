@@ -17,6 +17,8 @@
             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
             <converters:LogLevelToColorConverter x:Key="LogLevelToColorConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <converters:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter"/>
+            <converters:ScrollBarOpacityConverter x:Key="ScrollBarOpacityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
