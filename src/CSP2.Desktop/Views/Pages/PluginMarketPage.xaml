@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:PluginMarketViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
@@ -23,11 +24,11 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
-                <TextBlock Text="🧩 插件市场" 
+                <TextBlock Text="{converters:Localization PluginMarket.Title}" 
                            FontSize="32" 
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                <TextBlock Text="浏览和安装 CS2 服务器插件，增强服务器功能" 
+                <TextBlock Text="{converters:Localization PluginMarket.Subtitle}" 
                            FontSize="14" 
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Margin="0,8,0,0"/>
@@ -37,7 +38,7 @@
                     Content="🔄"
                     Command="{Binding RefreshCommand}"
                     Style="{StaticResource IconButtonStyle}"
-                    ToolTip="刷新插件列表"
+                    ToolTip="{converters:Localization Common.Refresh}"
                     Width="40"
                     Height="40"
                     FontSize="16"
@@ -62,7 +63,7 @@
 
                 <!-- 服务器选择 -->
                 <TextBlock Grid.Column="0"
-                           Text="目标服务器"
+                           Text="{converters:Localization PluginMarket.TargetServer}"
                            VerticalAlignment="Center"
                            FontSize="14"
                            FontWeight="SemiBold"
@@ -119,7 +120,7 @@
 
                 <!-- 分类筛选 -->
                 <TextBlock Grid.Column="5"
-                           Text="分类"
+                           Text="{converters:Localization PluginMarket.Category}"
                            VerticalAlignment="Center"
                            FontSize="14"
                            FontWeight="SemiBold"
@@ -243,7 +244,7 @@
                                                        FontSize="11"
                                                        Margin="0,0,4,0"
                                                        VerticalAlignment="Center"/>
-                                            <TextBlock Text="推荐"
+                                            <TextBlock Text="{converters:Localization PluginMarket.Featured}"
                                                        FontSize="11"
                                                        FontWeight="SemiBold"
                                                        Foreground="{StaticResource WarningDarkBrush}"
@@ -254,7 +255,7 @@
 
                                 <!-- 安装按钮 -->
                                 <Button Grid.Row="4"
-                                        Content="📥 安装插件"
+                                        Content="{converters:Localization PluginMarket.Install}"
                                         Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource PrimaryButtonStyle}"
@@ -284,13 +285,13 @@
                                VerticalAlignment="Center"
                                Opacity="0.6"/>
                 </Border>
-                <TextBlock Text="没有找到插件" 
+                <TextBlock Text="{converters:Localization PluginMarket.NoPlugins}" 
                            FontSize="24" 
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,24,0,0"/>
-                <TextBlock Text="尝试调整搜索条件或分类，或者稍后再试" 
+                <TextBlock Text="{converters:Localization PluginMarket.NoPluginsHint}" 
                            FontSize="14" 
                            Foreground="{StaticResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"

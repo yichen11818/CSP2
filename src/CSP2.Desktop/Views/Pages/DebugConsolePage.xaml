@@ -31,7 +31,7 @@
 
                 <!-- 过滤器 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="🔍 Debug控制台" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="{converters:Localization DebugConsole.Title}" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
                     
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
                     
@@ -44,17 +44,17 @@
                     
                     <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
                              Width="200" VerticalAlignment="Center"
-                             ToolTip="过滤日志内容"/>
+                             ToolTip="{converters:Localization DebugConsole.FilterTooltip}"/>
                 </StackPanel>
 
                 <!-- 操作按钮 -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <CheckBox Content="自动滚动" IsChecked="{Binding AutoScroll}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="{converters:Localization DebugConsole.AutoScroll}" IsChecked="{Binding AutoScroll}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     
-                    <Button Content="📤 导出" Command="{Binding ExportLogsCommand}" 
-                            Padding="10,5" ToolTip="导出日志到桌面" Margin="0,0,10,0"/>
-                    <Button Content="🗑️ 清空" Command="{Binding ClearLogsCommand}" 
-                            Padding="10,5" ToolTip="清空所有日志"/>
+                    <Button Content="{converters:Localization DebugConsole.Export}" Command="{Binding ExportLogsCommand}" 
+                            Padding="10,5" ToolTip="{converters:Localization DebugConsole.ExportTooltip}" Margin="0,0,10,0"/>
+                    <Button Content="{converters:Localization DebugConsole.Clear}" Command="{Binding ClearLogsCommand}" 
+                            Padding="10,5" ToolTip="{converters:Localization DebugConsole.ClearTooltip}"/>
                 </StackPanel>
             </Grid>
         </Border>
