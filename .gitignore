@@ -1,0 +1,96 @@
+# CSP2 .gitignore
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build Results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+.nuget/
+
+## Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Runtime Data (应用程序生成的数据)
+data/servers.json
+data/settings.json
+data/plugins-cache.json
+data/logs/
+
+## Temporary files
+*.tmp
+*.temp
+*.log
+
+## OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Backup files
+*.bak
+*.backup
+*~
+
+## Third-party providers (用户安装的Provider DLL)
+providers/*.dll
+!providers/.gitkeep
+
+## SteamCMD (如果集成)
+steamcmd/
+
+## CS2 Server Files (如果下载)
+servers/
+
+## Docs
+docs/

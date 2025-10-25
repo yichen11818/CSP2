@@ -1,0 +1,4 @@
+# 此目录用于存放运行时数据
+# 如：servers.json, settings.json, plugins-cache.json
+# 这些文件会在程序首次运行时自动创建
+
