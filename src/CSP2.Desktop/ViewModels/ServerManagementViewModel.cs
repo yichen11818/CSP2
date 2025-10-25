@@ -34,15 +34,6 @@ public partial class ServerManagementViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasError;
 
-    [ObservableProperty]
-    private bool _isInstallingServer = false;
-
-    [ObservableProperty]
-    private double _serverInstallProgress = 0;
-
-    [ObservableProperty]
-    private string _serverInstallMessage = string.Empty;
-
     public ServerManagementViewModel(
         IServerManager serverManager,
         ISteamCmdService steamCmdService,
@@ -505,211 +496,47 @@ public partial class ServerManagementViewModel : ObservableObject
     /// 使用安装向导安装服务器命令
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanInstallServer))]
-    private async Task InstallServerAsync()
+    private void InstallServer()
     {
-        DebugLogger.Info("InstallServerAsync", "开始安装服务器流程");
+        DebugLogger.Info("InstallServer", "导航到安装页面");
         _logger.LogInformation("开始安装服务器流程");
         
         try
         {
-            // 显示安装对话框
-            var dialog = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            // 获取MainWindow的ViewModel并导航到安装页面
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow?.DataContext is MainWindowViewModel mainViewModel)
             {
-                var dlg = new Views.Dialogs.ServerInstallDialog(_pathDetector, 
-                    Microsoft.Extensions.Logging.LoggerFactory.Create(builder => {}).CreateLogger<Views.Dialogs.ServerInstallDialog>())
-                {
-                    Owner = System.Windows.Application.Current.MainWindow
-                };
-                return dlg;
-            });
-
-            var dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
-                dialog.ShowDialog());
-
-            if (dialogResult != true || dialog.Result == null)
-            {
-                DebugLogger.Info("InstallServerAsync", "用户取消安装");
-                return;
-            }
-
-            var result = dialog.Result;
-            
-            // 根据安装模式执行不同的操作
-            if (result.Mode == Views.Dialogs.ServerInstallMode.SteamCmd)
-            {
-                await InstallServerWithSteamCmdAsync(result.ServerName, result.InstallPath, result.Config);
+                mainViewModel.NavigateToServerInstall(
+                    onComplete: server =>
+                    {
+                        // 安装完成后添加到列表
+                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            Servers.Add(server);
+                            ShowSuccess($"服务器 '{server.Name}' 安装成功！");
+                        });
+                    },
+                    onCancel: () =>
+                    {
+                        DebugLogger.Info("InstallServer", "用户取消安装");
+                    });
             }
             else
             {
-                await AddExistingServerAsync(result.ServerName, result.InstallPath, result.Config, result.Mode);
+                _logger.LogError("无法获取MainWindowViewModel");
+                ShowError("无法打开安装页面");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "安装服务器失败");
-            DebugLogger.Error("InstallServerAsync", "安装服务器异常", ex);
-            ShowError($"安装服务器失败：{ex.Message}");
+            _logger.LogError(ex, "打开安装页面失败");
+            DebugLogger.Error("InstallServer", "打开安装页面异常", ex);
+            ShowError($"打开安装页面失败：{ex.Message}");
         }
     }
 
-    /// <summary>
-    /// 使用SteamCMD下载服务器
-    /// </summary>
-    private async Task InstallServerWithSteamCmdAsync(string serverName, string installPath, ServerConfig config)
-    {
-        DebugLogger.Info("InstallServerWithSteamCmdAsync", "开始使用SteamCMD安装服务器");
-        
-        // 检查 SteamCMD 是否已安装
-        DebugLogger.Debug("InstallServerWithSteamCmdAsync", "检查 SteamCMD 是否已安装");
-        if (!await _steamCmdService.IsSteamCmdInstalledAsync())
-        {
-            DebugLogger.Warning("InstallServerWithSteamCmdAsync", "SteamCMD 未安装，提示用户安装");
-            
-            var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                System.Windows.MessageBox.Show(
-                    "SteamCMD 未安装。是否现在安装？\n\n" +
-                    "SteamCMD 是下载和管理 CS2 服务器文件所必需的工具。",
-                    "需要 SteamCMD",
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Question));
-
-            if (result == System.Windows.MessageBoxResult.No)
-            {
-                DebugLogger.Info("InstallServerWithSteamCmdAsync", "用户取消安装 SteamCMD");
-                ShowError("未安装SteamCMD，操作已取消。");
-                return;
-            }
-            
-            // 安装 SteamCMD
-            _logger.LogInformation("开始安装 SteamCMD");
-            ServerInstallProgress = 0;
-            ServerInstallMessage = "正在安装 SteamCMD...";
-
-            var downloadProgress = new Progress<DownloadProgress>(p =>
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    ServerInstallProgress = p.Percentage * 0.3;
-                    ServerInstallMessage = p.Message;
-                });
-            });
-
-            var steamCmdPath = _steamCmdService.GetSteamCmdPath();
-            
-            if (!await _steamCmdService.InstallSteamCmdAsync(steamCmdPath, downloadProgress))
-            {
-                DebugLogger.Error("InstallServerWithSteamCmdAsync", "SteamCMD 安装失败");
-                ShowError("SteamCMD 安装失败，请查看日志了解详情。");
-                return;
-            }
-        }
-
-        // 下载CS2服务器文件
-        IsInstallingServer = true;
-        
-        _logger.LogInformation("开始下载 CS2 服务器文件到: {Path}", installPath);
-        ServerInstallProgress = 30;
-        ServerInstallMessage = "正在下载 CS2 服务器文件（约30GB）...";
-
-        var installProgress = new Progress<InstallProgress>(p =>
-        {
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                ServerInstallProgress = 30 + (p.Percentage * 0.7);
-                ServerInstallMessage = p.Message;
-            });
-        });
-
-        try
-        {
-            var success = await _steamCmdService.InstallOrUpdateServerAsync(installPath, false, installProgress);
-
-            if (success)
-            {
-                _logger.LogInformation("CS2 服务器下载成功，正在添加到列表");
-                ServerInstallMessage = "正在添加服务器到列表...";
-                
-                var server = await _serverManager.AddServerAsync(serverName, installPath, config);
-                
-                // 标记为通过SteamCMD安装且由CSP2管理
-                server.InstallSource = ServerInstallSource.SteamCmd;
-                server.IsManagedByCSP2 = true;
-                await _serverManager.UpdateServerAsync(server);
-                
-                Servers.Add(server);
-
-                ServerInstallProgress = 100;
-                ServerInstallMessage = "✅ 服务器安装完成！";
-                ShowSuccess($"服务器 '{serverName}' 安装成功！");
-
-                await Task.Delay(3000);
-            }
-            else
-            {
-                DebugLogger.Error("InstallServerWithSteamCmdAsync", "CS2 服务器下载失败");
-                ShowError("CS2 服务器下载失败，请查看日志了解详情。");
-            }
-        }
-        finally
-        {
-            IsInstallingServer = false;
-        }
-    }
-
-    /// <summary>
-    /// 添加现有的CS2安装作为服务器
-    /// </summary>
-    private async Task AddExistingServerAsync(string serverName, string existingPath, ServerConfig config, Views.Dialogs.ServerInstallMode mode)
-    {
-        DebugLogger.Info("AddExistingServerAsync", $"添加现有安装: {existingPath}");
-        _logger.LogInformation("使用现有CS2安装: {Path}", existingPath);
-
-        IsInstallingServer = true;
-        ServerInstallProgress = 50;
-        ServerInstallMessage = "正在验证CS2安装...";
-
-        try
-        {
-            ServerInstallProgress = 80;
-            ServerInstallMessage = "正在添加服务器到列表...";
-
-            var server = await _serverManager.AddServerAsync(serverName, existingPath, config);
-            
-            // 根据模式设置安装来源
-            if (mode == Views.Dialogs.ServerInstallMode.ExistingSteam)
-            {
-                server.InstallSource = ServerInstallSource.ExistingSteam;
-                server.IsManagedByCSP2 = false;  // Steam安装不由CSP2管理
-            }
-            else
-            {
-                server.InstallSource = ServerInstallSource.ExistingLocal;
-                server.IsManagedByCSP2 = false;  // 现有本地安装不由CSP2管理
-            }
-            
-            await _serverManager.UpdateServerAsync(server);
-            Servers.Add(server);
-
-            ServerInstallProgress = 100;
-            ServerInstallMessage = "✅ 服务器添加完成！";
-            DebugLogger.Info("AddExistingServerAsync", $"服务器添加成功: {server.Id}");
-            ShowSuccess($"服务器 '{serverName}' 添加成功！");
-
-            await Task.Delay(3000);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "添加现有服务器失败");
-            DebugLogger.Error("AddExistingServerAsync", "添加失败", ex);
-            ShowError($"添加服务器失败：{ex.Message}");
-        }
-        finally
-        {
-            IsInstallingServer = false;
-        }
-    }
-
-    private bool CanInstallServer() => !IsInstallingServer && !IsLoading;
+    private bool CanInstallServer() => !IsLoading;
 
     /// <summary>
     /// 查看服务器日志命令

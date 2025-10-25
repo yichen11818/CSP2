@@ -110,6 +110,42 @@ public partial class MainWindowViewModel : ObservableObject
         StatusText = "服务器管理";
     }
 
+    /// <summary>
+    /// 导航到服务器安装页面
+    /// </summary>
+    public void NavigateToServerInstall(Action<Core.Models.Server>? onComplete = null, Action? onCancel = null)
+    {
+        // 直接从ServiceProvider获取Logger
+        var logger = _serviceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ServerInstallPageViewModel>>();
+        
+        // 创建安装页面ViewModel
+        var viewModel = new ServerInstallPageViewModel(
+            _serviceProvider.GetRequiredService<IServerManager>(),
+            _serviceProvider.GetRequiredService<ISteamCmdService>(),
+            _serviceProvider.GetRequiredService<Core.Services.CS2PathDetector>(),
+            logger,
+            onInstallComplete: server =>
+            {
+                onComplete?.Invoke(server);
+                NavigateToServerManagement();
+            },
+            onCancel: () =>
+            {
+                onCancel?.Invoke();
+                NavigateToServerManagement();
+            });
+
+        // 创建页面并设置DataContext
+        var page = new Views.Pages.ServerInstallPage
+        {
+            DataContext = viewModel
+        };
+
+        CurrentPage = page;
+        SelectedMenuItem = "";
+        StatusText = "安装服务器";
+    }
+
     [RelayCommand]
     private void NavigateToLogConsole()
     {
