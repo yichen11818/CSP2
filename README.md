@@ -10,20 +10,20 @@
 
 ---
 
-## 📖 简介
+##  简介
 
 CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感来源于 Minecraft 的 PCL2 启动器。它提供了直观的图形界面，让服务器管理、插件安装、日志查看等操作变得简单快捷。
 
-### ✨ 核心特性
+###  核心特性
 
-- 🚀 **一键启动**: 快速启动和管理 CS2 专用服务器
-- 📊 **实时监控**: 实时查看服务器日志和状态
-- 🔌 **插件管理**: 浏览、安装、更新插件，支持多种框架
-- 🎯 **多服务器**: 同时管理多个服务器实例
-- 🔧 **可扩展**: 基于 Provider 机制，社区可贡献新功能
-- 🎨 **现代UI**: 简洁美观的用户界面
+-  **一键启动**: 快速启动和管理 CS2 专用服务器
+-  **实时监控**: 实时查看服务器日志和状态
+-  **插件管理**: 浏览、安装、更新插件，支持多种框架
+-  **多服务器**: 同时管理多个服务器实例
+-  **可扩展**: 基于 Provider 机制，社区可贡献新功能
+-  **现代UI**: 简洁美观的用户界面
 
-### 🎯 适用人群
+###  适用人群
 
 - CS2 社区服务器管理员
 - 服务器运营者
@@ -32,13 +32,9 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 ---
 
-## 🖼️ 预览
+##  预览
 
-> 注：项目仍在开发中，界面可能会有变化
-
-```
-即将添加截图...
-```
+> 项目仍在开发中
 
 ---
 
@@ -62,20 +58,6 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 #### 方式二：从源码编译
 
-**快速方式（Windows）**：
-
-根目录提供了便捷的启动脚本：
-
-```bash
-# 方式1：主菜单（推荐）
-双击 start.bat
-
-# 方式2：快速启动Debug模式
-双击 run-debug.bat
-
-# 方式3：快速启动正常模式
-双击 run-release.bat
-```
 
 **手动编译**：
 
@@ -95,17 +77,10 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 ./CSP2.Desktop.exe
 ```
 
-**可用的BAT脚本**：
-- `start.bat` - 主菜单（推荐使用）
-- `run-debug.bat` - 编译并启动Debug模式
-- `run-release.bat` - 编译并启动正常模式
-- `build.bat` - 仅编译项目
-- `clean.bat` - 清理编译输出
-- `rebuild-debug.bat` - 完全重新编译并启动Debug
 
 ---
 
-## 📚 使用指南
+##  使用指南
 
 ### 基本流程
 
@@ -127,9 +102,9 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 
 ### 详细文档
 
-- 📖 [用户手册](docs/用户手册.md)（即将添加）
-- 🔧 [开发者文档](docs/01-技术设计文档.md)
-- 🎓 [WPF 快速入门](docs/04-WPF快速入门.md)
+-  [用户手册](docs/用户手册.md)（即将添加）
+-  [开发者文档](docs/01-技术设计文档.md)
+-  [WPF 快速入门](docs/04-WPF快速入门.md)
 
 ---
 
@@ -170,7 +145,7 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 
 ---
 
-## 📦 项目结构
+##  项目结构
 
 ```
 csp2/
@@ -187,7 +162,7 @@ csp2/
 
 ---
 
-## 🛠️ 技术栈
+##  技术栈
 
 - **前端**: WPF (.NET 8.0)
 - **架构**: MVVM (CommunityToolkit.Mvvm)
@@ -200,19 +175,15 @@ csp2/
 
 ---
 
-## ❓ 常见问题
+##  常见问题
 
 ### Q: 支持哪些操作系统？
 A: 当前版本仅支持 Windows。Linux 支持将在 v2.0 版本中提供。
 
-### Q: 是否需要购买 CS2？
-A: 需要。CSP2 是管理工具，不提供游戏文件。您需要通过 Steam 拥有 CS2。
 
-### Q: 如何添加新的插件框架支持？
-A: 实现 `IFrameworkProvider` 接口，编译成 DLL，放入 `providers/` 目录即可。详见[开发文档](docs/05-Provider开发指南.md)（即将添加）。
 
 ### Q: 插件数据从哪里来？
-A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugins)（计划中）获取，社区可以通过 PR 提交新插件。
+A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugins)（计划中）
 
 ---
 
@@ -236,13 +207,6 @@ furnished to do so, subject to the following conditions:
 
 ---
 
-## 🙏 鸣谢
-
-- 感谢 [PCL2](https://github.com/Hex-Dragon/PCL2) 的设计灵感
-- 感谢 [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) 框架
-- 感谢所有贡献者和社区支持者
-
----
 
 ## 📧 联系方式
 

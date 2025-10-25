@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:DownloadManagerViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
@@ -22,18 +23,18 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
-                <TextBlock Text="📥 下载管理" 
+                <TextBlock Text="{converters:Localization Download.Title}" 
                            FontSize="32" 
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"/>
-                <TextBlock Text="管理所有下载任务，包括服务器文件、插件和更新" 
+                <TextBlock Text="{converters:Localization Download.Subtitle}" 
                            FontSize="14" 
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Margin="0,8,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                <Button Content="🗑️ 清空已完成"
+                <Button Content="{converters:Localization Download.ClearCompleted}"
                         Command="{Binding ClearCompletedCommand}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Padding="16,10"/>
@@ -128,30 +129,26 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock FontSize="13" FontWeight="SemiBold">
+                                        <TextBlock Text="{Binding StatusText}" 
+                                                   FontSize="13" 
+                                                   FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="⏳ 等待中"/>
                                                     <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Status}" Value="Downloading">
-                                                            <Setter Property="Text" Value="⬇️ 下载中"/>
                                                             <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Completed">
-                                                            <Setter Property="Text" Value="✅ 完成"/>
                                                             <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Failed">
-                                                            <Setter Property="Text" Value="❌ 失败"/>
                                                             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Paused">
-                                                            <Setter Property="Text" Value="⏸️ 暂停"/>
                                                             <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                            <Setter Property="Text" Value="🚫 已取消"/>
                                                             <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
@@ -190,15 +187,17 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0"
-                                               FontSize="12"
-                                               Foreground="{StaticResource TextTertiaryBrush}">
-                                        <Run Text="创建时间: "/>
-                                        <Run Text="{Binding CreatedTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
-                                    </TextBlock>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="{converters:Localization Download.CreatedTime}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource TextTertiaryBrush}"/>
+                                        <TextBlock Text="{Binding CreatedTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource TextTertiaryBrush}"/>
+                                    </StackPanel>
 
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                        <Button Content="❌ 取消"
+                                        <Button Content="{converters:Localization Download.Cancel}"
                                                 Command="{Binding DataContext.CancelTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Padding="12,6"
@@ -221,7 +220,7 @@
                                             </Button.Style>
                                         </Button>
 
-                                        <Button Content="🗑️ 移除"
+                                        <Button Content="{converters:Localization Download.Remove}"
                                                 Command="{Binding DataContext.RemoveTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SecondaryButtonStyle}"
@@ -252,13 +251,13 @@
                                VerticalAlignment="Center"
                                Opacity="0.6"/>
                 </Border>
-                <TextBlock Text="暂无下载任务" 
+                <TextBlock Text="{converters:Localization Download.NoTasks}" 
                            FontSize="24" 
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,24,0,0"/>
-                <TextBlock Text="当你开始下载服务器文件、插件或更新时，这里会显示下载进度" 
+                <TextBlock Text="{converters:Localization Download.NoTasksHint}" 
                            FontSize="14" 
                            Foreground="{StaticResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"
