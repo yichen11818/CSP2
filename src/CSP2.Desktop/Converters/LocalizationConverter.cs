@@ -6,6 +6,7 @@ namespace CSP2.Desktop.Converters;
 
 /// <summary>
 /// 本地化转换器 - 用于XAML中的动态本地化
+/// 注意：推荐使用 LocalizationHelper 进行XAML绑定
 /// </summary>
 public class LocalizationConverter : IValueConverter
 {
@@ -16,8 +17,8 @@ public class LocalizationConverter : IValueConverter
 
         try
         {
-            var localizedValue = Resources.Strings.ResourceManager.GetString(key, Resources.Strings.Culture);
-            return localizedValue ?? $"[{key}]";
+            // 使用 LocalizationHelper 访问 JSON 资源
+            return Helpers.LocalizationHelper.Instance[key];
         }
         catch
         {
@@ -33,6 +34,7 @@ public class LocalizationConverter : IValueConverter
 
 /// <summary>
 /// 本地化扩展 - 简化XAML中的使用
+/// 注意：推荐使用 LocalizationHelper 进行XAML绑定
 /// </summary>
 public class LocalizationExtension : System.Windows.Markup.MarkupExtension
 {
@@ -47,8 +49,8 @@ public class LocalizationExtension : System.Windows.Markup.MarkupExtension
     {
         try
         {
-            var localizedValue = Resources.Strings.ResourceManager.GetString(Key, Resources.Strings.Culture);
-            return localizedValue ?? $"[{Key}]";
+            // 使用 LocalizationHelper 访问 JSON 资源
+            return Helpers.LocalizationHelper.Instance[Key];
         }
         catch
         {

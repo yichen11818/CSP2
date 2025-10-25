@@ -10,6 +10,7 @@ namespace CSP2.Desktop.Helpers;
 public class LocalizationHelper : INotifyPropertyChanged
 {
     private static LocalizationHelper? _instance;
+    private Services.JsonLocalizationService? _localizationService;
     
     public static LocalizationHelper Instance
     {
@@ -32,8 +33,9 @@ public class LocalizationHelper : INotifyPropertyChanged
     /// <summary>
     /// 初始化本地化助手（从主窗口调用）
     /// </summary>
-    public void Initialize(Services.LocalizationService localizationService)
+    public void Initialize(Services.JsonLocalizationService localizationService)
     {
+        _localizationService = localizationService;
         localizationService.LanguageChanged += (s, e) =>
         {
             // 当语言改变时，通知所有属性更新
@@ -44,122 +46,123 @@ public class LocalizationHelper : INotifyPropertyChanged
         };
     }
 
+    /// <summary>
+    /// 获取本地化字符串
+    /// </summary>
+    private string GetString(string key, params object[] args)
+    {
+        if (_localizationService == null)
+        {
+            return $"[{key}]";
+        }
+        return _localizationService.GetString(key, args);
+    }
+
     // 资源访问属性
     public string this[string key]
     {
-        get
-        {
-            try
-            {
-                var value = Resources.Strings.ResourceManager.GetString(key, Resources.Strings.Culture);
-                return value ?? $"[{key}]";
-            }
-            catch
-            {
-                return $"[{key}]";
-            }
-        }
+        get => GetString(key);
     }
 
     // 应用程序标题
-    public string App_Title => this["App_Title"];
-    public string App_Name => this["App_Name"];
-    public string App_Description => this["App_Description"];
-    public string App_Version => this["App_Version"];
-    public string App_DevVersion => this["App_DevVersion"];
+    public string App_Title => GetString("App.Title");
+    public string App_Name => GetString("App.Name");
+    public string App_Description => GetString("App.Description");
+    public string App_Version => GetString("App.Version");
+    public string App_DevVersion => GetString("App.DevVersion");
 
     // 导航菜单
-    public string Nav_ServerManagement => this["Nav_ServerManagement"];
-    public string Nav_LogConsole => this["Nav_LogConsole"];
-    public string Nav_PluginMarket => this["Nav_PluginMarket"];
-    public string Nav_DownloadManager => this["Nav_DownloadManager"];
-    public string Nav_Settings => this["Nav_Settings"];
-    public string Nav_DebugConsole => this["Nav_DebugConsole"];
+    public string Nav_ServerManagement => GetString("Nav.ServerManagement");
+    public string Nav_LogConsole => GetString("Nav.LogConsole");
+    public string Nav_PluginMarket => GetString("Nav.PluginMarket");
+    public string Nav_DownloadManager => GetString("Nav.DownloadManager");
+    public string Nav_Settings => GetString("Nav.Settings");
+    public string Nav_DebugConsole => GetString("Nav.DebugConsole");
 
     // 状态
-    public string Status_Ready => this["Status_Ready"];
-    public string Status_ReadyText => this["Status_ReadyText"];
+    public string Status_Ready => GetString("Status.Ready");
+    public string Status_ReadyText => GetString("Status.ReadyText");
 
     // 服务器管理
-    public string ServerMgmt_Title => this["ServerMgmt_Title"];
-    public string ServerMgmt_Subtitle => this["ServerMgmt_Subtitle"];
-    public string ServerMgmt_InstallServer => this["ServerMgmt_InstallServer"];
-    public string ServerMgmt_AddServer => this["ServerMgmt_AddServer"];
-    public string ServerMgmt_Refresh => this["ServerMgmt_Refresh"];
-    public string ServerMgmt_Port => this["ServerMgmt_Port"];
-    public string ServerMgmt_Map => this["ServerMgmt_Map"];
-    public string ServerMgmt_MaxPlayers => this["ServerMgmt_MaxPlayers"];
-    public string ServerMgmt_TickRate => this["ServerMgmt_TickRate"];
-    public string ServerMgmt_Start => this["ServerMgmt_Start"];
-    public string ServerMgmt_Stop => this["ServerMgmt_Stop"];
-    public string ServerMgmt_Restart => this["ServerMgmt_Restart"];
-    public string ServerMgmt_ViewLog => this["ServerMgmt_ViewLog"];
-    public string ServerMgmt_Settings => this["ServerMgmt_Settings"];
-    public string ServerMgmt_Uninstall => this["ServerMgmt_Uninstall"];
-    public string ServerMgmt_Delete => this["ServerMgmt_Delete"];
-    public string ServerMgmt_NoServers => this["ServerMgmt_NoServers"];
-    public string ServerMgmt_NoServersHint => this["ServerMgmt_NoServersHint"];
+    public string ServerMgmt_Title => GetString("ServerMgmt.Title");
+    public string ServerMgmt_Subtitle => GetString("ServerMgmt.Subtitle");
+    public string ServerMgmt_InstallServer => GetString("ServerMgmt.InstallServer");
+    public string ServerMgmt_AddServer => GetString("ServerMgmt.AddServer");
+    public string ServerMgmt_Refresh => GetString("ServerMgmt.Refresh");
+    public string ServerMgmt_Port => GetString("ServerMgmt.Port");
+    public string ServerMgmt_Map => GetString("ServerMgmt.Map");
+    public string ServerMgmt_MaxPlayers => GetString("ServerMgmt.MaxPlayers");
+    public string ServerMgmt_TickRate => GetString("ServerMgmt.TickRate");
+    public string ServerMgmt_Start => GetString("ServerMgmt.Start");
+    public string ServerMgmt_Stop => GetString("ServerMgmt.Stop");
+    public string ServerMgmt_Restart => GetString("ServerMgmt.Restart");
+    public string ServerMgmt_ViewLog => GetString("ServerMgmt.ViewLog");
+    public string ServerMgmt_Settings => GetString("ServerMgmt.Settings");
+    public string ServerMgmt_Uninstall => GetString("ServerMgmt.Uninstall");
+    public string ServerMgmt_Delete => GetString("ServerMgmt.Delete");
+    public string ServerMgmt_NoServers => GetString("ServerMgmt.NoServers");
+    public string ServerMgmt_NoServersHint => GetString("ServerMgmt.NoServersHint");
 
     // 插件市场
-    public string PluginMarket_Title => this["PluginMarket_Title"];
-    public string PluginMarket_Subtitle => this["PluginMarket_Subtitle"];
-    public string PluginMarket_TargetServer => this["PluginMarket_TargetServer"];
-    public string PluginMarket_Category => this["PluginMarket_Category"];
-    public string PluginMarket_Install => this["PluginMarket_Install"];
-    public string PluginMarket_Featured => this["PluginMarket_Featured"];
-    public string PluginMarket_NoPlugins => this["PluginMarket_NoPlugins"];
-    public string PluginMarket_NoPluginsHint => this["PluginMarket_NoPluginsHint"];
-    public string PluginMarket_Loading => this["PluginMarket_Loading"];
-    public string PluginMarket_PleaseWait => this["PluginMarket_PleaseWait"];
+    public string PluginMarket_Title => GetString("PluginMarket.Title");
+    public string PluginMarket_Subtitle => GetString("PluginMarket.Subtitle");
+    public string PluginMarket_TargetServer => GetString("PluginMarket.TargetServer");
+    public string PluginMarket_Category => GetString("PluginMarket.Category");
+    public string PluginMarket_Install => GetString("PluginMarket.Install");
+    public string PluginMarket_Featured => GetString("PluginMarket.Featured");
+    public string PluginMarket_NoPlugins => GetString("PluginMarket.NoPlugins");
+    public string PluginMarket_NoPluginsHint => GetString("PluginMarket.NoPluginsHint");
+    public string PluginMarket_Loading => GetString("PluginMarket.Loading");
+    public string PluginMarket_PleaseWait => GetString("PluginMarket.PleaseWait");
 
     // 设置
-    public string Settings_Title => this["Settings_Title"];
-    public string Settings_Subtitle => this["Settings_Subtitle"];
-    public string Settings_Appearance => this["Settings_Appearance"];
-    public string Settings_AppearanceDesc => this["Settings_AppearanceDesc"];
-    public string Settings_Theme => this["Settings_Theme"];
-    public string Settings_ThemeDesc => this["Settings_ThemeDesc"];
-    public string Settings_Language => this["Settings_Language"];
-    public string Settings_LanguageDesc => this["Settings_LanguageDesc"];
-    public string Settings_Update => this["Settings_Update"];
-    public string Settings_UpdateDesc => this["Settings_UpdateDesc"];
-    public string Settings_AutoCheckUpdates => this["Settings_AutoCheckUpdates"];
-    public string Settings_AutoCheckUpdatesDesc => this["Settings_AutoCheckUpdatesDesc"];
-    public string Settings_SteamCmd => this["Settings_SteamCmd"];
-    public string Settings_SteamCmdDesc => this["Settings_SteamCmdDesc"];
-    public string Settings_Status => this["Settings_Status"];
-    public string Settings_CheckStatus => this["Settings_CheckStatus"];
-    public string Settings_InstallSteamCmd => this["Settings_InstallSteamCmd"];
-    public string Settings_UninstallSteamCmd => this["Settings_UninstallSteamCmd"];
-    public string Settings_InstallPath => this["Settings_InstallPath"];
-    public string Settings_InstallPathDesc => this["Settings_InstallPathDesc"];
-    public string Settings_Browse => this["Settings_Browse"];
-    public string Settings_AutoDownloadSteamCmd => this["Settings_AutoDownloadSteamCmd"];
-    public string Settings_AutoDownloadSteamCmdDesc => this["Settings_AutoDownloadSteamCmdDesc"];
-    public string Settings_RestoreDefaults => this["Settings_RestoreDefaults"];
-    public string Settings_Save => this["Settings_Save"];
+    public string Settings_Title => GetString("Settings.Title");
+    public string Settings_Subtitle => GetString("Settings.Subtitle");
+    public string Settings_Appearance => GetString("Settings.Appearance");
+    public string Settings_AppearanceDesc => GetString("Settings.AppearanceDesc");
+    public string Settings_Theme => GetString("Settings.Theme");
+    public string Settings_ThemeDesc => GetString("Settings.ThemeDesc");
+    public string Settings_Language => GetString("Settings.Language");
+    public string Settings_LanguageDesc => GetString("Settings.LanguageDesc");
+    public string Settings_Update => GetString("Settings.Update");
+    public string Settings_UpdateDesc => GetString("Settings.UpdateDesc");
+    public string Settings_AutoCheckUpdates => GetString("Settings.AutoCheckUpdates");
+    public string Settings_AutoCheckUpdatesDesc => GetString("Settings.AutoCheckUpdatesDesc");
+    public string Settings_SteamCmd => GetString("Settings.SteamCmd");
+    public string Settings_SteamCmdDesc => GetString("Settings.SteamCmdDesc");
+    public string Settings_Status => GetString("Settings.Status");
+    public string Settings_CheckStatus => GetString("Settings.CheckStatus");
+    public string Settings_InstallSteamCmd => GetString("Settings.InstallSteamCmd");
+    public string Settings_UninstallSteamCmd => GetString("Settings.UninstallSteamCmd");
+    public string Settings_InstallPath => GetString("Settings.InstallPath");
+    public string Settings_InstallPathDesc => GetString("Settings.InstallPathDesc");
+    public string Settings_Browse => GetString("Settings.Browse");
+    public string Settings_AutoDownloadSteamCmd => GetString("Settings.AutoDownloadSteamCmd");
+    public string Settings_AutoDownloadSteamCmdDesc => GetString("Settings.AutoDownloadSteamCmdDesc");
+    public string Settings_RestoreDefaults => GetString("Settings.RestoreDefaults");
+    public string Settings_Save => GetString("Settings.Save");
 
     // 下载管理
-    public string Download_Title => this["Download_Title"];
-    public string Download_Subtitle => this["Download_Subtitle"];
-    public string Download_NoTasks => this["Download_NoTasks"];
-    public string Download_NoTasksHint => this["Download_NoTasksHint"];
+    public string Download_Title => GetString("Download.Title");
+    public string Download_Subtitle => GetString("Download.Subtitle");
+    public string Download_NoTasks => GetString("Download.NoTasks");
+    public string Download_NoTasksHint => GetString("Download.NoTasksHint");
 
     // 日志控制台
-    public string Log_Title => this["Log_Title"];
-    public string Log_Subtitle => this["Log_Subtitle"];
-    public string Log_SelectServer => this["Log_SelectServer"];
-    public string Log_SendCommand => this["Log_SendCommand"];
-    public string Log_Clear => this["Log_Clear"];
-    public string Log_Export => this["Log_Export"];
+    public string Log_Title => GetString("Log.Title");
+    public string Log_Subtitle => GetString("Log.Subtitle");
+    public string Log_SelectServer => GetString("Log.SelectServer");
+    public string Log_SendCommand => GetString("Log.SendCommand");
+    public string Log_Clear => GetString("Log.Clear");
+    public string Log_Export => GetString("Log.Export");
 
     // Debug控制台
-    public string Debug_Title => this["Debug_Title"];
-    public string Debug_Subtitle => this["Debug_Subtitle"];
+    public string Debug_Title => GetString("Debug.Title");
+    public string Debug_Subtitle => GetString("Debug.Subtitle");
 
     // 通用
-    public string Common_OK => this["Common_OK"];
-    public string Common_Cancel => this["Common_Cancel"];
-    public string Common_Refresh => this["Common_Refresh"];
+    public string Common_OK => GetString("Common.OK");
+    public string Common_Cancel => GetString("Common.Cancel");
+    public string Common_Refresh => GetString("Common.Refresh");
 }
 
