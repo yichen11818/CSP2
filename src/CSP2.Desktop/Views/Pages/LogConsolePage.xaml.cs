@@ -6,7 +6,7 @@ namespace CSP2.Desktop.Views.Pages;
 /// <summary>
 /// LogConsolePage.xaml 的交互逻辑
 /// </summary>
-public partial class LogConsolePage : Page
+public partial class LogConsolePage : UserControl
 {
     public LogConsolePage(LogConsoleViewModel viewModel)
     {
