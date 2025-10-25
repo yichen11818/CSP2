@@ -388,7 +388,12 @@
     <value>语言切换成功！部分界面元素可能需要重启应用程序才能生效。</value>
   </data>
   <data name="Msg_FirstClosePrompt" xml:space="preserve">
-    <value>点击关闭按钮时，您希望：\n\n【是】- 最小化到系统托盘（程序继续运行）\n【否】- 完全退出程序\n\n您可以稍后在设置中修改此选项。</value>
+    <value>点击关闭按钮时，您希望：
+
+【是】- 最小化到系统托盘（程序继续运行）
+【否】- 完全退出程序
+
+您可以稍后在设置中修改此选项。</value>
   </data>
   <data name="Msg_FirstCloseTitle" xml:space="preserve">
     <value>CSP2 - 首次关闭提示</value>

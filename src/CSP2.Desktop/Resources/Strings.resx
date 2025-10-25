@@ -388,7 +388,12 @@
     <value>Language changed successfully! Some UI elements may require application restart to take effect.</value>
   </data>
   <data name="Msg_FirstClosePrompt" xml:space="preserve">
-    <value>When clicking the close button, would you like to:\n\n[Yes] - Minimize to system tray (keep program running)\n[No] - Exit program completely\n\nYou can change this option later in Settings.</value>
+    <value>When clicking the close button, would you like to:
+
+[Yes] - Minimize to system tray (keep program running)
+[No] - Exit program completely
+
+You can change this option later in Settings.</value>
   </data>
   <data name="Msg_FirstCloseTitle" xml:space="preserve">
     <value>CSP2 - First Close Prompt</value>

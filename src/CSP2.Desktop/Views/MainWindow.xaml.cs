@@ -168,6 +168,9 @@ public partial class MainWindow : Window
                     var promptTitle = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_FirstCloseTitle") 
                         ?? "CSP2 - 首次关闭提示";
                     
+                    // 确保换行符正确显示
+                    promptMessage = promptMessage.Replace("\\n", "\n");
+                    
                     var result = System.Windows.MessageBox.Show(
                         promptMessage,
                         promptTitle,
