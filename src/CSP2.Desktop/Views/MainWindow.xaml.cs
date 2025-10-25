@@ -3,6 +3,9 @@ using System.Windows.Input;
 using System.Drawing;
 using System.Windows.Forms;
 using CSP2.Desktop.ViewModels;
+using CSP2.Desktop.Services;
+using CSP2.Desktop.Helpers;
+using CSP2.Core.Abstractions;
 using System;
 
 namespace CSP2.Desktop.Views;
@@ -14,11 +17,17 @@ public partial class MainWindow : Window
 {
     private NotifyIcon? _notifyIcon;
     private bool _isRealClosing = false;
+    private readonly IConfigurationService _configurationService;
 
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow(MainWindowViewModel viewModel, LocalizationService localizationService, IConfigurationService configurationService)
     {
         InitializeComponent();
         DataContext = viewModel;
+        
+        _configurationService = configurationService;
+        
+        // 初始化本地化助手
+        LocalizationHelper.Instance.Initialize(localizationService);
         
         // 初始化系统托盘图标
         InitializeNotifyIcon();
@@ -129,23 +138,77 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// 关闭按钮点击事件 - 最小化到托盘而不是退出
+    /// 关闭按钮点击事件
     /// </summary>
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        this.WindowState = WindowState.Minimized;
+        // 触发窗口关闭事件，会执行 OnClosing 中的逻辑
+        this.Close();
     }
 
     /// <summary>
     /// 窗口关闭事件
     /// </summary>
-    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    protected override async void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
         if (!_isRealClosing)
         {
-            // 取消关闭，改为最小化到托盘
-            e.Cancel = true;
-            this.WindowState = WindowState.Minimized;
+            try
+            {
+                // 加载设置
+                var settings = await _configurationService.LoadAppSettingsAsync();
+                
+                // 如果还没有询问过用户，弹窗询问
+                if (!settings.Ui.MinimizeToTrayAsked)
+                {
+                    e.Cancel = true; // 先取消关闭
+                    
+                    var promptMessage = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_FirstClosePrompt") 
+                        ?? "点击关闭按钮时，您希望：\n\n【是】- 最小化到系统托盘（程序继续运行）\n【否】- 完全退出程序\n\n您可以稍后在设置中修改此选项。";
+                    var promptTitle = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_FirstCloseTitle") 
+                        ?? "CSP2 - 首次关闭提示";
+                    
+                    var result = System.Windows.MessageBox.Show(
+                        promptMessage,
+                        promptTitle,
+                        MessageBoxButton.YesNoCancel,
+                        MessageBoxImage.Question);
+                    
+                    if (result == MessageBoxResult.Cancel)
+                    {
+                        // 用户取消，不做任何操作
+                        return;
+                    }
+                    
+                    // 保存用户的选择
+                    settings.Ui.MinimizeToTray = (result == MessageBoxResult.Yes);
+                    settings.Ui.MinimizeToTrayAsked = true;
+                    await _configurationService.SaveAppSettingsAsync(settings);
+                    
+                    DebugLogger.Info("MainWindow", $"用户首次关闭选择: {(settings.Ui.MinimizeToTray ? "最小化到托盘" : "退出程序")}");
+                }
+                
+                // 根据设置决定行为
+                if (settings.Ui.MinimizeToTray)
+                {
+                    // 最小化到托盘
+                    e.Cancel = true;
+                    this.WindowState = WindowState.Minimized;
+                }
+                else
+                {
+                    // 退出程序
+                    _isRealClosing = true;
+                    _notifyIcon?.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error("MainWindow", $"处理关闭事件时出错: {ex.Message}", ex);
+                // 出错时默认最小化到托盘
+                e.Cancel = true;
+                this.WindowState = WindowState.Minimized;
+            }
         }
         else
         {

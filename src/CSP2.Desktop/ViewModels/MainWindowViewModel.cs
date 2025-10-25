@@ -16,13 +16,13 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IDownloadManager _downloadManager;
 
     [ObservableProperty]
-    private string _statusText = "就绪 - CSP2 v0.1.0";
+    private string _statusText = Resources.Strings.Status_ReadyText;
 
     [ObservableProperty]
     private object? _currentPage;
 
     [ObservableProperty]
-    private string _selectedMenuItem = "服务器";
+    private string _selectedMenuItem = Resources.Strings.Nav_ServerManagement;
 
     [ObservableProperty]
     private bool _isDebugMode;
@@ -83,7 +83,7 @@ public partial class MainWindowViewModel : ObservableObject
         Application.Current.Dispatcher.Invoke(() =>
         {
             UpdateDownloadStatus();
-            StatusText = $"下载完成: {e.Name}";
+            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Download_Completed") ?? "Download completed: {0}", e.Name);
         });
     }
 
@@ -92,7 +92,7 @@ public partial class MainWindowViewModel : ObservableObject
         Application.Current.Dispatcher.Invoke(() =>
         {
             UpdateDownloadStatus();
-            StatusText = $"下载失败: {e.Name}";
+            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Download_Failed") ?? "Download failed: {0}", e.Name);
         });
     }
 
@@ -105,9 +105,9 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToServerManagement()
     {
-        SelectedMenuItem = "服务器";
+        SelectedMenuItem = Resources.Strings.Nav_ServerManagement;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.ServerManagementPage>();
-        StatusText = "服务器管理";
+        StatusText = Resources.Strings.Nav_ServerManagement;
     }
 
     /// <summary>
@@ -143,48 +143,48 @@ public partial class MainWindowViewModel : ObservableObject
 
         CurrentPage = page;
         SelectedMenuItem = "";
-        StatusText = "下载服务器";
+        StatusText = "安装服务器";
     }
 
     [RelayCommand]
     private void NavigateToLogConsole()
     {
-        SelectedMenuItem = "日志";
+        SelectedMenuItem = Resources.Strings.Nav_LogConsole;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.LogConsolePage>();
-        StatusText = "日志控制台";
+        StatusText = Resources.Strings.Nav_LogConsole;
     }
 
     [RelayCommand]
     private void NavigateToPluginMarket()
     {
-        SelectedMenuItem = "插件";
+        SelectedMenuItem = Resources.Strings.Nav_PluginMarket;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.PluginMarketPage>();
-        StatusText = "插件市场";
+        StatusText = Resources.Strings.Nav_PluginMarket;
     }
 
     [RelayCommand]
     private void NavigateToSettings()
     {
-        SelectedMenuItem = "设置";
+        SelectedMenuItem = Resources.Strings.Nav_Settings;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.SettingsPage>();
-        StatusText = "设置";
+        StatusText = Resources.Strings.Nav_Settings;
     }
 
     [RelayCommand]
     private void NavigateToDebugConsole()
     {
-        SelectedMenuItem = "Debug";
+        SelectedMenuItem = Resources.Strings.Nav_DebugConsole;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.DebugConsolePage>();
-        StatusText = "Debug控制台";
+        StatusText = Resources.Strings.Nav_DebugConsole;
         DebugLogger.Info("MainWindow", "已切换到Debug控制台");
     }
 
     [RelayCommand]
     private void NavigateToDownloadManager()
     {
-        SelectedMenuItem = "下载";
+        SelectedMenuItem = Resources.Strings.Nav_DownloadManager;
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.DownloadManagerPage>();
-        StatusText = "下载管理";
+        StatusText = Resources.Strings.Nav_DownloadManager;
         DebugLogger.Info("MainWindow", "已切换到下载管理页面");
     }
 
@@ -225,11 +225,11 @@ public partial class MainWindowViewModel : ObservableObject
         if (ActiveDownloadCount == 0)
         {
             HasActiveDownloads = false;
-            StatusText = "就绪 - CSP2 v0.1.0";
+            StatusText = Resources.Strings.Status_ReadyText;
         }
         else
         {
-            StatusText = $"正在下载 {ActiveDownloadCount} 个文件...";
+            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Msg_Downloading") ?? "Downloading {0} files...", ActiveDownloadCount);
         }
     }
 }

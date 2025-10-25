@@ -5,6 +5,7 @@ using CSP2.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows;
+using CSP2.Desktop.Services;
 
 namespace CSP2.Desktop.ViewModels;
 
@@ -16,15 +17,44 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IConfigurationService _configurationService;
     private readonly ISteamCmdService _steamCmdService;
     private readonly ILogger<SettingsViewModel> _logger;
+    private readonly LocalizationService _localizationService;
 
     [ObservableProperty]
     private string _theme = "浅色";
 
     [ObservableProperty]
-    private string _language = "简体中文";
+    private LanguageDisplayInfo? _selectedLanguage;
+    
+    partial void OnSelectedLanguageChanged(LanguageDisplayInfo? value)
+    {
+        if (value != null)
+        {
+            try
+            {
+                _localizationService.ChangeLanguage(value.Code);
+                _logger.LogInformation("语言已切换到: {Language}", value.DisplayName);
+                DebugLogger.Info("Settings", $"语言切换成功: {value.DisplayName}");
+                
+                MessageBox.Show(
+                    Resources.Strings.ResourceManager.GetString("Msg_LanguageChanged") ?? "Language changed successfully. Some changes may require restart.",
+                    "CSP2",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "切换语言失败");
+                DebugLogger.Error("Settings", $"切换语言失败: {ex.Message}", ex);
+                MessageBox.Show($"Language change failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
 
     [ObservableProperty]
     private bool _autoCheckUpdates = true;
+
+    [ObservableProperty]
+    private bool _minimizeToTray = true;
 
     [ObservableProperty]
     private string _steamCmdPath = @"C:\CSP2\steamcmd";
@@ -54,29 +84,46 @@ public partial class SettingsViewModel : ObservableObject
         "自动"
     };
 
-    public ObservableCollection<string> Languages { get; } = new()
-    {
-        "简体中文",
-        "English"
-    };
+    public ObservableCollection<LanguageDisplayInfo> Languages { get; } = new();
 
     public SettingsViewModel(
         IConfigurationService configurationService,
         ISteamCmdService steamCmdService,
-        ILogger<SettingsViewModel> logger)
+        ILogger<SettingsViewModel> logger,
+        LocalizationService localizationService)
     {
         _configurationService = configurationService;
         _steamCmdService = steamCmdService;
         _logger = logger;
+        _localizationService = localizationService;
         
         _logger.LogInformation("SettingsViewModel 初始化");
         DebugLogger.Debug("SettingsViewModel", "构造函数开始执行");
+        
+        // 初始化语言列表
+        InitializeLanguages();
         
         // 加载设置
         _ = LoadSettingsAsync();
         
         // 检查 SteamCMD 状态
         _ = CheckSteamCmdStatusAsync();
+    }
+    
+    /// <summary>
+    /// 初始化支持的语言
+    /// </summary>
+    private void InitializeLanguages()
+    {
+        var supportedLanguages = LocalizationService.GetSupportedLanguages();
+        foreach (var lang in supportedLanguages)
+        {
+            Languages.Add(new LanguageDisplayInfo
+            {
+                Code = lang.Code,
+                DisplayName = $"{lang.Flag} {lang.DisplayName}"
+            });
+        }
     }
 
     /// <summary>
@@ -93,8 +140,10 @@ public partial class SettingsViewModel : ObservableObject
             
             // 加载UI设置
             Theme = settings.Ui?.Theme ?? "浅色";
-            Language = settings.Ui?.Language ?? "简体中文";
+            var savedLangCode = _localizationService.CurrentLanguageCode;
+            SelectedLanguage = Languages.FirstOrDefault(l => l.Code == savedLangCode) ?? Languages.FirstOrDefault();
             AutoCheckUpdates = settings.Ui?.AutoCheckUpdates ?? true;
+            MinimizeToTray = settings.Ui?.MinimizeToTray ?? true;
             
             // 加载SteamCMD设置
             SteamCmdPath = settings.SteamCmd?.InstallPath ?? @"C:\CSP2\steamcmd";
@@ -126,8 +175,9 @@ public partial class SettingsViewModel : ObservableObject
                 Ui = new UiSettings
                 {
                     Theme = Theme,
-                    Language = Language,
-                    AutoCheckUpdates = AutoCheckUpdates
+                    Language = SelectedLanguage?.Code ?? "zh-CN",
+                    AutoCheckUpdates = AutoCheckUpdates,
+                    MinimizeToTray = MinimizeToTray
                 },
                 SteamCmd = new SteamCmdSettings
                 {
@@ -157,8 +207,9 @@ public partial class SettingsViewModel : ObservableObject
     private void ResetSettings()
     {
         Theme = "浅色";
-        Language = "简体中文";
+        SelectedLanguage = Languages.FirstOrDefault(l => l.Code == "zh-CN");
         AutoCheckUpdates = true;
+        MinimizeToTray = true;
         SteamCmdPath = @"C:\CSP2\steamcmd";
         AutoDownloadSteamCmd = true;
     }
@@ -330,5 +381,16 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     private bool CanUninstallSteamCmd() => !IsInstallingsteamCmd && IsSteamCmdInstalled;
+}
+
+/// <summary>
+/// 语言显示信息
+/// </summary>
+public class LanguageDisplayInfo
+{
+    public string Code { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    
+    public override string ToString() => DisplayName;
 }
 

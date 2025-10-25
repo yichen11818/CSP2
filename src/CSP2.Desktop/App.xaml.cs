@@ -13,6 +13,7 @@ using CSP2.Providers.Frameworks.Metamod;
 using CSP2.Providers.Frameworks.CounterStrikeSharp;
 using CSP2.Desktop.Views;
 using CSP2.Desktop.ViewModels;
+using CSP2.Desktop.Services;
 
 namespace CSP2.Desktop;
 
@@ -96,8 +97,14 @@ public partial class App : Application
 
         if (!createdNew)
         {
-            MessageBox.Show("CSP2 已经在运行中！\n\n请检查系统托盘图标。", 
-                "CSP2", MessageBoxButton.OK, MessageBoxImage.Information);
+            var msg = "CSP2 已经在运行中！\n\n请检查系统托盘图标。";
+            try
+            {
+                msg = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_AlreadyRunning") ?? msg;
+            }
+            catch { }
+            
+            MessageBox.Show(msg, "CSP2", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
@@ -165,6 +172,9 @@ public partial class App : Application
                     // 注册HttpClient
                     services.AddHttpClient();
 
+                    // 注册本地化服务
+                    services.AddSingleton<LocalizationService>();
+
                     // 注册核心服务
                     services.AddSingleton<IConfigurationService, ConfigurationService>();
                     services.AddSingleton<IDownloadManager, DownloadManager>();
@@ -197,6 +207,10 @@ public partial class App : Application
             await _host.StartAsync();
             Log.Information("Host服务启动成功");
 
+            // 初始化本地化服务
+            var localization = _host.Services.GetRequiredService<LocalizationService>();
+            Log.Information("本地化服务已初始化，当前语言: {Language}", localization.CurrentLanguageCode);
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
             Log.Information("主窗口已显示");
@@ -206,8 +220,21 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log.Fatal(ex, "❌ CSP2启动失败！");
-            MessageBox.Show($"程序启动失败！\n\n错误信息：{ex.Message}\n\n详细：{ex}", 
-                "CSP2启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            var errorMsg = $"程序启动失败！\n\n错误信息：{ex.Message}\n\n详细：{ex}";
+            var errorTitle = "CSP2启动错误";
+            
+            try
+            {
+                var msgTemplate = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_StartupFailed");
+                if (msgTemplate != null)
+                {
+                    errorMsg = string.Format(msgTemplate, ex.Message, ex.ToString());
+                }
+                errorTitle = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_StartupError") ?? errorTitle;
+            }
+            catch { }
+            
+            MessageBox.Show(errorMsg, errorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }
     }
