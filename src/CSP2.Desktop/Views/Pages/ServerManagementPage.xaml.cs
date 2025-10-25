@@ -6,7 +6,7 @@ namespace CSP2.Desktop.Views.Pages;
 /// <summary>
 /// ServerManagementPage.xaml 的交互逻辑
 /// </summary>
-public partial class ServerManagementPage : Page
+public partial class ServerManagementPage : UserControl
 {
     public ServerManagementPage(ServerManagementViewModel viewModel)
     {
