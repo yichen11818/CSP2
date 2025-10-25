@@ -133,7 +133,51 @@ public class ServerManager : IServerManager
         if (removed)
         {
             await _configService.SaveServersAsync(_servers);
-            _logger.LogInformation("已删除服务器: {Id}", serverId);
+            _logger.LogInformation("已删除服务器配置: {Id}", serverId);
+        }
+
+        return removed;
+    }
+
+    public async Task<bool> UninstallServerAsync(string serverId, bool deleteFiles = true)
+    {
+        var server = await GetServerByIdAsync(serverId);
+        if (server == null)
+        {
+            _logger.LogWarning("服务器不存在: {Id}", serverId);
+            return false;
+        }
+
+        // 如果服务器正在运行，先停止它
+        if (_runningServers.ContainsKey(serverId))
+        {
+            await StopServerAsync(serverId, force: true);
+            // 等待进程完全停止
+            await Task.Delay(2000);
+        }
+
+        // 删除服务器文件
+        if (deleteFiles && Directory.Exists(server.InstallPath))
+        {
+            try
+            {
+                _logger.LogInformation("正在删除服务器文件: {Path}", server.InstallPath);
+                Directory.Delete(server.InstallPath, true);
+                _logger.LogInformation("服务器文件已删除: {Path}", server.InstallPath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "删除服务器文件失败: {Path}", server.InstallPath);
+                throw new InvalidOperationException($"无法删除服务器文件: {ex.Message}", ex);
+            }
+        }
+
+        // 删除配置
+        var removed = _servers.RemoveAll(s => s.Id == serverId) > 0;
+        if (removed)
+        {
+            await _configService.SaveServersAsync(_servers);
+            _logger.LogInformation("已卸载服务器: {Id}", serverId);
         }
 
         return removed;

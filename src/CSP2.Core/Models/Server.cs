@@ -44,6 +44,42 @@ public class Server
     /// 最后启动时间
     /// </summary>
     public DateTime? LastStartedAt { get; set; }
+
+    /// <summary>
+    /// 服务器安装来源
+    /// </summary>
+    public ServerInstallSource InstallSource { get; set; } = ServerInstallSource.Manual;
+
+    /// <summary>
+    /// 是否由CSP2管理文件（用于判断是否可以卸载）
+    /// </summary>
+    public bool IsManagedByCSP2 { get; set; } = false;
+}
+
+/// <summary>
+/// 服务器安装来源
+/// </summary>
+public enum ServerInstallSource
+{
+    /// <summary>
+    /// 手动添加
+    /// </summary>
+    Manual,
+
+    /// <summary>
+    /// 通过SteamCMD下载
+    /// </summary>
+    SteamCmd,
+
+    /// <summary>
+    /// 使用现有的Steam安装
+    /// </summary>
+    ExistingSteam,
+
+    /// <summary>
+    /// 使用现有的本地安装
+    /// </summary>
+    ExistingLocal
 }
 
 /// <summary>

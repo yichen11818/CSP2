@@ -37,11 +37,19 @@ public interface IServerManager
     Task<bool> UpdateServerAsync(Server server);
 
     /// <summary>
-    /// 删除服务器
+    /// 删除服务器（仅删除配置，不删除文件）
     /// </summary>
     /// <param name="serverId">服务器ID</param>
     /// <returns>是否成功</returns>
     Task<bool> DeleteServerAsync(string serverId);
+
+    /// <summary>
+    /// 卸载服务器（删除配置和文件）
+    /// </summary>
+    /// <param name="serverId">服务器ID</param>
+    /// <param name="deleteFiles">是否删除服务器文件</param>
+    /// <returns>是否成功</returns>
+    Task<bool> UninstallServerAsync(string serverId, bool deleteFiles = true);
 
     /// <summary>
     /// 启动服务器

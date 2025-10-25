@@ -331,10 +331,10 @@
                                                 Padding="16,10"
                                                 Margin="10,0,0,0"/>
 
-                                        <Button Content="🗑️"
-                                                Command="{Binding DataContext.DeleteServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        <Button Content="💣"
+                                                Command="{Binding DataContext.UninstallServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                ToolTip="删除服务器"
+                                                ToolTip="卸载服务器（删除文件）"
                                                 Width="40"
                                                 Height="40"
                                                 FontSize="16"
@@ -345,6 +345,29 @@
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="Background" Value="{StaticResource DangerLightBrush}"/>
                                                             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter Property="Opacity" Value="0.3"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Content="🗑️"
+                                                Command="{Binding DataContext.DeleteServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="删除服务器（仅配置）"
+                                                Width="40"
+                                                Height="40"
+                                                FontSize="16"
+                                                Margin="10,0,0,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource WarningLightBrush}"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>

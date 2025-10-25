@@ -139,28 +139,38 @@ public partial class ServerManagementViewModel : ObservableObject
     }
 
     /// <summary>
-    /// 添加服务器命令
+    /// 添加服务器命令（快速添加现有服务器）
     /// </summary>
     [RelayCommand]
     private async Task AddServerAsync()
     {
-        // TODO: 显示添加服务器对话框
-        // 暂时添加一个测试服务器
         _logger.LogInformation("用户触发添加服务器操作");
         DebugLogger.Info("AddServerAsync", "开始添加服务器流程");
         
         try
         {
-            var config = new ServerConfig
+            // 显示添加服务器对话框
+            var dialog = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                Port = 27015 + Servers.Count,
-                Map = "de_dust2",
-                MaxPlayers = 10,
-                TickRate = 128
-            };
+                var dlg = new Views.Dialogs.AddServerDialog
+                {
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                return dlg;
+            });
 
-            var name = $"测试服务器 {Servers.Count + 1}";
-            var installPath = $@"C:\CS2Server\Server{Servers.Count + 1}";
+            var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                dialog.ShowDialog());
+
+            if (result != true)
+            {
+                DebugLogger.Info("AddServerAsync", "用户取消添加服务器");
+                return;
+            }
+
+            var name = dialog.ServerName;
+            var installPath = dialog.InstallPath;
+            var config = dialog.ServerConfig;
             
             DebugLogger.Debug("AddServerAsync", $"服务器配置: Name={name}, Port={config.Port}, Path={installPath}");
             
@@ -168,6 +178,12 @@ public partial class ServerManagementViewModel : ObservableObject
                 name, installPath, config.Port);
             
             var server = await _serverManager.AddServerAsync(name, installPath, config);
+            
+            // 手动添加的服务器，不由CSP2管理
+            server.InstallSource = ServerInstallSource.Manual;
+            server.IsManagedByCSP2 = false;
+            await _serverManager.UpdateServerAsync(server);
+            
             Servers.Add(server);
             
             _logger.LogInformation("成功添加服务器: ID={ServerId}, 名称={ServerName}", 
@@ -179,8 +195,19 @@ public partial class ServerManagementViewModel : ObservableObject
         {
             _logger.LogError(ex, "服务器路径验证失败");
             DebugLogger.Error("AddServerAsync", "路径验证失败", ex);
-            ShowError($"添加服务器失败\n\n{ex.Message}\n\n" +
-                "提示：请参考文档 docs/04-CS2服务器配置指南.md 了解如何正确安装CS2服务器。");
+            
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                System.Windows.MessageBox.Show(
+                    $"添加服务器失败\n\n{ex.Message}\n\n" +
+                    "提示：服务器路径必须包含有效的 CS2 服务器文件（game/bin/win64/cs2.exe）。\n" +
+                    "你可以：\n" +
+                    "1. 使用【安装服务器】功能自动下载服务器文件\n" +
+                    "2. 选择已有的 CS2 游戏安装路径",
+                    "路径验证失败",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            });
         }
         catch (Exception ex)
         {
@@ -276,7 +303,7 @@ public partial class ServerManagementViewModel : ObservableObject
     }
 
     /// <summary>
-    /// 删除服务器命令
+    /// 删除服务器命令（仅删除配置）
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanDeleteServer))]
     private async Task DeleteServerAsync(Server? server)
@@ -285,15 +312,73 @@ public partial class ServerManagementViewModel : ObservableObject
 
         try
         {
-            _logger.LogInformation("删除服务器: {ServerName} (ID: {ServerId})", server.Name, server.Id);
-            // TODO: 显示确认对话框
+            _logger.LogInformation("请求删除服务器: {ServerName} (ID: {ServerId})", server.Name, server.Id);
+            
+            // 根据服务器来源显示不同的警告
+            string warningMessage;
+            string subtitle;
+            
+            if (server.InstallSource == ServerInstallSource.ExistingSteam)
+            {
+                warningMessage = $"你确定要从CSP2中移除服务器 '{server.Name}' 吗？\n\n" +
+                    $"路径: {server.InstallPath}\n\n" +
+                    "⚠️ 警告：此服务器使用的是Steam安装的CS2文件！\n" +
+                    "删除操作只会移除CSP2中的服务器配置，不会影响你的Steam游戏文件。\n\n" +
+                    "如果你想完全删除服务器文件，请使用【卸载】功能（仅限通过CSP2安装的服务器）。";
+                subtitle = "Steam游戏文件将被保留";
+            }
+            else if (server.InstallSource == ServerInstallSource.ExistingLocal)
+            {
+                warningMessage = $"你确定要从CSP2中移除服务器 '{server.Name}' 吗？\n\n" +
+                    $"路径: {server.InstallPath}\n\n" +
+                    "此操作只会从CSP2中删除服务器配置，不会删除服务器文件。\n" +
+                    "服务器文件将保留在原位置。";
+                subtitle = "服务器文件将被保留";
+            }
+            else if (server.InstallSource == ServerInstallSource.SteamCmd && server.IsManagedByCSP2)
+            {
+                warningMessage = $"你确定要从CSP2中移除服务器 '{server.Name}' 吗？\n\n" +
+                    $"路径: {server.InstallPath}\n\n" +
+                    "此操作只会从CSP2中删除服务器配置，不会删除服务器文件。\n\n" +
+                    "💡 提示：如果你想同时删除服务器文件，请使用【卸载】按钮。";
+                subtitle = "服务器文件将被保留";
+            }
+            else
+            {
+                warningMessage = $"你确定要删除服务器 '{server.Name}' 吗？\n\n" +
+                    $"路径: {server.InstallPath}\n\n" +
+                    "此操作只会从CSP2中删除服务器配置，不会删除服务器文件。";
+                subtitle = "配置删除后无法恢复";
+            }
+            
+            // 显示确认对话框
+            var confirmed = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                return Views.Dialogs.ConfirmDialog.Show(
+                    System.Windows.Application.Current.MainWindow,
+                    "确认删除服务器",
+                    warningMessage,
+                    subtitle,
+                    "🗑️ 删除配置",
+                    "🗑️",
+                    true);
+            });
+
+            if (!confirmed)
+            {
+                DebugLogger.Info("DeleteServerAsync", "用户取消删除操作");
+                return;
+            }
+
             await _serverManager.DeleteServerAsync(server.Id);
             Servers.Remove(server);
             if (SelectedServer?.Id == server.Id)
             {
                 SelectedServer = null;
             }
-            ShowSuccess($"已删除服务器: {server.Name}");
+            
+            _logger.LogInformation("成功删除服务器配置: {ServerName}", server.Name);
+            ShowSuccess($"已从CSP2中移除服务器: {server.Name}");
         }
         catch (Exception ex)
         {
@@ -308,6 +393,105 @@ public partial class ServerManagementViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 卸载服务器命令（删除配置和文件）
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanUninstallServer))]
+    private async Task UninstallServerAsync(Server? server)
+    {
+        if (server == null) return;
+
+        try
+        {
+            _logger.LogInformation("请求卸载服务器: {ServerName} (ID: {ServerId})", server.Name, server.Id);
+            
+            // 检查服务器来源，防止卸载非CSP2管理的服务器
+            if (server.InstallSource == ServerInstallSource.ExistingSteam)
+            {
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    System.Windows.MessageBox.Show(
+                        $"无法卸载服务器 '{server.Name}'！\n\n" +
+                        "此服务器使用的是Steam安装的CS2文件，不应该被删除。\n\n" +
+                        "如果你想从CSP2中移除此服务器，请使用【删除】功能。\n" +
+                        "这只会删除CSP2中的配置，不会影响Steam游戏文件。",
+                        "无法卸载",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                });
+                return;
+            }
+
+            if (!server.IsManagedByCSP2 && server.InstallSource != ServerInstallSource.SteamCmd)
+            {
+                var allowUninstall = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    return System.Windows.MessageBox.Show(
+                        $"警告：服务器 '{server.Name}' 不是通过CSP2安装的！\n\n" +
+                        $"路径: {server.InstallPath}\n\n" +
+                        "卸载操作将删除该路径下的所有文件！\n" +
+                        "如果此路径包含其他重要数据，可能会造成数据丢失。\n\n" +
+                        "你确定要继续吗？",
+                        "危险操作",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Warning);
+                });
+
+                if (allowUninstall != System.Windows.MessageBoxResult.Yes)
+                {
+                    return;
+                }
+            }
+            
+            // 显示最终确认对话框
+            var confirmed = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                return Views.Dialogs.ConfirmDialog.Show(
+                    System.Windows.Application.Current.MainWindow,
+                    "确认卸载服务器",
+                    $"你确定要完全卸载服务器 '{server.Name}' 吗？\n\n" +
+                    $"路径: {server.InstallPath}\n\n" +
+                    "⚠️ 此操作将：\n" +
+                    "• 删除服务器配置\n" +
+                    "• 删除服务器文件（包括所有游戏数据、插件、配置等）\n\n" +
+                    "此操作无法撤销！",
+                    "所有数据将被永久删除",
+                    "💣 完全卸载",
+                    "💣",
+                    true);
+            });
+
+            if (!confirmed)
+            {
+                DebugLogger.Info("UninstallServerAsync", "用户取消卸载操作");
+                return;
+            }
+
+            await _serverManager.UninstallServerAsync(server.Id, deleteFiles: true);
+            Servers.Remove(server);
+            if (SelectedServer?.Id == server.Id)
+            {
+                SelectedServer = null;
+            }
+            
+            _logger.LogInformation("成功卸载服务器: {ServerName}", server.Name);
+            ShowSuccess($"已完全卸载服务器: {server.Name}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "卸载服务器失败: {ServerName}", server.Name);
+            ShowError($"卸载服务器失败: {ex.Message}");
+        }
+    }
+
+    private bool CanUninstallServer(Server? server)
+    {
+        // 只有停止状态且不是Steam安装的服务器才能卸载
+        return server != null && 
+               server.Status == ServerStatus.Stopped &&
+               server.InstallSource != ServerInstallSource.ExistingSteam;
+    }
+
+    /// <summary>
     /// 刷新列表命令
     /// </summary>
     [RelayCommand]
@@ -317,7 +501,7 @@ public partial class ServerManagementViewModel : ObservableObject
     }
 
     /// <summary>
-    /// 使用 SteamCMD 安装服务器命令
+    /// 使用安装向导安装服务器命令
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanInstallServer))]
     private async Task InstallServerAsync()
@@ -327,110 +511,36 @@ public partial class ServerManagementViewModel : ObservableObject
         
         try
         {
-            IsInstallingServer = true;
-            ServerInstallProgress = 0;
-            ServerInstallMessage = "正在检测现有CS2安装...";
-
-            // 第一步：检测现有的CS2安装
-            DebugLogger.Info("InstallServerAsync", "开始检测现有CS2安装");
-            var detectedInstallations = await _pathDetector.DetectAllInstallationsAsync();
-            var validInstallations = detectedInstallations.Where(i => i.IsValid).ToList();
-
-            DebugLogger.Info("InstallServerAsync", $"检测到 {validInstallations.Count} 个有效的CS2安装");
-            _logger.LogInformation("检测到 {Count} 个有效的CS2安装", validInstallations.Count);
-
-            string? selectedPath = null;
-            bool useSteamCmd = false;
-
-            // 第二步：询问用户选择
-            if (validInstallations.Count > 0)
+            // 显示安装对话框
+            var dialog = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                DebugLogger.Info("InstallServerAsync", "有可用的CS2安装，询问用户选择");
-                
-                // 构建选择消息
-                var messageBuilder = new System.Text.StringBuilder();
-                messageBuilder.AppendLine("检测到以下CS2安装：\n");
-                
-                for (int i = 0; i < validInstallations.Count; i++)
+                var dlg = new Views.Dialogs.ServerInstallDialog(_pathDetector, 
+                    Microsoft.Extensions.Logging.LoggerFactory.Create(builder => {}).CreateLogger<Views.Dialogs.ServerInstallDialog>())
                 {
-                    var install = validInstallations[i];
-                    messageBuilder.AppendLine($"[{i + 1}] {install.Source}");
-                    messageBuilder.AppendLine($"    路径: {install.InstallPath}");
-                    if (install.InstallSize.HasValue)
-                    {
-                        messageBuilder.AppendLine($"    大小: {CS2PathDetector.FormatFileSize(install.InstallSize.Value)}");
-                    }
-                    messageBuilder.AppendLine();
-                }
+                    Owner = System.Windows.Application.Current.MainWindow
+                };
+                return dlg;
+            });
 
-                messageBuilder.AppendLine("您想要：");
-                messageBuilder.AppendLine("• 点击【是】- 使用检测到的第一个安装");
-                messageBuilder.AppendLine("• 点击【否】- 使用SteamCMD下载新的服务器文件");
+            var dialogResult = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                dialog.ShowDialog());
 
-                var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    System.Windows.MessageBox.Show(
-                        messageBuilder.ToString(),
-                        "发现现有CS2安装",
-                        System.Windows.MessageBoxButton.YesNoCancel,
-                        System.Windows.MessageBoxImage.Question));
+            if (dialogResult != true || dialog.Result == null)
+            {
+                DebugLogger.Info("InstallServerAsync", "用户取消安装");
+                return;
+            }
 
-                if (result == System.Windows.MessageBoxResult.Cancel)
-                {
-                    DebugLogger.Info("InstallServerAsync", "用户取消操作");
-                    return;
-                }
-                else if (result == System.Windows.MessageBoxResult.Yes)
-                {
-                    // 使用检测到的安装
-                    selectedPath = validInstallations[0].InstallPath;
-                    DebugLogger.Info("InstallServerAsync", $"用户选择使用现有安装: {selectedPath}");
-                    _logger.LogInformation("用户选择使用现有CS2安装: {Path}", selectedPath);
-                }
-                else
-                {
-                    // 使用SteamCMD
-                    useSteamCmd = true;
-                    DebugLogger.Info("InstallServerAsync", "用户选择使用SteamCMD下载");
-                    _logger.LogInformation("用户选择使用SteamCMD下载新的服务器文件");
-                }
+            var result = dialog.Result;
+            
+            // 根据安装模式执行不同的操作
+            if (result.Mode == Views.Dialogs.ServerInstallMode.SteamCmd)
+            {
+                await InstallServerWithSteamCmdAsync(result.ServerName, result.InstallPath, result.Config);
             }
             else
             {
-                // 没有检测到安装，询问是否使用SteamCMD
-                DebugLogger.Warning("InstallServerAsync", "未检测到CS2安装");
-                _logger.LogWarning("未检测到现有的CS2安装");
-                
-                var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                    System.Windows.MessageBox.Show(
-                        "未检测到现有的CS2安装。\n\n" +
-                        "是否使用SteamCMD下载CS2服务器文件？\n\n" +
-                        "注意：服务器文件大约30GB，下载可能需要较长时间。",
-                        "未找到CS2安装",
-                        System.Windows.MessageBoxButton.YesNo,
-                        System.Windows.MessageBoxImage.Question));
-
-                if (result == System.Windows.MessageBoxResult.No)
-                {
-                    DebugLogger.Info("InstallServerAsync", "用户取消操作");
-                    ShowError("未选择安装源，操作已取消。");
-                    return;
-                }
-                
-                useSteamCmd = true;
-            }
-
-            // 第三步：执行安装
-            var serverName = $"CS2 服务器 {Servers.Count + 1}";
-
-            if (useSteamCmd)
-            {
-                // 使用SteamCMD下载
-                await InstallServerWithSteamCmdAsync(serverName);
-            }
-            else if (!string.IsNullOrEmpty(selectedPath))
-            {
-                // 使用现有安装
-                await AddExistingServerAsync(serverName, selectedPath);
+                await AddExistingServerAsync(result.ServerName, result.InstallPath, result.Config, result.Mode);
             }
         }
         catch (Exception ex)
@@ -439,17 +549,12 @@ public partial class ServerManagementViewModel : ObservableObject
             DebugLogger.Error("InstallServerAsync", "安装服务器异常", ex);
             ShowError($"安装服务器失败：{ex.Message}");
         }
-        finally
-        {
-            IsInstallingServer = false;
-            DebugLogger.Debug("InstallServerAsync", "安装流程结束");
-        }
     }
 
     /// <summary>
     /// 使用SteamCMD下载服务器
     /// </summary>
-    private async Task InstallServerWithSteamCmdAsync(string serverName)
+    private async Task InstallServerWithSteamCmdAsync(string serverName, string installPath, ServerConfig config)
     {
         DebugLogger.Info("InstallServerWithSteamCmdAsync", "开始使用SteamCMD安装服务器");
         
@@ -499,9 +604,9 @@ public partial class ServerManagementViewModel : ObservableObject
         }
 
         // 下载CS2服务器文件
-        var serverPath = $@"C:\CS2Servers\Server{Servers.Count + 1}";
+        IsInstallingServer = true;
         
-        _logger.LogInformation("开始下载 CS2 服务器文件到: {Path}", serverPath);
+        _logger.LogInformation("开始下载 CS2 服务器文件到: {Path}", installPath);
         ServerInstallProgress = 30;
         ServerInstallMessage = "正在下载 CS2 服务器文件（约30GB）...";
 
@@ -514,64 +619,74 @@ public partial class ServerManagementViewModel : ObservableObject
             });
         });
 
-        var success = await _steamCmdService.InstallOrUpdateServerAsync(serverPath, false, installProgress);
-
-        if (success)
+        try
         {
-            _logger.LogInformation("CS2 服务器下载成功，正在添加到列表");
-            ServerInstallMessage = "正在添加服务器到列表...";
+            var success = await _steamCmdService.InstallOrUpdateServerAsync(installPath, false, installProgress);
 
-            var config = new ServerConfig
+            if (success)
             {
-                Port = 27015 + Servers.Count,
-                Map = "de_dust2",
-                MaxPlayers = 10,
-                TickRate = 128,
-                ServerName = serverName
-            };
-            
-            var server = await _serverManager.AddServerAsync(serverName, serverPath, config);
-            Servers.Add(server);
+                _logger.LogInformation("CS2 服务器下载成功，正在添加到列表");
+                ServerInstallMessage = "正在添加服务器到列表...";
+                
+                var server = await _serverManager.AddServerAsync(serverName, installPath, config);
+                
+                // 标记为通过SteamCMD安装且由CSP2管理
+                server.InstallSource = ServerInstallSource.SteamCmd;
+                server.IsManagedByCSP2 = true;
+                await _serverManager.UpdateServerAsync(server);
+                
+                Servers.Add(server);
 
-            ServerInstallProgress = 100;
-            ServerInstallMessage = "✅ 服务器安装完成！";
-            ShowSuccess($"服务器 '{serverName}' 安装成功！");
+                ServerInstallProgress = 100;
+                ServerInstallMessage = "✅ 服务器安装完成！";
+                ShowSuccess($"服务器 '{serverName}' 安装成功！");
 
-            await Task.Delay(3000);
+                await Task.Delay(3000);
+            }
+            else
+            {
+                DebugLogger.Error("InstallServerWithSteamCmdAsync", "CS2 服务器下载失败");
+                ShowError("CS2 服务器下载失败，请查看日志了解详情。");
+            }
         }
-        else
+        finally
         {
-            DebugLogger.Error("InstallServerWithSteamCmdAsync", "CS2 服务器下载失败");
-            ShowError("CS2 服务器下载失败，请查看日志了解详情。");
+            IsInstallingServer = false;
         }
     }
 
     /// <summary>
     /// 添加现有的CS2安装作为服务器
     /// </summary>
-    private async Task AddExistingServerAsync(string serverName, string existingPath)
+    private async Task AddExistingServerAsync(string serverName, string existingPath, ServerConfig config, Views.Dialogs.ServerInstallMode mode)
     {
         DebugLogger.Info("AddExistingServerAsync", $"添加现有安装: {existingPath}");
         _logger.LogInformation("使用现有CS2安装: {Path}", existingPath);
 
+        IsInstallingServer = true;
         ServerInstallProgress = 50;
         ServerInstallMessage = "正在验证CS2安装...";
 
         try
         {
-            var config = new ServerConfig
-            {
-                Port = 27015 + Servers.Count,
-                Map = "de_dust2",
-                MaxPlayers = 10,
-                TickRate = 128,
-                ServerName = serverName
-            };
-
             ServerInstallProgress = 80;
             ServerInstallMessage = "正在添加服务器到列表...";
 
             var server = await _serverManager.AddServerAsync(serverName, existingPath, config);
+            
+            // 根据模式设置安装来源
+            if (mode == Views.Dialogs.ServerInstallMode.ExistingSteam)
+            {
+                server.InstallSource = ServerInstallSource.ExistingSteam;
+                server.IsManagedByCSP2 = false;  // Steam安装不由CSP2管理
+            }
+            else
+            {
+                server.InstallSource = ServerInstallSource.ExistingLocal;
+                server.IsManagedByCSP2 = false;  // 现有本地安装不由CSP2管理
+            }
+            
+            await _serverManager.UpdateServerAsync(server);
             Servers.Add(server);
 
             ServerInstallProgress = 100;
@@ -586,6 +701,10 @@ public partial class ServerManagementViewModel : ObservableObject
             _logger.LogError(ex, "添加现有服务器失败");
             DebugLogger.Error("AddExistingServerAsync", "添加失败", ex);
             ShowError($"添加服务器失败：{ex.Message}");
+        }
+        finally
+        {
+            IsInstallingServer = false;
         }
     }
 
