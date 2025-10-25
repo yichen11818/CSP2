@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
         mc:Ignorable="d"
-        Title="添加服务器" 
+        Title="{converters:Localization Dialog.AddServer}" 
         Height="520" 
         Width="650"
         WindowStartupLocation="CenterOwner"
@@ -20,11 +21,11 @@
 
         <!-- 标题 -->
         <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock Text="✨ 添加 CS2 服务器" 
+            <TextBlock Text="{converters:Localization Dialog.AddServerTitle}" 
                        FontSize="28" 
                        FontWeight="Bold"
                        Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBlock Text="配置你的服务器信息" 
+            <TextBlock Text="{converters:Localization Dialog.AddServerSubtitle}" 
                        FontSize="14" 
                        Foreground="{StaticResource TextSecondaryBrush}"
                        Margin="0,8,0,0"/>
@@ -34,18 +35,18 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- 服务器名称 -->
-                <TextBlock Text="服务器名称" 
+                <TextBlock Text="{converters:Localization Dialog.ServerName}" 
                            FontSize="14" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            Margin="0,0,0,8"/>
                 <TextBox x:Name="ServerNameTextBox"
-                         Text="我的 CS2 服务器"
+                         Text="{converters:Localization Dialog.DefaultServerName}"
                          Style="{StaticResource ModernTextBox}"
                          Margin="0,0,0,20"/>
 
                 <!-- 服务器路径 -->
-                <TextBlock Text="服务器路径" 
+                <TextBlock Text="{converters:Localization Dialog.ServerPath}" 
                            FontSize="14" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}"
@@ -59,13 +60,13 @@
                              Grid.Column="0"
                              Style="{StaticResource ModernTextBox}"/>
                     <Button Grid.Column="1"
-                            Content="📁 浏览"
+                            Content="{converters:Localization Common.Browse}"
                             Click="BrowseButton_Click"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Margin="12,0,0,0"
                             Padding="16,10"/>
                 </Grid>
-                <TextBlock Text="选择 CS2 服务器根目录（包含 game 文件夹）" 
+                <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
                            FontSize="12" 
                            Foreground="{StaticResource TextTertiaryBrush}"
                            Margin="0,0,0,20"/>
@@ -76,7 +77,7 @@
                         Padding="20"
                         Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="网络配置" 
+                        <TextBlock Text="{converters:Localization Dialog.NetworkConfig}" 
                                    FontSize="16" 
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -90,14 +91,14 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="IP地址" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.IPAddress}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <TextBox x:Name="IpAddressTextBox"
                                          Text="0.0.0.0"
                                          Style="{StaticResource ModernTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="端口" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.Port}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <TextBox x:Name="PortTextBox"
                                          Text="27015"
                                          Style="{StaticResource ModernTextBox}"/>
@@ -112,7 +113,7 @@
                         Padding="20"
                         Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="游戏配置" 
+                        <TextBlock Text="{converters:Localization Dialog.GameConfig}" 
                                    FontSize="16" 
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -131,21 +132,21 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="初始地图" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.InitialMap}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <TextBox x:Name="MapTextBox"
                                          Text="de_dust2"
                                          Style="{StaticResource ModernTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="0" Grid.Column="2">
-                                <TextBlock Text="最大玩家" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.MaxPlayers}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <TextBox x:Name="MaxPlayersTextBox"
                                          Text="10"
                                          Style="{StaticResource ModernTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="Tick Rate" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.TickRate}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <ComboBox x:Name="TickRateComboBox"
                                           Style="{StaticResource ModernComboBox}"
                                           SelectedIndex="1">
@@ -155,7 +156,7 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="地图组" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="{converters:Localization Dialog.MapGroup}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                 <TextBox x:Name="MapGroupTextBox"
                                          Text="mg_active"
                                          Style="{StaticResource ModernTextBox}"/>
@@ -174,7 +175,7 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
-                    Content="取消"
+                    Content="{converters:Localization Common.Cancel}"
                     Click="CancelButton_Click"
                     Style="{StaticResource SecondaryButtonStyle}"
                     HorizontalAlignment="Left"
@@ -182,7 +183,7 @@
                     Width="120"/>
 
             <Button Grid.Column="1"
-                    Content="✅ 添加服务器"
+                    Content="{converters:Localization Dialog.AddServerButton}"
                     Click="OkButton_Click"
                     Style="{StaticResource PrimaryButtonStyle}"
                     Padding="24,12"
