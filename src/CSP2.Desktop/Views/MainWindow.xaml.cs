@@ -18,16 +18,18 @@ public partial class MainWindow : Window
     private NotifyIcon? _notifyIcon;
     private bool _isRealClosing = false;
     private readonly IConfigurationService _configurationService;
+    private readonly JsonLocalizationService _localizationService;
 
-    public MainWindow(MainWindowViewModel viewModel, LocalizationService localizationService, IConfigurationService configurationService)
+    public MainWindow(MainWindowViewModel viewModel, JsonLocalizationService localizationService, IConfigurationService configurationService)
     {
+        _configurationService = configurationService;
+        _localizationService = localizationService;
+        
+        // 初始化本地化助手 - 必须在 InitializeComponent() 之前！
+        LocalizationHelper.Instance.Initialize(localizationService);
+        
         InitializeComponent();
         DataContext = viewModel;
-        
-        _configurationService = configurationService;
-        
-        // 初始化本地化助手
-        LocalizationHelper.Instance.Initialize(localizationService);
         
         // 初始化系统托盘图标
         InitializeNotifyIcon();
@@ -58,13 +60,13 @@ public partial class MainWindow : Window
             // 创建右键菜单
             var contextMenu = new ContextMenuStrip();
             
-            var showMenuItem = new ToolStripMenuItem("显示主窗口", null, (s, e) => ShowWindow());
+            var showMenuItem = new ToolStripMenuItem(_localizationService.GetString("Msg.ShowMainWindow"), null, (s, e) => ShowWindow());
             showMenuItem.Font = new Font(showMenuItem.Font, System.Drawing.FontStyle.Bold);
             contextMenu.Items.Add(showMenuItem);
             
             contextMenu.Items.Add(new ToolStripSeparator());
             
-            contextMenu.Items.Add(new ToolStripMenuItem("退出", null, (s, e) => ExitApplication()));
+            contextMenu.Items.Add(new ToolStripMenuItem(_localizationService.GetString("Msg.Exit"), null, (s, e) => ExitApplication()));
 
             _notifyIcon.ContextMenuStrip = contextMenu;
             
@@ -163,13 +165,8 @@ public partial class MainWindow : Window
                 {
                     e.Cancel = true; // 先取消关闭
                     
-                    var promptMessage = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_FirstClosePrompt") 
-                        ?? "点击关闭按钮时，您希望：\n\n【是】- 最小化到系统托盘（程序继续运行）\n【否】- 完全退出程序\n\n您可以稍后在设置中修改此选项。";
-                    var promptTitle = CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_FirstCloseTitle") 
-                        ?? "CSP2 - 首次关闭提示";
-                    
-                    // 确保换行符正确显示
-                    promptMessage = promptMessage.Replace("\\n", "\n");
+                    var promptMessage = _localizationService.GetString("Msg.FirstClosePrompt");
+                    var promptTitle = _localizationService.GetString("Msg.FirstCloseTitle");
                     
                     var result = System.Windows.MessageBox.Show(
                         promptMessage,

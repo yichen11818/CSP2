@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
 using CSP2.Core.Services;
+using CSP2.Desktop.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -18,6 +19,7 @@ public partial class ServerManagementViewModel : ObservableObject
     private readonly ISteamCmdService _steamCmdService;
     private readonly CS2PathDetector _pathDetector;
     private readonly ILogger<ServerManagementViewModel> _logger;
+    private readonly JsonLocalizationService _localizationService;
 
     [ObservableProperty]
     private ObservableCollection<Server> _servers = new();
@@ -38,12 +40,14 @@ public partial class ServerManagementViewModel : ObservableObject
         IServerManager serverManager,
         ISteamCmdService steamCmdService,
         CS2PathDetector pathDetector,
-        ILogger<ServerManagementViewModel> logger)
+        ILogger<ServerManagementViewModel> logger,
+        JsonLocalizationService localizationService)
     {
         _serverManager = serverManager;
         _steamCmdService = steamCmdService;
         _pathDetector = pathDetector;
         _logger = logger;
+        _localizationService = localizationService;
         
         _logger.LogInformation("ServerManagementViewModel 初始化");
         DebugLogger.Debug("ServerManagementViewModel", "构造函数开始执行");

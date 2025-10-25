@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
 using CSP2.Core.Services;
+using CSP2.Desktop.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using static CSP2.Core.Services.CS2PathDetector;
@@ -18,6 +19,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
     private readonly ISteamCmdService _steamCmdService;
     private readonly CS2PathDetector _pathDetector;
     private readonly ILogger<ServerInstallPageViewModel> _logger;
+    private readonly JsonLocalizationService _localizationService;
     private readonly Action<Server>? _onInstallComplete;
     private readonly Action? _onCancel;
 
@@ -37,11 +39,11 @@ public partial class ServerInstallPageViewModel : ObservableObject
     private bool _isScanning = false;
 
     [ObservableProperty]
-    private string _scanMessage = "正在扫描...";
+    private string _scanMessage = "Scanning...";
 
     // 服务器基本信息
     [ObservableProperty]
-    private string _serverName = "我的 CS2 服务器";
+    private string _serverName = "My CS2 Server";
 
     [ObservableProperty]
     private string _installPath = "";
@@ -55,6 +57,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
         ISteamCmdService steamCmdService,
         CS2PathDetector pathDetector,
         ILogger<ServerInstallPageViewModel> logger,
+        JsonLocalizationService localizationService,
         Action<Server>? onInstallComplete = null,
         Action? onCancel = null)
     {
@@ -62,11 +65,15 @@ public partial class ServerInstallPageViewModel : ObservableObject
         _steamCmdService = steamCmdService;
         _pathDetector = pathDetector;
         _logger = logger;
+        _localizationService = localizationService;
         _onInstallComplete = onInstallComplete;
         _onCancel = onCancel;
         
         // 初始化默认路径
         InstallPath = $@"C:\CS2Servers\Server{DateTime.Now:yyyyMMdd_HHmmss}";
+        
+        // 初始化默认服务器名称
+        ServerName = _localizationService.GetString("ServerInstall.ServerNamePlaceholder");
         
         // 自动开始扫描
         _ = ScanInstallationsAsync();
@@ -75,7 +82,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
     private async Task ScanInstallationsAsync()
     {
         IsScanning = true;
-        ScanMessage = "正在扫描现有CS2安装...";
+        ScanMessage = _localizationService.GetString("ServerInstall.ScanningExisting");
         
         try
         {
@@ -88,15 +95,15 @@ public partial class ServerInstallPageViewModel : ObservableObject
             }
             
             ScanMessage = DetectedInstallations.Count > 0 
-                ? $"检测到 {DetectedInstallations.Count} 个可用安装" 
-                : "未检测到现有安装";
+                ? _localizationService.GetString("ServerInstall.DetectedCount", DetectedInstallations.Count)
+                : _localizationService.GetString("ServerInstall.NoDetected");
             
             _logger.LogInformation("扫描完成，找到 {Count} 个有效安装", DetectedInstallations.Count);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "扫描安装失败");
-            ScanMessage = "扫描失败";
+            ScanMessage = _localizationService.GetString("ServerInstall.ScanFailed");
         }
         finally
         {
@@ -117,8 +124,8 @@ public partial class ServerInstallPageViewModel : ObservableObject
         if (DetectedInstallations.Count == 0)
         {
             System.Windows.MessageBox.Show(
-                "未检测到任何现有的 CS2 安装。\n\n请选择 SteamCMD 下载方式。",
-                "未找到安装",
+                _localizationService.GetString("ServerInstall.NoExistingFound"),
+                _localizationService.GetString("ServerInstall.NoExistingFoundTitle"),
                 System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Information);
             return;
@@ -140,7 +147,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
     {
         var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "选择服务器安装目录",
+            Description = _localizationService.GetString("Msg.SelectServerInstallDirectory"),
             SelectedPath = InstallPath
         };
 
@@ -156,22 +163,31 @@ public partial class ServerInstallPageViewModel : ObservableObject
         // 验证输入
         if (string.IsNullOrWhiteSpace(ServerName))
         {
-            System.Windows.MessageBox.Show("请输入服务器名称", "验证失败", 
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show(
+                _localizationService.GetString("ServerInstall.EnterServerName"),
+                _localizationService.GetString("ServerInstall.ValidationFailed"), 
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (SelectedMode == "steamcmd" && string.IsNullOrWhiteSpace(InstallPath))
         {
-            System.Windows.MessageBox.Show("请选择下载路径", "验证失败", 
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show(
+                _localizationService.GetString("ServerInstall.SelectDownloadPath"),
+                _localizationService.GetString("ServerInstall.ValidationFailed"), 
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (SelectedMode == "existing" && SelectedInstallation == null)
         {
-            System.Windows.MessageBox.Show("请选择现有安装", "验证失败", 
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show(
+                _localizationService.GetString("ServerInstall.SelectExistingInstall"),
+                _localizationService.GetString("ServerInstall.ValidationFailed"), 
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -210,8 +226,11 @@ public partial class ServerInstallPageViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "操作失败");
-            System.Windows.MessageBox.Show($"操作失败: {ex.Message}", "错误",
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show(
+                _localizationService.GetString("ServerInstall.OperationFailed", ex.Message),
+                _localizationService.GetString("ServerInstall.OperationFailedTitle"),
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
             CurrentStep = 2;
         }
         finally

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
+using CSP2.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
@@ -14,15 +15,16 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IDownloadManager _downloadManager;
+    private readonly JsonLocalizationService _localizationService;
 
     [ObservableProperty]
-    private string _statusText = Resources.Strings.Status_ReadyText;
+    private string _statusText;
 
     [ObservableProperty]
     private object? _currentPage;
 
     [ObservableProperty]
-    private string _selectedMenuItem = Resources.Strings.Nav_ServerManagement;
+    private string _selectedMenuItem;
 
     [ObservableProperty]
     private bool _isDebugMode;
@@ -39,10 +41,15 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private double _downloadProgress = 0.0;
 
-    public MainWindowViewModel(IServiceProvider serviceProvider, IDownloadManager downloadManager)
+    public MainWindowViewModel(IServiceProvider serviceProvider, IDownloadManager downloadManager, JsonLocalizationService localizationService)
     {
         _serviceProvider = serviceProvider;
         _downloadManager = downloadManager;
+        _localizationService = localizationService;
+        
+        // 初始化本地化字符串
+        _statusText = _localizationService.GetString("Status.ReadyText");
+        _selectedMenuItem = _localizationService.GetString("Nav.ServerManagement");
         
         // 检查是否为Debug模式
         IsDebugMode = DebugLogger.IsDebugMode;
@@ -83,7 +90,7 @@ public partial class MainWindowViewModel : ObservableObject
         Application.Current.Dispatcher.Invoke(() =>
         {
             UpdateDownloadStatus();
-            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Download_Completed") ?? "Download completed: {0}", e.Name);
+            StatusText = _localizationService.GetString("Download.Completed", e.Name);
         });
     }
 
@@ -92,7 +99,7 @@ public partial class MainWindowViewModel : ObservableObject
         Application.Current.Dispatcher.Invoke(() =>
         {
             UpdateDownloadStatus();
-            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Download_Failed") ?? "Download failed: {0}", e.Name);
+            StatusText = _localizationService.GetString("Download.Failed", e.Name);
         });
     }
 
@@ -105,9 +112,9 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToServerManagement()
     {
-        SelectedMenuItem = Resources.Strings.Nav_ServerManagement;
+        SelectedMenuItem = _localizationService.GetString("Nav.ServerManagement");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.ServerManagementPage>();
-        StatusText = Resources.Strings.Nav_ServerManagement;
+        StatusText = _localizationService.GetString("Nav.ServerManagement");
     }
 
     /// <summary>
@@ -124,6 +131,7 @@ public partial class MainWindowViewModel : ObservableObject
             _serviceProvider.GetRequiredService<ISteamCmdService>(),
             _serviceProvider.GetRequiredService<Core.Services.CS2PathDetector>(),
             logger,
+            _localizationService,
             onInstallComplete: server =>
             {
                 onComplete?.Invoke(server);
@@ -149,42 +157,42 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToLogConsole()
     {
-        SelectedMenuItem = Resources.Strings.Nav_LogConsole;
+        SelectedMenuItem = _localizationService.GetString("Nav.LogConsole");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.LogConsolePage>();
-        StatusText = Resources.Strings.Nav_LogConsole;
+        StatusText = _localizationService.GetString("Nav.LogConsole");
     }
 
     [RelayCommand]
     private void NavigateToPluginMarket()
     {
-        SelectedMenuItem = Resources.Strings.Nav_PluginMarket;
+        SelectedMenuItem = _localizationService.GetString("Nav.PluginMarket");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.PluginMarketPage>();
-        StatusText = Resources.Strings.Nav_PluginMarket;
+        StatusText = _localizationService.GetString("Nav.PluginMarket");
     }
 
     [RelayCommand]
     private void NavigateToSettings()
     {
-        SelectedMenuItem = Resources.Strings.Nav_Settings;
+        SelectedMenuItem = _localizationService.GetString("Nav.Settings");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.SettingsPage>();
-        StatusText = Resources.Strings.Nav_Settings;
+        StatusText = _localizationService.GetString("Nav.Settings");
     }
 
     [RelayCommand]
     private void NavigateToDebugConsole()
     {
-        SelectedMenuItem = Resources.Strings.Nav_DebugConsole;
+        SelectedMenuItem = _localizationService.GetString("Nav.DebugConsole");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.DebugConsolePage>();
-        StatusText = Resources.Strings.Nav_DebugConsole;
+        StatusText = _localizationService.GetString("Nav.DebugConsole");
         DebugLogger.Info("MainWindow", "已切换到Debug控制台");
     }
 
     [RelayCommand]
     private void NavigateToDownloadManager()
     {
-        SelectedMenuItem = Resources.Strings.Nav_DownloadManager;
+        SelectedMenuItem = _localizationService.GetString("Nav.DownloadManager");
         CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.DownloadManagerPage>();
-        StatusText = Resources.Strings.Nav_DownloadManager;
+        StatusText = _localizationService.GetString("Nav.DownloadManager");
         DebugLogger.Info("MainWindow", "已切换到下载管理页面");
     }
 
@@ -225,11 +233,11 @@ public partial class MainWindowViewModel : ObservableObject
         if (ActiveDownloadCount == 0)
         {
             HasActiveDownloads = false;
-            StatusText = Resources.Strings.Status_ReadyText;
+            StatusText = _localizationService.GetString("Status.ReadyText");
         }
         else
         {
-            StatusText = string.Format(Resources.Strings.ResourceManager.GetString("Msg_Downloading") ?? "Downloading {0} files...", ActiveDownloadCount);
+            StatusText = _localizationService.GetString("Msg.Downloading", ActiveDownloadCount);
         }
     }
 }

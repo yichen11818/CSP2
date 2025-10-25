@@ -18,10 +18,10 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IConfigurationService _configurationService;
     private readonly ISteamCmdService _steamCmdService;
     private readonly ILogger<SettingsViewModel> _logger;
-    private readonly LocalizationService _localizationService;
+    private readonly JsonLocalizationService _localizationService;
 
     [ObservableProperty]
-    private string _theme = "浅色";
+    private string _theme = "Light";
 
     private bool _isLoadingSettings = false;
 
@@ -52,7 +52,7 @@ public partial class SettingsViewModel : ObservableObject
             _ = SaveLanguageSettingAsync(value.Code);
             
             MessageBox.Show(
-                CSP2.Desktop.Resources.Strings.ResourceManager.GetString("Msg_LanguageChanged") ?? "Language changed successfully. Some changes may require restart.",
+                _localizationService.GetString("Msg.LanguageChanged"),
                 "CSP2",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -99,7 +99,7 @@ public partial class SettingsViewModel : ObservableObject
     private bool _isSteamCmdInstalled = false;
 
     [ObservableProperty]
-    private string _steamCmdStatus = "未检查";
+    private string _steamCmdStatus = "Not Checked";
 
     [ObservableProperty]
     private bool _isInstallingsteamCmd = false;
@@ -112,9 +112,9 @@ public partial class SettingsViewModel : ObservableObject
 
     public ObservableCollection<string> Themes { get; } = new()
     {
-        "浅色",
-        "深色",
-        "自动"
+        "Light",
+        "Dark",
+        "Auto"
     };
 
     public ObservableCollection<LanguageDisplayInfo> Languages { get; } = new();
@@ -123,7 +123,7 @@ public partial class SettingsViewModel : ObservableObject
         IConfigurationService configurationService,
         ISteamCmdService steamCmdService,
         ILogger<SettingsViewModel> logger,
-        LocalizationService localizationService)
+        JsonLocalizationService localizationService)
     {
         _configurationService = configurationService;
         _steamCmdService = steamCmdService;
@@ -148,7 +148,7 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     private void InitializeLanguages()
     {
-        var supportedLanguages = LocalizationService.GetSupportedLanguages();
+        var supportedLanguages = JsonLocalizationService.GetSupportedLanguages();
         foreach (var lang in supportedLanguages)
         {
             Languages.Add(new LanguageDisplayInfo
@@ -176,7 +176,7 @@ public partial class SettingsViewModel : ObservableObject
             var settings = await _configurationService.LoadAppSettingsAsync();
             
             // 加载UI设置
-            Theme = settings.Ui?.Theme ?? "浅色";
+            Theme = settings.Ui?.Theme ?? "Light";
             var savedLangCode = _localizationService.CurrentLanguageCode;
             _logger.LogInformation("尝试加载语言设置: {LangCode}, 语言列表数量: {Count}", savedLangCode, Languages.Count);
             
@@ -234,13 +234,17 @@ public partial class SettingsViewModel : ObservableObject
             _logger.LogInformation("应用设置保存成功");
             DebugLogger.Info("SaveSettingsAsync", "设置已保存");
             
-            MessageBox.Show("设置已保存！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(
+                _localizationService.GetString("Msg.SettingsSaved"),
+                _localizationService.GetString("Common.OK"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "保存应用设置失败");
             DebugLogger.Error("SaveSettingsAsync", $"保存设置失败: {ex.Message}", ex);
-            MessageBox.Show($"保存设置失败：\n\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"{_localizationService.GetString("Msg.SaveFailed")}\n\n{ex.Message}", _localizationService.GetString("Error.Title"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -250,7 +254,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void ResetSettings()
     {
-        Theme = "浅色";
+        Theme = "Light";
         SelectedLanguage = Languages.FirstOrDefault(l => l.Code == "zh-CN");
         AutoCheckUpdates = true;
         MinimizeToTray = true;
@@ -266,7 +270,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog
         {
-            Title = "选择 SteamCMD 安装路径",
+            Title = _localizationService.GetString("Msg.SelectSteamCmdPath"),
             InitialDirectory = SteamCmdPath
         };
 
@@ -286,19 +290,19 @@ public partial class SettingsViewModel : ObservableObject
         try
         {
             _logger.LogInformation("检查 SteamCMD 状态");
-            SteamCmdStatus = "检查中...";
+            SteamCmdStatus = _localizationService.GetString("Msg.CheckingStatus");
             
             IsSteamCmdInstalled = await _steamCmdService.IsSteamCmdInstalledAsync();
             
             if (IsSteamCmdInstalled)
             {
                 var path = _steamCmdService.GetSteamCmdPath();
-                SteamCmdStatus = $"✅ 已安装 ({path})";
+                SteamCmdStatus = _localizationService.GetString("Msg.SteamCmdInstalled", path);
                 _logger.LogInformation("SteamCMD 已安装在: {Path}", path);
             }
             else
             {
-                SteamCmdStatus = "❌ 未安装";
+                SteamCmdStatus = _localizationService.GetString("Msg.SteamCmdNotInstalled");
                 _logger.LogInformation("SteamCMD 未安装");
             }
 
@@ -309,7 +313,7 @@ public partial class SettingsViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "检查 SteamCMD 状态失败");
-            SteamCmdStatus = $"检查失败: {ex.Message}";
+            SteamCmdStatus = _localizationService.GetString("Msg.CheckStatusFailed", ex.Message);
         }
     }
 
@@ -324,7 +328,7 @@ public partial class SettingsViewModel : ObservableObject
             _logger.LogInformation("开始安装 SteamCMD");
             IsInstallingsteamCmd = true;
             InstallProgress = 0;
-            InstallMessage = "准备安装...";
+            InstallMessage = _localizationService.GetString("Msg.InstallingPrep");
 
             var progress = new Progress<DownloadProgress>(p =>
             {
@@ -344,22 +348,34 @@ public partial class SettingsViewModel : ObservableObject
             if (success)
             {
                 _logger.LogInformation("SteamCMD 安装成功");
-                InstallMessage = "✅ 安装成功！";
+                InstallMessage = _localizationService.GetString("Msg.InstallSuccess");
                 await CheckSteamCmdStatusAsync();
-                MessageBox.Show("SteamCMD 安装成功！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    _localizationService.GetString("Msg.SteamCmdInstallSuccess"),
+                    _localizationService.GetString("Common.OK"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             else
             {
                 _logger.LogError("SteamCMD 安装失败");
-                InstallMessage = "❌ 安装失败";
-                MessageBox.Show("SteamCMD 安装失败，请查看日志了解详细信息。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                InstallMessage = _localizationService.GetString("Msg.InstallFailed");
+                MessageBox.Show(
+                    _localizationService.GetString("Msg.SteamCmdInstallFailedMsg"),
+                    _localizationService.GetString("Error.Title"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装 SteamCMD 时出错");
-            InstallMessage = $"❌ 错误: {ex.Message}";
-            MessageBox.Show($"安装 SteamCMD 时出错：\n\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            InstallMessage = $"❌ {_localizationService.GetString("Error.Title")}: {ex.Message}";
+            MessageBox.Show(
+                _localizationService.GetString("Msg.InstallError", ex.Message),
+                _localizationService.GetString("Error.Title"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
         finally
         {
@@ -379,8 +395,8 @@ public partial class SettingsViewModel : ObservableObject
         {
             // 确认对话框
             var result = MessageBox.Show(
-                "确定要卸载 SteamCMD 吗？\n\n这将删除所有 SteamCMD 相关文件。",
-                "确认卸载",
+                _localizationService.GetString("Msg.UninstallConfirm"),
+                _localizationService.GetString("Msg.ConfirmUninstall"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -392,30 +408,42 @@ public partial class SettingsViewModel : ObservableObject
             _logger.LogInformation("开始卸载 SteamCMD");
             IsInstallingsteamCmd = true;
             InstallProgress = 0;
-            InstallMessage = "正在卸载 SteamCMD...";
+            InstallMessage = _localizationService.GetString("Msg.UninstallingSteamCmd");
 
             var success = await _steamCmdService.UninstallSteamCmdAsync();
 
             if (success)
             {
                 _logger.LogInformation("SteamCMD 卸载成功");
-                InstallMessage = "✅ 卸载成功！";
+                InstallMessage = _localizationService.GetString("Msg.UninstallSuccess");
                 InstallProgress = 100;
                 await CheckSteamCmdStatusAsync();
-                MessageBox.Show("SteamCMD 已成功卸载！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    _localizationService.GetString("Msg.SteamCmdUninstallSuccess"),
+                    _localizationService.GetString("Common.OK"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             else
             {
                 _logger.LogError("SteamCMD 卸载失败");
-                InstallMessage = "❌ 卸载失败";
-                MessageBox.Show("SteamCMD 卸载失败，请查看日志了解详细信息。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                InstallMessage = _localizationService.GetString("Msg.UninstallFailed");
+                MessageBox.Show(
+                    _localizationService.GetString("Msg.SteamCmdUninstallFailedMsg"),
+                    _localizationService.GetString("Error.Title"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "卸载 SteamCMD 时出错");
-            InstallMessage = $"❌ 错误: {ex.Message}";
-            MessageBox.Show($"卸载 SteamCMD 时出错：\n\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            InstallMessage = $"❌ {_localizationService.GetString("Error.Title")}: {ex.Message}";
+            MessageBox.Show(
+                _localizationService.GetString("Msg.UninstallError", ex.Message),
+                _localizationService.GetString("Error.Title"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
         finally
         {
