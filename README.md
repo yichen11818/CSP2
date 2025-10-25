@@ -55,7 +55,7 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 #### 方式一：下载预编译版本（推荐）
 
-1. 前往 [Releases](https://github.com/YOUR_USERNAME/csp2/releases) 页面
+1. 前往 [Releases](https://github.com/yichen11818/csp2/releases) 页面
 2. 下载最新版本的 `CSP2-vX.X.X-Windows.zip`
 3. 解压到任意目录
 4. 运行 `CSP2.Desktop.exe`
@@ -64,7 +64,7 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/YOUR_USERNAME/csp2.git
+git clone https://github.com/yichen11818/csp2.git
 cd csp2
 
 # 2. 还原依赖
@@ -119,44 +119,6 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 
 *社区可以通过实现 `IFrameworkProvider` 接口来添加新框架支持*
 
----
-
-## 🗺️ 开发路线图
-
-### v0.1.0 - MVP (当前阶段)
-
-- [x] 项目架构设计
-- [x] 技术文档编写
-- [ ] 核心功能实现
-  - [ ] 服务器管理
-  - [ ] 日志查看
-  - [ ] 框架安装
-  - [ ] 基础插件管理
-
-### v0.2.0 - 插件市场
-
-- [ ] 插件市场UI
-- [ ] 插件安装/卸载
-- [ ] 插件更新检查
-- [ ] 插件仓库集成
-
-### v1.0.0 - 稳定版本
-
-- [ ] 完整功能测试
-- [ ] 性能优化
-- [ ] 用户文档完善
-- [ ] 国际化支持
-
-### v2.0.0 - 跨平台
-
-- [ ] 迁移到 Avalonia UI
-- [ ] Linux 支持
-- [ ] Docker 集成
-- [ ] 更多插件框架支持
-
-查看详细的 [开发路线图](docs/03-开发路线图.md)
-
----
 
 ## 🤝 参与贡献
 
@@ -164,8 +126,8 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 
 ### 贡献方式
 
-1. **报告 Bug**: 在 [Issues](https://github.com/YOUR_USERNAME/csp2/issues) 中提交
-2. **功能建议**: 在 [Discussions](https://github.com/YOUR_USERNAME/csp2/discussions) 中讨论
+1. **报告 Bug**: 在 [Issues](https://github.com/yichen11818/csp2/issues) 中提交
+2. **功能建议**: 在 [Discussions](https://github.com/yichen11818/csp2/discussions) 中讨论
 3. **提交代码**: Fork 项目，创建 Pull Request
 
 ### 开发者指南
@@ -225,7 +187,7 @@ A: 需要。CSP2 是管理工具，不提供游戏文件。您需要通过 Steam
 A: 实现 `IFrameworkProvider` 接口，编译成 DLL，放入 `providers/` 目录即可。详见[开发文档](docs/05-Provider开发指南.md)（即将添加）。
 
 ### Q: 插件数据从哪里来？
-A: 从我们维护的 [插件仓库](https://github.com/YOUR_USERNAME/csp2-plugins)（计划中）获取，社区可以通过 PR 提交新插件。
+A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugins)（计划中）获取，社区可以通过 PR 提交新插件。
 
 ---
 
@@ -259,8 +221,8 @@ furnished to do so, subject to the following conditions:
 
 ## 📧 联系方式
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/csp2/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/csp2/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yichen11818/csp2/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yichen11818/csp2/discussions)
 - **Email**: your.email@example.com（可选）
 
 ---
@@ -269,7 +231,7 @@ furnished to do so, subject to the following conditions:
 
 如果这个项目对您有帮助，请给我们一个 Star ⭐！
 
-[![Star History Chart](https://api.star-history.com/svg?repos=YOUR_USERNAME/csp2&type=Date)](https://star-history.com/#YOUR_USERNAME/csp2&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=yichen11818/csp2&type=Date)](https://star-history.com/#yichen11818/csp2&Date)
 
 ---
 
