@@ -52,7 +52,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- 步骤1 -->
@@ -66,9 +65,6 @@
                                         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -91,36 +87,13 @@
                                     <DataTrigger Binding="{Binding CurrentStep}" Value="2">
                                         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <TextBlock Text="2" FontSize="18" FontWeight="Bold" Foreground="White" 
                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="填写信息" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- 步骤3 -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Background" Value="{StaticResource Gray300Brush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock Text="3" FontSize="18" FontWeight="Bold" Foreground="White" 
-                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="开始下载" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="填写信息并确认" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -367,59 +340,13 @@
                                 <Run Text="编辑服务器设置" FontWeight="Bold"/>
                                 <Run Text="或"/>
                                 <Run Text="启动参数" FontWeight="Bold"/>
-                                <Run Text="进行修改"/>
+                                <Run Text="进行修改。"/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="💡 提示：" FontWeight="Bold"/>
+                                <Run Text="点击确认后，服务器将被添加到列表，下载任务将在后台进行。你可以在"/>
+                                <Run Text="下载管理" FontWeight="Bold"/>
+                                <Run Text="页面查看下载进度。"/>
                             </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- 步骤3：安装进度 -->
-                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=3}"
-                            VerticalAlignment="Center">
-                    <Border Background="{StaticResource PrimaryPaleBrush}"
-                            Width="140"
-                            Height="140"
-                            CornerRadius="70"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,40">
-                        <TextBlock Text="{Binding ProgressIcon}"
-                                   FontSize="72"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-
-                    <TextBlock Text="正在下载服务器文件..."
-                               FontSize="28"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,16"/>
-                    
-                    <TextBlock Text="{Binding InstallMessage}"
-                               FontSize="16"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,40"
-                               MaxWidth="600"/>
-
-                    <Border Background="{StaticResource SurfaceBrush}"
-                            CornerRadius="16"
-                            Padding="32"
-                            MaxWidth="600">
-                        <StackPanel>
-                            <TextBlock Text="{Binding InstallProgress, StringFormat={}{0:F1}%}"
-                                       FontSize="40"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource PrimaryBrush}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,0,0,20"/>
-
-                            <ProgressBar Value="{Binding InstallProgress}"
-                                         Style="{StaticResource ModernProgressBar}"
-                                         Height="14"
-                                         Maximum="100"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -450,7 +377,7 @@
                         FontSize="15"
                         Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
 
-                <Button Content="✅ 开始下载 →"
+                <Button Content="✅ 确认添加 →"
                         Command="{Binding StartInstallCommand}"
                         Style="{StaticResource SuccessButtonStyle}"
                         Padding="24,14"

@@ -17,7 +17,8 @@ public class SteamCmdService : ISteamCmdService
     private readonly IDownloadManager? _downloadManager;
 
     private const string SteamCmdDownloadUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
-    private const int Cs2AppId = 730; // CS2的AppID
+    private const string SteamCmdDownloadUrlChina = "https://media.st.dl.bscstorage.net/client/installer/steamcmd.zip";
+    private const int Cs2AppId = 730; // CS2的AppID（游戏和专用服务器共用）
 
     public SteamCmdService(
         IConfigurationService configService,
@@ -58,7 +59,10 @@ public class SteamCmdService : ISteamCmdService
         try
         {
             _logger.LogInformation("开始下载SteamCMD到: {Path}", installPath);
-            _logger.LogDebug("SteamCMD下载URL: {Url}", SteamCmdDownloadUrl);
+            
+            // 尝试使用国际节点，如果失败则使用中国内地节点
+            var downloadUrl = SteamCmdDownloadUrl;
+            _logger.LogDebug("SteamCMD下载URL: {Url}", downloadUrl);
 
             // 创建安装目录
             Directory.CreateDirectory(installPath);
@@ -75,12 +79,28 @@ public class SteamCmdService : ISteamCmdService
                 BytesDownloaded = 0
             });
 
-            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 0, "正在下载SteamCMD...");
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 0, "正在连接下载服务器...");
 
-            using (var response = await _httpClient.GetAsync(SteamCmdDownloadUrl, HttpCompletionOption.ResponseHeadersRead))
+            HttpResponseMessage? response = null;
+            
+            try
             {
+                response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();
-                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "国际节点下载失败，尝试使用中国内地节点");
+                downloadUrl = SteamCmdDownloadUrlChina;
+                response?.Dispose();
+                response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+            }
+
+            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", 5, "开始下载SteamCMD...");
+
+            using (response)
+            {
                 var totalBytes = response.Content.Headers.ContentLength ?? 0;
                 _logger.LogDebug("SteamCMD文件大小: {Size} MB", totalBytes / 1024 / 1024);
                 
@@ -266,29 +286,102 @@ public class SteamCmdService : ISteamCmdService
             using (var process = new Process { StartInfo = startInfo })
             {
                 var lastProgress = 30.0;
+                var lastProgressUpdate = DateTime.Now;
                 
                 process.OutputDataReceived += (sender, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                     {
-                        _logger.LogDebug("SteamCMD: {Output}", e.Data);
+                        var output = e.Data.Trim();
+                        _logger.LogDebug("SteamCMD: {Output}", output);
                         
-                        // 尝试解析进度
-                        if (e.Data.Contains("Update state") || e.Data.Contains("progress") || e.Data.Contains("downloading"))
+                        // 解析SteamCMD的进度输出
+                        // 格式: Update state (0x61) downloading, progress: 12.34 (1234567890 / 10000000000)
+                        // 或: Update state (0x81) verifying, progress: 56.78 (...)
+                        
+                        double? parsedProgress = null;
+                        string statusMessage = output;
+                        
+                        // 尝试解析精确进度
+                        if (output.Contains("progress:"))
                         {
-                            // 模拟进度增长（因为SteamCMD不提供精确进度）
-                            lastProgress = Math.Min(lastProgress + 1, 95);
+                            try
+                            {
+                                // 提取进度百分比
+                                var progressStart = output.IndexOf("progress:") + "progress:".Length;
+                                var progressEnd = output.IndexOf("(", progressStart);
+                                if (progressEnd < 0) progressEnd = output.Length;
+                                
+                                var progressStr = output.Substring(progressStart, progressEnd - progressStart).Trim();
+                                if (double.TryParse(progressStr, out var progressValue))
+                                {
+                                    parsedProgress = progressValue;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogDebug(ex, "解析进度失败: {Output}", output);
+                            }
                             
-                            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", lastProgress, e.Data.Trim());
+                            // 识别状态
+                            if (output.Contains("downloading"))
+                            {
+                                statusMessage = $"正在下载 CS2 服务器文件... {parsedProgress:F2}%";
+                            }
+                            else if (output.Contains("verifying"))
+                            {
+                                statusMessage = $"正在验证文件完整性... {parsedProgress:F2}%";
+                            }
+                            else if (output.Contains("reconfiguring"))
+                            {
+                                statusMessage = "正在配置服务器...";
+                            }
+                        }
+                        else if (output.Contains("Success!") && output.Contains("fully installed"))
+                        {
+                            parsedProgress = 100;
+                            statusMessage = "✅ CS2服务器安装完成！";
+                        }
+                        else if (output.Contains("Update state"))
+                        {
+                            // 其他状态更新
+                            if (output.Contains("preallocating"))
+                            {
+                                statusMessage = "正在预分配磁盘空间...";
+                            }
+                            else if (output.Contains("validating"))
+                            {
+                                statusMessage = "正在验证现有文件...";
+                            }
+                        }
+                        
+                        // 更新进度
+                        if (parsedProgress.HasValue)
+                        {
+                            // 将0-100的进度映射到30-100的范围（前30%是SteamCMD安装）
+                            lastProgress = 30 + (parsedProgress.Value * 0.7);
+                        }
+                        else if (output.Contains("Update state") || output.Contains("downloading") || output.Contains("verifying"))
+                        {
+                            // 如果无法解析精确进度，模拟进度增长
+                            lastProgress = Math.Min(lastProgress + 0.5, 95);
+                        }
+                        
+                        // 限制更新频率（避免UI刷新过快）
+                        if ((DateTime.Now - lastProgressUpdate).TotalMilliseconds > 500 || parsedProgress.HasValue)
+                        {
+                            _downloadManager?.UpdateTaskProgress(downloadTask?.Id ?? "", lastProgress, statusMessage);
                             
                             progress?.Report(new InstallProgress
                             {
                                 Percentage = lastProgress,
-                                Message = e.Data.Trim(),
+                                Message = statusMessage,
                                 CurrentStep = "下载服务器文件",
                                 TotalSteps = 2,
                                 CurrentStepIndex = 2
                             });
+                            
+                            lastProgressUpdate = DateTime.Now;
                         }
                     }
                 };

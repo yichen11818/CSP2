@@ -188,6 +188,7 @@ public partial class App : Application
                     services.AddTransient<Views.Pages.ServerManagementPage>();
                     services.AddTransient<Views.Pages.LogConsolePage>();
                     services.AddTransient<Views.Pages.PluginMarketPage>();
+                    services.AddTransient<Views.Pages.DownloadManagerPage>();
                     services.AddTransient<Views.Pages.SettingsPage>();
                     services.AddTransient<Views.Pages.DebugConsolePage>();
                 })

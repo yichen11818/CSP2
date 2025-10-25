@@ -180,6 +180,15 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void NavigateToDownloadManager()
+    {
+        SelectedMenuItem = "下载";
+        CurrentPage = _serviceProvider.GetRequiredService<Views.Pages.DownloadManagerPage>();
+        StatusText = "下载管理";
+        DebugLogger.Info("MainWindow", "已切换到下载管理页面");
+    }
+
+    [RelayCommand]
     private void ToggleSidebar()
     {
         IsSidebarExpanded = !IsSidebarExpanded;
@@ -188,22 +197,9 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenDownloadManager()
     {
-        DebugLogger.Debug("OpenDownloadManager", "打开下载管理器窗口");
-        
-        try
-        {
-            var downloadWindow = new Views.DownloadManagerWindow();
-            var viewModel = _serviceProvider.GetRequiredService<DownloadManagerViewModel>();
-            downloadWindow.DataContext = viewModel;
-            downloadWindow.Owner = Application.Current.MainWindow;
-            downloadWindow.ShowDialog();
-            DebugLogger.Debug("OpenDownloadManager", "下载管理器窗口已关闭");
-        }
-        catch (Exception ex)
-        {
-            DebugLogger.Error("OpenDownloadManager", $"打开下载管理器失败: {ex.Message}", ex);
-            StatusText = $"打开下载管理器失败: {ex.Message}";
-        }
+        // 悬浮球点击：导航到下载管理页面
+        DebugLogger.Debug("OpenDownloadManager", "从悬浮球导航到下载管理页面");
+        NavigateToDownloadManager();
     }
 
     /// <summary>

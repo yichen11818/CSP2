@@ -1,0 +1,273 @@
+<UserControl x:Class="CSP2.Desktop.Views.Pages.DownloadManagerPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:DownloadManagerViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
+
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏 -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="📥 下载管理" 
+                           FontSize="32" 
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="管理所有下载任务，包括服务器文件、插件和更新" 
+                           FontSize="14" 
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,8,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="🗑️ 清空已完成"
+                        Command="{Binding ClearCompletedCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Padding="16,10"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 下载任务列表 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+            <ItemsControl ItemsSource="{Binding DownloadTasks}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}"
+                                Padding="24"
+                                Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- 任务信息 -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 图标 -->
+                                    <Border Grid.Column="0"
+                                            Width="48"
+                                            Height="48"
+                                            CornerRadius="24"
+                                            Margin="0,0,16,0"
+                                            VerticalAlignment="Top">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource InfoLightBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Downloading">
+                                                        <Setter Property="Background" Value="{StaticResource PrimaryPaleBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                        <Setter Property="Background" Value="{StaticResource SuccessLightBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                                        <Setter Property="Background" Value="{StaticResource DangerLightBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="📦"
+                                                   FontSize="24"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- 任务名称和描述 -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontSize="18" 
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding Description}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- 状态标签 -->
+                                    <Border Grid.Column="2" 
+                                            CornerRadius="16"
+                                            Padding="12,6"
+                                            VerticalAlignment="Top">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource Gray200Brush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Downloading">
+                                                        <Setter Property="Background" Value="{StaticResource PrimaryPaleBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                        <Setter Property="Background" Value="{StaticResource SuccessLightBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                                        <Setter Property="Background" Value="{StaticResource DangerLightBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Paused">
+                                                        <Setter Property="Background" Value="{StaticResource WarningLightBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontSize="13" FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="⏳ 等待中"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Downloading">
+                                                            <Setter Property="Text" Value="⬇️ 下载中"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                            <Setter Property="Text" Value="✅ 完成"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                                            <Setter Property="Text" Value="❌ 失败"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Paused">
+                                                            <Setter Property="Text" Value="⏸️ 暂停"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                            <Setter Property="Text" Value="🚫 已取消"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </Grid>
+
+                                <!-- 进度条 -->
+                                <Grid Grid.Row="1" Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <ProgressBar Grid.Column="0"
+                                                 Value="{Binding Progress}" 
+                                                 Maximum="100"
+                                                 Height="10"
+                                                 Style="{StaticResource ModernProgressBar}"/>
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Progress, StringFormat={}{0:F1}%}"
+                                               FontSize="14"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryBrush}"
+                                               Margin="12,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+
+                                <!-- 详细信息和操作按钮 -->
+                                <Grid Grid.Row="2" Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextTertiaryBrush}">
+                                        <Run Text="创建时间: "/>
+                                        <Run Text="{Binding CreatedTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                                    </TextBlock>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="❌ 取消"
+                                                Command="{Binding DataContext.CancelTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButtonStyle}"
+                                                Padding="12,6"
+                                                Margin="0,0,8,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource DangerButtonStyle}">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Content="🗑️ 移除"
+                                                Command="{Binding DataContext.RemoveTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Padding="12,6"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- 空状态提示 -->
+        <Border Grid.Row="1" 
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center"
+                Visibility="{Binding DownloadTasks.Count, Converter={StaticResource CountToVisibilityConverter}}">
+            <StackPanel MaxWidth="400">
+                <Border Background="{StaticResource SurfaceBrush}"
+                        Width="120"
+                        Height="120"
+                        CornerRadius="60"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="📥" 
+                               FontSize="64" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Opacity="0.6"/>
+                </Border>
+                <TextBlock Text="暂无下载任务" 
+                           FontSize="24" 
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,24,0,0"/>
+                <TextBlock Text="当你开始下载服务器文件、插件或更新时，这里会显示下载进度" 
+                           FontSize="14" 
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
+

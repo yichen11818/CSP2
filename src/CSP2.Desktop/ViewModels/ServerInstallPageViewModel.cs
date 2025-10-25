@@ -22,7 +22,7 @@ public partial class ServerInstallPageViewModel : ObservableObject
     private readonly Action? _onCancel;
 
     [ObservableProperty]
-    private int _currentStep = 1; // 1=选择方式, 2=填写信息, 3=下载中
+    private int _currentStep = 1; // 1=选择方式, 2=填写信息
 
     [ObservableProperty]
     private string _selectedMode = ""; // "steamcmd" or "existing"
@@ -46,18 +46,9 @@ public partial class ServerInstallPageViewModel : ObservableObject
     [ObservableProperty]
     private string _installPath = "";
 
-    // 下载进度
+    // 安装状态
     [ObservableProperty]
     private bool _isInstalling = false;
-
-    [ObservableProperty]
-    private double _installProgress = 0;
-
-    [ObservableProperty]
-    private string _installMessage = "";
-
-    [ObservableProperty]
-    private string _progressIcon = "⬇️";
 
     public ServerInstallPageViewModel(
         IServerManager serverManager,
@@ -207,16 +198,11 @@ public partial class ServerInstallPageViewModel : ObservableObject
             }
             else if (SelectedMode == "existing")
             {
-                // 现有安装：同步添加，完成后返回
-                CurrentStep = 3;
+                // 现有安装：直接添加，完成后返回
                 var server = await AddExistingServerAsync(config);
                 
                 if (server != null)
                 {
-                    ProgressIcon = "✅";
-                    InstallMessage = "添加完成！";
-                    
-                    await Task.Delay(1500);
                     _onInstallComplete?.Invoke(server);
                 }
             }
@@ -311,14 +297,6 @@ public partial class ServerInstallPageViewModel : ObservableObject
             throw new InvalidOperationException("未选择现有安装");
 
         _logger.LogInformation("添加现有安装: {Path}", SelectedInstallation.InstallPath);
-        
-        InstallProgress = 50;
-        InstallMessage = "正在验证CS2安装...";
-
-        await Task.Delay(500);
-
-        InstallProgress = 80;
-        InstallMessage = "正在添加服务器到列表...";
 
         var server = await _serverManager.AddServerAsync(ServerName, SelectedInstallation.InstallPath, config);
         
@@ -335,7 +313,6 @@ public partial class ServerInstallPageViewModel : ObservableObject
         
         await _serverManager.UpdateServerAsync(server);
 
-        InstallProgress = 100;
         return server;
     }
 
