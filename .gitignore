@@ -92,9 +92,10 @@ steamcmd/
 ## CS2 Server Files (如果下载)
 servers/
 
-## Docs
-docs/
 
 *.bat
 
 CLAUDE.md
+
+## Cursor IDE
+.cursor/

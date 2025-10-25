@@ -6,7 +6,7 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/windows)
 
-[English](#) | **简体中文**
+[English](README.en.md) | **简体中文**
 
 ---
 
@@ -129,6 +129,8 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 1. **报告 Bug**: 在 [Issues](https://github.com/yichen11818/csp2/issues) 中提交
 2. **功能建议**: 在 [Discussions](https://github.com/yichen11818/csp2/discussions) 中讨论
 3. **提交代码**: Fork 项目，创建 Pull Request
+4. **翻译**: 帮助翻译界面到其他语言
+
 
 ### 开发者指南
 
@@ -137,11 +139,7 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
 - [技术设计文档](docs/01-技术设计文档.md)
 - [项目结构说明](docs/02-项目结构说明.md)
 - [开发路线图](docs/03-开发路线图.md)
-- [WPF 快速入门](docs/04-WPF快速入门.md)
 
-### 行为准则
-
-请阅读我们的 [行为准则](CODE_OF_CONDUCT.md)（即将添加），确保社区友好和包容。
 
 ---
 

@@ -1,0 +1,60 @@
+# <type>(<scope>): <subject>
+# │      │        │
+# │      │        └─⫸ Summary in present tense. Not capitalized. No period at the end.
+# │      │
+# │      └─⫸ Commit Scope: i18n|core|ui|provider|docs|config|deps|ci
+# │
+# └─⫸ Commit Type: feat|fix|docs|style|refactor|perf|test|chore
+
+# Example for i18n commits:
+# feat(i18n): add Japanese language support
+# fix(i18n): correct server status translations in zh-CN
+# chore(i18n): update all locale files with new keys
+
+# Remember to:
+# - Use English for commit messages
+# - Keep the subject line to 50 characters or less
+# - Separate subject from body with a blank line
+# - Wrap the body at 72 characters
+# - Use the body to explain what and why vs. how
+
+# Body (optional):
+# 
+
+
+# Footer (optional - reference issues, breaking changes):
+# Fixes #123
+# Closes #456
+# BREAKING CHANGE: description of breaking change
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Commit Types:
+#   feat:     A new feature
+#   fix:      A bug fix
+#   docs:     Documentation only changes
+#   style:    Changes that don't affect code meaning (formatting, etc)
+#   refactor: Code change that neither fixes a bug nor adds a feature
+#   perf:     Performance improvements
+#   test:     Adding or correcting tests
+#   chore:    Changes to build process or auxiliary tools
+#
+# Common Scopes:
+#   i18n:     Internationalization (translations, locales)
+#   core:     Core library (CSP2.Core)
+#   ui:       User interface (CSP2.Desktop)
+#   provider: Provider implementations (CSP2.Providers)
+#   docs:     Documentation files
+#   config:   Configuration files
+#   deps:     Dependencies updates
+#   ci:       CI/CD related changes
+#
+# i18n Specific Guidelines:
+#   - When adding new language: feat(i18n): add [language] support
+#   - When fixing translations: fix(i18n): correct [section] in [locale]
+#   - When updating translations: chore(i18n): update [locale] translations
+#   - Always update ALL language files when adding new keys
+#
+# For detailed guidelines, see: docs/i18n-commit-guide.md
+# ─────────────────────────────────────────────────────────────────────
+
