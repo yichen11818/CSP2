@@ -414,64 +414,6 @@
                            Margin="0,12,0,0"/>
             </StackPanel>
         </Border>
-
-        <!-- 安装进度 -->
-        <Border Grid.Row="2"
-                Style="{StaticResource CardStyle}"
-                Padding="24"
-                Margin="0,16,0,0"
-                Visibility="{Binding IsInstallingServer, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel>
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0"
-                            Background="{StaticResource PrimaryPaleBrush}"
-                            Width="48"
-                            Height="48"
-                            CornerRadius="24"
-                            Margin="0,0,16,0">
-                        <TextBlock Text="⬇️"
-                                   FontSize="24"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="正在安装服务器"
-                                   FontSize="18"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{Binding ServerInstallMessage}"
-                                   FontSize="14"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   Margin="0,4,0,0"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding ServerInstallProgress, StringFormat={}{0:F1}%}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryBrush}"
-                                   HorizontalAlignment="Right"/>
-                        <TextBlock Text="已完成"
-                                   FontSize="12"
-                                   Foreground="{StaticResource TextTertiaryBrush}"
-                                   HorizontalAlignment="Right"/>
-                    </StackPanel>
-                </Grid>
-
-                <ProgressBar Value="{Binding ServerInstallProgress}"
-                             Style="{StaticResource ModernProgressBar}"
-                             Height="10"
-                             Maximum="100"/>
-            </StackPanel>
-        </Border>
     </Grid>
 </UserControl>
 
