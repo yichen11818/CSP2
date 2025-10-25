@@ -95,6 +95,16 @@ public class UiSettings
     /// 窗口高度
     /// </summary>
     public double WindowHeight { get; set; } = 800;
+
+    /// <summary>
+    /// 关闭时最小化到托盘（而非退出程序）
+    /// </summary>
+    public bool MinimizeToTray { get; set; } = true;
+
+    /// <summary>
+    /// 是否已询问过用户首次关闭行为
+    /// </summary>
+    public bool MinimizeToTrayAsked { get; set; } = false;
 }
 
 /// <summary>
