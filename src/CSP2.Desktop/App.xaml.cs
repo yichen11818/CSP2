@@ -52,9 +52,17 @@ public partial class App : Application
 
                 // 注册ViewModels
                 services.AddTransient<MainWindowViewModel>();
+                services.AddTransient<ServerManagementViewModel>();
+                services.AddTransient<LogConsoleViewModel>();
+                services.AddTransient<PluginMarketViewModel>();
+                services.AddTransient<SettingsViewModel>();
 
                 // 注册Views
                 services.AddTransient<MainWindow>();
+                services.AddTransient<Views.Pages.ServerManagementPage>();
+                services.AddTransient<Views.Pages.LogConsolePage>();
+                services.AddTransient<Views.Pages.PluginMarketPage>();
+                services.AddTransient<Views.Pages.SettingsPage>();
             })
             .Build();
 

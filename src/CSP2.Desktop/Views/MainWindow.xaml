@@ -11,94 +11,166 @@
         Width="1200"
         WindowStartupLocation="CenterScreen">
     
+    <Window.Resources>
+        <!-- 导航按钮样式 -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2563eb"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- 选中的导航按钮样式 -->
+        <Style x:Key="NavButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+            <Setter Property="Background" Value="#2563eb"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Resources>
+    
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <!-- 左侧导航栏 -->
+            <ColumnDefinition Width="220"/>
+            <!-- 主内容区 -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- 标题栏 -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,15">
-            <TextBlock Text="CSP2 - Counter-Strike 2 Server Panel" 
-                       FontSize="20" 
-                       FontWeight="Bold"
-                       Foreground="White"/>
+        <!-- 左侧导航栏 -->
+        <Border Grid.Column="0" Background="{StaticResource PrimaryBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- Logo区域 -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 导航菜单 -->
+                    <RowDefinition Height="*"/>
+                    <!-- 版本信息 -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Logo -->
+                <Border Grid.Row="0" Padding="20" Background="#1e40af">
+                    <StackPanel>
+                        <TextBlock Text="CSP2" 
+                                   FontSize="28" 
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="CS2 服务器面板" 
+                                   FontSize="12" 
+                                   Foreground="#93c5fd"
+                                   Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 导航菜单 -->
+                <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                    <Button Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateToServerManagementCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🖥️" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="服务器管理"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateToLogConsoleCommand}"
+                            Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="日志控制台"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateToPluginMarketCommand}"
+                            Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧩" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="插件市场"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateToSettingsCommand}"
+                            Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="设置"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- 版本信息 -->
+                <Border Grid.Row="2" Padding="20,10" Background="#1e40af">
+                    <StackPanel>
+                        <TextBlock Text="版本 v0.1.0" 
+                                   FontSize="11" 
+                                   Foreground="#93c5fd"/>
+                        <TextBlock Text="开发中" 
+                                   FontSize="10" 
+                                   Foreground="#93c5fd"
+                                   Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
 
-        <!-- 主内容区 -->
-        <Grid Grid.Row="1" Margin="20">
+        <!-- 右侧主内容区 -->
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- 欢迎信息 -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                <TextBlock Text="欢迎使用 CSP2 服务器管理面板" 
-                           FontSize="24" 
-                           FontWeight="Bold"
-                           Margin="0,0,0,10"/>
-                <TextBlock Text="这是第一次开发的基础版本" 
-                           FontSize="14" 
-                           Foreground="Gray"
-                           Margin="0,0,0,5"/>
-                <TextBlock Text="项目结构已创建,核心接口和数据模型已完成" 
-                           FontSize="14" 
-                           Foreground="Gray"/>
-            </StackPanel>
+            <!-- 页面内容容器 -->
+            <Border Grid.Row="0" Background="White">
+                <ContentControl Content="{Binding CurrentPage}" />
+            </Border>
 
-            <!-- 功能区域 -->
+            <!-- 状态栏 -->
             <Border Grid.Row="1" 
-                    BorderBrush="LightGray" 
-                    BorderThickness="1" 
-                    CornerRadius="5"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Text="✅ 已完成:" 
-                               FontSize="16" 
-                               FontWeight="Bold"
-                               Margin="0,0,0,10"/>
+                    Background="#f3f4f6" 
+                    BorderBrush="#e5e7eb"
+                    BorderThickness="0,1,0,0"
+                    Padding="15,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     
-                    <TextBlock Text="• CSP2.Core 项目 - 核心接口和数据模型" 
-                               Margin="0,5"/>
-                    <TextBlock Text="• CSP2.Providers 项目 - Windows平台支持" 
-                               Margin="0,5"/>
-                    <TextBlock Text="• Metamod 框架Provider" 
-                               Margin="0,5"/>
-                    <TextBlock Text="• CounterStrikeSharp 框架Provider" 
-                               Margin="0,5"/>
-                    <TextBlock Text="• CSP2.Desktop WPF 项目基础结构" 
-                               Margin="0,5"/>
-
-                    <TextBlock Text="🚧 待实现:" 
-                               FontSize="16" 
-                               FontWeight="Bold"
-                               Margin="0,20,0,10"/>
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding StatusText}" 
+                               FontSize="12"
+                               Foreground="#6b7280"
+                               VerticalAlignment="Center"/>
                     
-                    <TextBlock Text="• 服务器管理服务实现" 
-                               Margin="0,5"
-                               Foreground="Gray"/>
-                    <TextBlock Text="• 插件管理服务实现" 
-                               Margin="0,5"
-                               Foreground="Gray"/>
-                    <TextBlock Text="• UI页面和ViewModels" 
-                               Margin="0,5"
-                               Foreground="Gray"/>
-                    <TextBlock Text="• 配置持久化" 
-                               Margin="0,5"
-                               Foreground="Gray"/>
-                </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SelectedMenuItem, StringFormat='当前: {0}'}"
+                               FontSize="12"
+                               Foreground="#6b7280"
+                               VerticalAlignment="Center"/>
+                </Grid>
             </Border>
         </Grid>
-
-        <!-- 状态栏 -->
-        <Border Grid.Row="2" 
-                Background="LightGray" 
-                Padding="10,5">
-            <TextBlock Text="{Binding StatusText}" 
-                       FontSize="12"/>
-        </Border>
     </Grid>
 </Window>
 

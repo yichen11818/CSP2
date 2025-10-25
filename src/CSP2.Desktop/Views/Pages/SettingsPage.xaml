@@ -1,0 +1,280 @@
+<Page x:Class="CSP2.Desktop.Views.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
+      d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="900">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,30">
+            <TextBlock Text="设置" 
+                       FontSize="28" 
+                       FontWeight="Bold"
+                       Foreground="#1f2937"/>
+            <TextBlock Text="配置应用程序和服务器选项" 
+                       FontSize="14" 
+                       Foreground="#6b7280"
+                       Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- 设置内容 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 外观设置 -->
+                <Border BorderBrush="#e5e7eb" 
+                        BorderThickness="1" 
+                        CornerRadius="8"
+                        Padding="25"
+                        Background="White"
+                        Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="🎨 外观" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Foreground="#1f2937"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- 主题 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="主题" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"/>
+                                <TextBlock Text="选择应用程序的主题样式" 
+                                           FontSize="12" 
+                                           Foreground="#9ca3af"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding Themes}"
+                                      SelectedItem="{Binding Theme}"
+                                      Width="200"
+                                      HorizontalAlignment="Left"
+                                      Height="35"
+                                      VerticalContentAlignment="Center"
+                                      FontSize="14"/>
+                        </Grid>
+
+                        <!-- 语言 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="语言" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"/>
+                                <TextBlock Text="更改界面显示语言" 
+                                           FontSize="12" 
+                                           Foreground="#9ca3af"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding Languages}"
+                                      SelectedItem="{Binding Language}"
+                                      Width="200"
+                                      HorizontalAlignment="Left"
+                                      Height="35"
+                                      VerticalContentAlignment="Center"
+                                      FontSize="14"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 更新设置 -->
+                <Border BorderBrush="#e5e7eb" 
+                        BorderThickness="1" 
+                        CornerRadius="8"
+                        Padding="25"
+                        Background="White"
+                        Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="🔄 更新" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Foreground="#1f2937"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- 自动检查更新 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="自动检查更新" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"/>
+                                <TextBlock Text="启动时自动检查应用程序更新" 
+                                           FontSize="12" 
+                                           Foreground="#9ca3af"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="1"
+                                      IsChecked="{Binding AutoCheckUpdates}"
+                                      VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- SteamCMD设置 -->
+                <Border BorderBrush="#e5e7eb" 
+                        BorderThickness="1" 
+                        CornerRadius="8"
+                        Padding="25"
+                        Background="White">
+                    <StackPanel>
+                        <TextBlock Text="⚙️ SteamCMD" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Foreground="#1f2937"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- 安装路径 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0">
+                                <TextBlock Text="安装路径" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"/>
+                                <TextBlock Text="SteamCMD的安装位置" 
+                                           FontSize="12" 
+                                           Foreground="#9ca3af"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding SteamCmdPath}"
+                                         Height="35"
+                                         VerticalContentAlignment="Center"
+                                         Padding="12,0"
+                                         FontSize="14"
+                                         BorderBrush="#e5e7eb"
+                                         BorderThickness="1"
+                                         Margin="0,0,10,0"/>
+
+                                <Button Grid.Column="1"
+                                        Content="浏览..."
+                                        Command="{Binding BrowseSteamCmdPathCommand}"
+                                        Background="#f3f4f6"
+                                        Foreground="#374151"
+                                        Padding="20,8"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        FontSize="14"
+                                        Height="35">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="6"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </Grid>
+
+                        <!-- 自动下载 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="自动下载SteamCMD" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#374151"/>
+                                <TextBlock Text="如果未安装，自动下载SteamCMD" 
+                                           FontSize="12" 
+                                           Foreground="#9ca3af"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="1"
+                                      IsChecked="{Binding AutoDownloadSteamCmd}"
+                                      VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 底部按钮 -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Content="恢复默认"
+                    Command="{Binding ResetSettingsCommand}"
+                    Background="#f3f4f6"
+                    Foreground="#374151"
+                    Padding="20,10"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    FontSize="14"
+                    HorizontalAlignment="Left">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button Grid.Column="1"
+                    Content="💾 保存设置"
+                    Command="{Binding SaveSettingsCommand}"
+                    Background="{StaticResource PrimaryBrush}"
+                    Foreground="White"
+                    Padding="30,10"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    FontSize="14"
+                    FontWeight="SemiBold">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+    </Grid>
+</Page>
+
