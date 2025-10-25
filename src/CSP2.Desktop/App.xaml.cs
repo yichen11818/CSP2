@@ -36,8 +36,15 @@ public partial class App : Application
             Log.Fatal(ex, "未处理的异常 (AppDomain)");
             ViewModels.DebugLogger.Error("UnhandledException", $"严重错误: {ex?.Message}", ex);
             
-            MessageBox.Show($"未处理的异常！\n\n{ex?.Message}\n\n{ex?.StackTrace}", 
-                "严重错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            // 使用新的错误对话框显示详细信息
+            Dispatcher.Invoke(() =>
+            {
+                Views.ErrorDialog.Show(
+                    errorMessage: ex?.Message ?? "未知错误",
+                    exception: ex,
+                    subtitle: "严重错误 - 应用程序域异常"
+                );
+            });
         };
 
         DispatcherUnhandledException += (s, e) =>
@@ -46,8 +53,14 @@ public partial class App : Application
             Log.Error(e.Exception, "UI线程未处理的异常");
             ViewModels.DebugLogger.Error("DispatcherException", $"UI线程异常: {e.Exception.Message}", e.Exception);
             
-            MessageBox.Show($"UI线程异常！\n\n{e.Exception.Message}\n\n{e.Exception.StackTrace}", 
-                "UI错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            // 使用新的错误对话框显示详细信息
+            Views.ErrorDialog.Show(
+                errorMessage: e.Exception.Message,
+                exception: e.Exception,
+                subtitle: "操作已停止 - UI线程异常"
+            );
+            
+            // 标记为已处理，防止程序崩溃退出
             e.Handled = true;
         };
 
@@ -60,6 +73,16 @@ public partial class App : Application
             
             // 标记异常已处理，防止程序崩溃
             e.SetObserved();
+            
+            // 在UI线程显示错误对话框
+            Dispatcher.BeginInvoke(() =>
+            {
+                Views.ErrorDialog.Show(
+                    errorMessage: e.Exception.GetBaseException().Message,
+                    exception: e.Exception.GetBaseException(),
+                    subtitle: "后台任务异常"
+                );
+            });
         };
     }
 
