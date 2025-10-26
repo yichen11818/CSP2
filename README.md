@@ -210,7 +210,6 @@ furnished to do so, subject to the following conditions:
 
 - **Issues**: [GitHub Issues](https://github.com/yichen11818/csp2/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yichen11818/csp2/discussions)
-- **Email**: your.email@example.com (optional)
 
 ---
 
