@@ -2,6 +2,7 @@ using CSP2.Core.Models;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CSP2.Desktop.Views.Dialogs;
 
@@ -52,7 +53,7 @@ public partial class AddServerDialog : Window
         if (!Directory.Exists(InstallPath))
         {
             var result = MessageBox.Show(
-                $"路径 '{InstallPath}' 不存在。\n\n是否仍要添加？",
+                $"路径 '{InstallPath}' 不存在。\n\n是否仍要添加?",
                 "路径不存在",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -63,6 +64,8 @@ public partial class AddServerDialog : Window
             }
         }
 
+        // ========== 基本配置 ==========
+        
         // 验证端口号
         if (!int.TryParse(PortTextBox.Text, out int port) || port < 1 || port > 65535)
         {
@@ -81,23 +84,123 @@ public partial class AddServerDialog : Window
 
         // 获取Tick Rate
         int tickRate = 64;
-        if (TickRateComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)
+        if (TickRateComboBox.SelectedItem is ComboBoxItem tickRateItem)
         {
-            int.TryParse(selectedItem.Content.ToString(), out tickRate);
+            int.TryParse(tickRateItem.Content.ToString(), out tickRate);
+        }
+
+        // ========== 性能选项 ==========
+        
+        // 最大FPS (可选)
+        int? maxFps = null;
+        if (!string.IsNullOrWhiteSpace(MaxFpsTextBox.Text))
+        {
+            if (int.TryParse(MaxFpsTextBox.Text, out int fps) && fps > 0)
+            {
+                maxFps = fps;
+            }
+            else
+            {
+                MessageBox.Show("最大FPS必须是大于0的整数", "验证失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MaxFpsTextBox.Focus();
+                return;
+            }
+        }
+
+        // 线程数 (可选)
+        int? threadCount = null;
+        if (!string.IsNullOrWhiteSpace(ThreadCountTextBox.Text))
+        {
+            if (int.TryParse(ThreadCountTextBox.Text, out int threads) && threads > 0)
+            {
+                threadCount = threads;
+            }
+            else
+            {
+                MessageBox.Show("线程数必须是大于0的整数", "验证失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThreadCountTextBox.Focus();
+                return;
+            }
+        }
+
+        // 进程优先级
+        string processPriority = "normal";
+        if (ProcessPriorityComboBox.SelectedItem is ComboBoxItem priorityItem && priorityItem.Tag != null)
+        {
+            processPriority = priorityItem.Tag.ToString() ?? "normal";
+        }
+
+        // ========== 游戏规则 ==========
+        
+        // BOT数量
+        int botQuota = 0;
+        if (!string.IsNullOrWhiteSpace(BotQuotaTextBox.Text))
+        {
+            if (!int.TryParse(BotQuotaTextBox.Text, out botQuota) || botQuota < 0 || botQuota > 64)
+            {
+                MessageBox.Show("BOT数量必须是0-64之间的整数", "验证失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+                BotQuotaTextBox.Focus();
+                return;
+            }
+        }
+
+        // BOT难度
+        int botDifficulty = BotDifficultyComboBox.SelectedIndex;
+
+        // 踢出闲置时间 (可选)
+        int? kickIdleTime = null;
+        if (!string.IsNullOrWhiteSpace(KickIdleTimeTextBox.Text))
+        {
+            if (int.TryParse(KickIdleTimeTextBox.Text, out int idleTime) && idleTime > 0)
+            {
+                kickIdleTime = idleTime;
+            }
+            else
+            {
+                MessageBox.Show("踢出闲置时间必须是大于0的整数（分钟）", "验证失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+                KickIdleTimeTextBox.Focus();
+                return;
+            }
         }
 
         // 构建配置
         ServerConfig = new ServerConfig
         {
+            // 基础配置
             IpAddress = IpAddressTextBox.Text,
             Port = port,
             Map = MapTextBox.Text,
             MaxPlayers = maxPlayers,
             TickRate = tickRate,
             MapGroup = MapGroupTextBox.Text,
-            ServerName = ServerName,
-            EnableConsole = true,
-            EnableLogging = true
+
+            // 服务器身份
+            ServerName = string.IsNullOrWhiteSpace(ServerDisplayNameTextBox.Text) ? null : ServerDisplayNameTextBox.Text,
+            SteamToken = string.IsNullOrWhiteSpace(SteamTokenTextBox.Text) ? null : SteamTokenTextBox.Text,
+            ServerPassword = string.IsNullOrWhiteSpace(ServerPasswordBox.Password) ? null : ServerPasswordBox.Password,
+            RconPassword = string.IsNullOrWhiteSpace(RconPasswordBox.Password) ? null : RconPasswordBox.Password,
+
+            // 网络设置
+            IsLanMode = LanModeCheckBox.IsChecked == true,
+            InsecureMode = InsecureModeCheckBox.IsChecked == true,
+
+            // 性能优化
+            EnableConsole = EnableConsoleCheckBox.IsChecked == true,
+            ProcessPriority = processPriority,
+            MaxFps = maxFps,
+            ThreadCount = threadCount,
+            DisableHltv = DisableHltvCheckBox.IsChecked == true,
+
+            // 游戏规则
+            EnableCheats = EnableCheatsCheckBox.IsChecked == true,
+            BotQuota = botQuota,
+            BotDifficulty = botDifficulty,
+            KickIdleTime = kickIdleTime,
+
+            // 日志设置
+            EnableLogging = EnableLoggingCheckBox.IsChecked == true,
+            ConsoleLogToFile = ConsoleLogToFileCheckBox.IsChecked == true,
+            LogEcho = LogEchoCheckBox.IsChecked == true
         };
 
         DialogResult = true;
@@ -110,4 +213,3 @@ public partial class AddServerDialog : Window
         Close();
     }
 }
-

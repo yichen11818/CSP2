@@ -493,8 +493,59 @@ public partial class ServerManagementViewModel : ObservableObject
     [RelayCommand]
     private async Task RefreshAsync()
     {
+        DebugLogger.Info("RefreshAsync", "开始刷新服务器列表和状态");
+        
+        // 先检查并更新所有服务器状态
+        try
+        {
+            await _serverManager.CheckAndUpdateServerStatusesAsync();
+            DebugLogger.Info("RefreshAsync", "服务器状态检查完成");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "检查服务器状态失败");
+            DebugLogger.Error("RefreshAsync", "状态检查失败", ex);
+        }
+        
+        // 然后重新加载服务器列表
         await LoadServersAsync();
     }
+    
+    /// <summary>
+    /// 刷新选中服务器状态命令
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(HasSelectedServer))]
+    private async Task RefreshServerStatusAsync()
+    {
+        if (SelectedServer == null) return;
+        
+        DebugLogger.Info("RefreshServerStatus", $"刷新服务器状态: {SelectedServer.Name}");
+        
+        try
+        {
+            var newStatus = await _serverManager.RefreshServerStatusAsync(SelectedServer.Id);
+            _logger.LogInformation("服务器状态已刷新: {Name} -> {Status}", SelectedServer.Name, newStatus);
+            
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                StatusMessage = $"状态已更新: {newStatus}";
+                HasError = false;
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "刷新服务器状态失败: {Name}", SelectedServer.Name);
+            DebugLogger.Error("RefreshServerStatus", "刷新失败", ex);
+            
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                StatusMessage = $"刷新状态失败: {ex.Message}";
+                HasError = true;
+            });
+        }
+    }
+    
+    private bool HasSelectedServer() => SelectedServer != null;
 
     /// <summary>
     /// 使用安装向导安装服务器命令
@@ -543,64 +594,35 @@ public partial class ServerManagementViewModel : ObservableObject
     private bool CanInstallServer() => !IsLoading;
 
     /// <summary>
-    /// 查看服务器日志命令
+    /// 查看服务器日志命令 - 导航到日志控制台页面
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanViewServerLog))]
-    private async Task ViewServerLogAsync(Server? server)
+    private void ViewServerLog(Server? server)
     {
         if (server == null) return;
 
         try
         {
-            _logger.LogInformation("查看服务器日志: {ServerName}", server.Name);
+            _logger.LogInformation("导航到服务器日志控制台: {ServerName}", server.Name);
+            DebugLogger.Info("ViewServerLog", $"导航到服务器 {server.Name} 的日志控制台");
             
-            var logFiles = await _serverManager.GetServerLogFilesAsync(server.Id);
-            
-            if (logFiles.Count == 0)
+            // 获取MainWindow的ViewModel并导航到日志页面
+            var mainWindow = System.Windows.Application.Current.MainWindow;
+            if (mainWindow?.DataContext is MainWindowViewModel mainViewModel)
             {
-                ShowError("未找到日志文件。\n\n服务器可能尚未运行过，或日志功能未启用。");
-                return;
+                mainViewModel.NavigateToLogConsole(server.Id);
             }
-
-            // 读取最新的日志文件
-            var latestLogFile = logFiles.First();
-            var logFileName = Path.GetFileName(latestLogFile);
-            var logContent = await _serverManager.ReadLogFileAsync(latestLogFile, 500);
-
-            // 显示日志内容
-            var result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            else
             {
-                var window = new System.Windows.Window
-                {
-                    Title = $"服务器日志 - {server.Name} ({logFileName})",
-                    Width = 900,
-                    Height = 600,
-                    WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
-                };
-
-                var textBox = new System.Windows.Controls.TextBox
-                {
-                    Text = logContent,
-                    IsReadOnly = true,
-                    VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
-                    HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
-                    FontFamily = new System.Windows.Media.FontFamily("Consolas"),
-                    FontSize = 12,
-                    Padding = new System.Windows.Thickness(10),
-                    TextWrapping = System.Windows.TextWrapping.NoWrap
-                };
-
-                window.Content = textBox;
-                window.ShowDialog();
-                return true;
-            });
-
-            _logger.LogInformation("日志查看完成");
+                _logger.LogError("无法获取MainWindowViewModel");
+                ShowError("无法打开日志控制台");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "查看服务器日志失败: {ServerName}", server.Name);
-            ShowError($"查看日志失败: {ex.Message}");
+            _logger.LogError(ex, "导航到日志控制台失败: {ServerName}", server.Name);
+            DebugLogger.Error("ViewServerLog", "导航失败", ex);
+            ShowError($"打开日志控制台失败：{ex.Message}");
         }
     }
 

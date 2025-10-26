@@ -59,62 +59,85 @@
                           VerticalContentAlignment="Center"
                           FontSize="14"/>
 
-                <Button Grid.Column="3"
-                        Content="{converters:Localization LogConsole.Clear}"
-                        Command="{Binding ClearLogsCommand}"
-                        Background="#f3f4f6"
-                        Foreground="#374151"
-                        Padding="15,8"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        FontSize="13">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="6"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <Button Content="📋 复制"
+                            Command="{Binding CopyLogsCommand}"
+                            Background="#f3f4f6"
+                            Foreground="#374151"
+                            Padding="15,8"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="13"
+                            ToolTip="复制所有日志到剪贴板"
+                            Margin="0,0,10,0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Content="💾 导出"
+                            Command="{Binding ExportLogsCommand}"
+                            Background="#f3f4f6"
+                            Foreground="#374151"
+                            Padding="15,8"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="13"
+                            ToolTip="导出日志到文件"
+                            Margin="0,0,10,0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Content="{converters:Localization LogConsole.Clear}"
+                            Command="{Binding ClearLogsCommand}"
+                            Background="#f3f4f6"
+                            Foreground="#374151"
+                            Padding="15,8"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="13">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Grid>
 
-        <!-- 日志显示区域 -->
+        <!-- 日志显示区域 - 使用TextBox支持文本选择 -->
         <Border Grid.Row="1" 
                 BorderBrush="#e5e7eb" 
                 BorderThickness="1"
                 CornerRadius="8"
                 Background="#0f172a">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Logs}"
-                              Margin="15">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- 时间戳 -->
-                                <TextBlock Grid.Column="0"
-                                           Text="{Binding Timestamp, StringFormat='[{0:HH:mm:ss}]'}"
-                                           FontFamily="Consolas"
-                                           FontSize="13"
-                                           Foreground="#64748b"
-                                           Margin="0,0,10,0"/>
-
-                                <!-- 日志消息 -->
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding Message}"
-                                           FontFamily="Consolas"
-                                           FontSize="13"
-                                           Foreground="{Binding Level, Converter={StaticResource LogLevelToColorConverter}}"
-                                           TextWrapping="Wrap"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <TextBox x:Name="LogTextBox"
+                     Text="{Binding LogText, Mode=OneWay}"
+                     FontFamily="Consolas"
+                     FontSize="13"
+                     Foreground="#e2e8f0"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     Padding="15"
+                     AcceptsReturn="True"
+                     VerticalContentAlignment="Top"
+                     TextChanged="LogTextBox_TextChanged">
+                <TextBox.Resources>
+                    <!-- 自定义滚动条样式 -->
+                    <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBar}"/>
+                </TextBox.Resources>
+            </TextBox>
         </Border>
 
         <!-- 命令输入区域 -->

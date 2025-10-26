@@ -206,6 +206,11 @@ public partial class App : Application
             Helpers.LocalizationHelper.Instance.Initialize(localization);
             Log.Information("本地化服务已初始化，当前语言: {Language}", localization.CurrentLanguageCode);
 
+            // 恢复服务器状态 - 将所有非Stopped状态的服务器重置为Stopped
+            var serverManager = _host.Services.GetRequiredService<IServerManager>();
+            await serverManager.RestoreServerStatesAsync();
+            Log.Information("服务器状态已恢复");
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
             Log.Information("主窗口已显示");

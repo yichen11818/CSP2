@@ -113,6 +113,25 @@ public interface IServerManager
     Task<string> ReadLogFileAsync(string logFilePath, int maxLines = 1000);
 
     /// <summary>
+    /// 检查并更新所有服务器状态（后台自动调用）
+    /// </summary>
+    /// <returns>Task</returns>
+    Task CheckAndUpdateServerStatusesAsync();
+
+    /// <summary>
+    /// 手动刷新指定服务器的状态
+    /// </summary>
+    /// <param name="serverId">服务器ID</param>
+    /// <returns>服务器当前状态</returns>
+    Task<ServerStatus> RefreshServerStatusAsync(string serverId);
+
+    /// <summary>
+    /// 应用启动时恢复服务器状态
+    /// </summary>
+    /// <returns>Task</returns>
+    Task RestoreServerStatesAsync();
+
+    /// <summary>
     /// 日志接收事件
     /// </summary>
     event EventHandler<LogReceivedEventArgs>? LogReceived;

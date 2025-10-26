@@ -6,8 +6,8 @@
         xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
         mc:Ignorable="d"
         Title="{converters:Localization Dialog.AddServer}" 
-        Height="520" 
-        Width="650"
+        Height="700" 
+        Width="800"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="{StaticResource BackgroundBrush}">
@@ -31,141 +31,447 @@
                        Margin="0,8,0,0"/>
         </StackPanel>
 
-        <!-- 表单内容 -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <!-- 服务器名称 -->
-                <TextBlock Text="{converters:Localization Dialog.ServerName}" 
-                           FontSize="14" 
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}"
-                           Margin="0,0,0,8"/>
-                <TextBox x:Name="ServerNameTextBox"
-                         Text="{converters:Localization Dialog.DefaultServerName}"
-                         Style="{StaticResource ModernTextBox}"
-                         Margin="0,0,0,20"/>
-
-                <!-- 服务器路径 -->
-                <TextBlock Text="{converters:Localization Dialog.ServerPath}" 
-                           FontSize="14" 
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}"
-                           Margin="0,0,0,8"/>
-                <Grid Margin="0,0,0,6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Name="InstallPathTextBox"
-                             Grid.Column="0"
-                             Style="{StaticResource ModernTextBox}"/>
-                    <Button Grid.Column="1"
-                            Content="{converters:Localization Common.Browse}"
-                            Click="BrowseButton_Click"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Margin="12,0,0,0"
-                            Padding="16,10"/>
-                </Grid>
-                <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
-                           FontSize="12" 
-                           Foreground="{StaticResource TextTertiaryBrush}"
-                           Margin="0,0,0,20"/>
-
-                <!-- 网络配置 -->
-                <Border Background="{StaticResource SurfaceBrush}"
-                        CornerRadius="10"
-                        Padding="20"
-                        Margin="0,0,0,20">
+        <!-- 表单内容 - 使用TabControl分类 -->
+        <TabControl Grid.Row="1" 
+                    Style="{StaticResource ModernTabControl}"
+                    Background="Transparent"
+                    BorderThickness="0">
+            
+            <!-- Tab 1: 基本配置 -->
+            <TabItem Header="{converters:Localization Dialog.BasicConfig}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                     <StackPanel>
-                        <TextBlock Text="{converters:Localization Dialog.NetworkConfig}" 
-                                   FontSize="16" 
-                                   FontWeight="Bold"
+                        <!-- 服务器名称 -->
+                        <TextBlock Text="{converters:Localization Dialog.ServerName}" 
+                                   FontSize="14" 
+                                   FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,16"/>
+                                   Margin="0,0,0,8"/>
+                        <TextBox x:Name="ServerNameTextBox"
+                                 Text="{converters:Localization Dialog.DefaultServerName}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,20"/>
 
-                        <Grid>
+                        <!-- 服务器路径 -->
+                        <TextBlock Text="{converters:Localization Dialog.ServerPath}" 
+                                   FontSize="14" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="{converters:Localization Dialog.IPAddress}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <TextBox x:Name="IpAddressTextBox"
-                                         Text="0.0.0.0"
-                                         Style="{StaticResource ModernTextBox}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="{converters:Localization Dialog.Port}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <TextBox x:Name="PortTextBox"
-                                         Text="27015"
-                                         Style="{StaticResource ModernTextBox}"/>
-                            </StackPanel>
+                            <TextBox x:Name="InstallPathTextBox"
+                                     Grid.Column="0"
+                                     Style="{StaticResource ModernTextBox}"/>
+                            <Button Grid.Column="1"
+                                    Content="{converters:Localization Common.Browse}"
+                                    Click="BrowseButton_Click"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="12,0,0,0"
+                                    Padding="16,10"/>
                         </Grid>
-                    </StackPanel>
-                </Border>
+                        <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
+                                   FontSize="12" 
+                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   Margin="0,0,0,20"/>
 
-                <!-- 游戏配置 -->
-                <Border Background="{StaticResource SurfaceBrush}"
-                        CornerRadius="10"
-                        Padding="20"
-                        Margin="0,0,0,20">
+                        <!-- 网络配置 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.NetworkConfig}" 
+                                           FontSize="16" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,16"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.IPAddress}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBox x:Name="IpAddressTextBox"
+                                                 Text="0.0.0.0"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.IPAddressTooltip}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{converters:Localization Dialog.Port}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBox x:Name="PortTextBox"
+                                                 Text="27015"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.PortTooltip}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 游戏配置 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.GameConfig}" 
+                                           FontSize="16" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,16"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.InitialMap}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBox x:Name="MapTextBox"
+                                                 Text="de_dust2"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.InitialMapTooltip}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="{converters:Localization Dialog.MaxPlayers}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBox x:Name="MaxPlayersTextBox"
+                                                 Text="10"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.MaxPlayersTooltip}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.TickRate}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <ComboBox x:Name="TickRateComboBox"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectedIndex="1"
+                                                  ToolTip="{converters:Localization Dialog.TickRateTooltip}">
+                                            <ComboBoxItem Content="64"/>
+                                            <ComboBoxItem Content="128"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="2" Grid.Column="2">
+                                        <TextBlock Text="{converters:Localization Dialog.MapGroup}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBox x:Name="MapGroupTextBox"
+                                                 Text="mg_active"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.MapGroupTooltip}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: 服务器身份 -->
+            <TabItem Header="{converters:Localization Dialog.ServerIdentity}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                     <StackPanel>
-                        <TextBlock Text="{converters:Localization Dialog.GameConfig}" 
-                                   FontSize="16" 
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,16"/>
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.ServerIdentityDesc}" 
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,16"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="12"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                <!-- 服务器显示名称 -->
+                                <TextBlock Text="{converters:Localization Dialog.ServerDisplayName}" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,6"/>
+                                <TextBox x:Name="ServerDisplayNameTextBox"
+                                         Style="{StaticResource ModernTextBox}"
+                                         Margin="0,0,0,16"
+                                         ToolTip="{converters:Localization Dialog.ServerDisplayNameTooltip}"/>
 
-                            <StackPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="{converters:Localization Dialog.InitialMap}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <TextBox x:Name="MapTextBox"
-                                         Text="de_dust2"
-                                         Style="{StaticResource ModernTextBox}"/>
+                                <!-- Steam Token -->
+                                <TextBlock Text="{converters:Localization Dialog.SteamToken}" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,6"/>
+                                <TextBox x:Name="SteamTokenTextBox"
+                                         Style="{StaticResource ModernTextBox}"
+                                         Margin="0,0,0,6"
+                                         ToolTip="{converters:Localization Dialog.SteamTokenTooltip}"/>
+                                <TextBlock Text="{converters:Localization Dialog.SteamTokenHint}" 
+                                           FontSize="11" 
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,16"/>
+
+                                <!-- 服务器密码 -->
+                                <TextBlock Text="{converters:Localization Dialog.ServerPassword}" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,6"/>
+                                <PasswordBox x:Name="ServerPasswordBox"
+                                             Style="{StaticResource ModernPasswordBox}"
+                                             Margin="0,0,0,16"
+                                             ToolTip="{converters:Localization Dialog.ServerPasswordTooltip}"/>
+
+                                <!-- RCON密码 -->
+                                <TextBlock Text="{converters:Localization Dialog.RconPassword}" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,6"/>
+                                <PasswordBox x:Name="RconPasswordBox"
+                                             Style="{StaticResource ModernPasswordBox}"
+                                             ToolTip="{converters:Localization Dialog.RconPasswordTooltip}"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Row="0" Grid.Column="2">
-                                <TextBlock Text="{converters:Localization Dialog.MaxPlayers}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <TextBox x:Name="MaxPlayersTextBox"
-                                         Text="10"
-                                         Style="{StaticResource ModernTextBox}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="{converters:Localization Dialog.TickRate}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <ComboBox x:Name="TickRateComboBox"
-                                          Style="{StaticResource ModernComboBox}"
-                                          SelectedIndex="1">
-                                    <ComboBoxItem Content="64"/>
-                                    <ComboBoxItem Content="128"/>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="{converters:Localization Dialog.MapGroup}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                                <TextBox x:Name="MapGroupTextBox"
-                                         Text="mg_active"
-                                         Style="{StaticResource ModernTextBox}"/>
-                            </StackPanel>
-                        </Grid>
+                        </Border>
                     </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 3: 高级选项 -->
+            <TabItem Header="{converters:Localization Dialog.AdvancedOptions}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
+                    <StackPanel>
+                        <!-- 网络选项 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.NetworkOptions}" 
+                                           FontSize="15" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,12"/>
+
+                                <CheckBox x:Name="LanModeCheckBox"
+                                          Content="{converters:Localization Dialog.LanMode}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          Margin="0,0,0,8"
+                                          ToolTip="{converters:Localization Dialog.LanModeTooltip}"/>
+
+                                <CheckBox x:Name="InsecureModeCheckBox"
+                                          Content="{converters:Localization Dialog.InsecureMode}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          ToolTip="{converters:Localization Dialog.InsecureModeTooltip}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 性能选项 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.PerformanceOptions}" 
+                                           FontSize="15" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,12"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 进程优先级 -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.ProcessPriority}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <ComboBox x:Name="ProcessPriorityComboBox"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectedIndex="1"
+                                                  ToolTip="{converters:Localization Dialog.ProcessPriorityTooltip}">
+                                            <ComboBoxItem Content="{converters:Localization Dialog.PriorityLow}" Tag="low"/>
+                                            <ComboBoxItem Content="{converters:Localization Dialog.PriorityNormal}" Tag="normal"/>
+                                            <ComboBoxItem Content="{converters:Localization Dialog.PriorityHigh}" Tag="high"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- 最大FPS -->
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="{converters:Localization Dialog.MaxFps}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <TextBox x:Name="MaxFpsTextBox"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.MaxFpsTooltip}"/>
+                                    </StackPanel>
+
+                                    <!-- 线程数 -->
+                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.ThreadCount}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <TextBox x:Name="ThreadCountTextBox"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.ThreadCountTooltip}"/>
+                                    </StackPanel>
+
+                                    <!-- 复选框 -->
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
+                                        <CheckBox x:Name="DisableHltvCheckBox"
+                                                  Content="{converters:Localization Dialog.DisableHltv}"
+                                                  Style="{StaticResource ModernCheckBox}"
+                                                  Margin="0,0,0,8"
+                                                  ToolTip="{converters:Localization Dialog.DisableHltvTooltip}"/>
+
+                                        <CheckBox x:Name="EnableConsoleCheckBox"
+                                                  Content="{converters:Localization Dialog.EnableConsole}"
+                                                  Style="{StaticResource ModernCheckBox}"
+                                                  IsChecked="True"
+                                                  ToolTip="{converters:Localization Dialog.EnableConsoleTooltip}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 游戏规则 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.GameRules}" 
+                                           FontSize="15" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,12"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- BOT数量 -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.BotQuota}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <TextBox x:Name="BotQuotaTextBox"
+                                                 Text="0"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.BotQuotaTooltip}"/>
+                                    </StackPanel>
+
+                                    <!-- BOT难度 -->
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="{converters:Localization Dialog.BotDifficulty}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <ComboBox x:Name="BotDifficultyComboBox"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectedIndex="2"
+                                                  ToolTip="{converters:Localization Dialog.BotDifficultyTooltip}">
+                                            <ComboBoxItem Content="{converters:Localization Dialog.BotEasy}"/>
+                                            <ComboBoxItem Content="{converters:Localization Dialog.BotNormal}"/>
+                                            <ComboBoxItem Content="{converters:Localization Dialog.BotHard}"/>
+                                            <ComboBoxItem Content="{converters:Localization Dialog.BotExpert}"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- 踢出闲置时间 -->
+                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                        <TextBlock Text="{converters:Localization Dialog.KickIdleTime}" 
+                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Margin="0,0,0,6"/>
+                                        <TextBox x:Name="KickIdleTimeTextBox"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 ToolTip="{converters:Localization Dialog.KickIdleTimeTooltip}"/>
+                                    </StackPanel>
+
+                                    <!-- 启用作弊 -->
+                                    <StackPanel Grid.Row="2" Grid.Column="2" VerticalAlignment="Center">
+                                        <CheckBox x:Name="EnableCheatsCheckBox"
+                                                  Content="{converters:Localization Dialog.EnableCheats}"
+                                                  Style="{StaticResource ModernCheckBox}"
+                                                  Margin="0,20,0,0"
+                                                  ToolTip="{converters:Localization Dialog.EnableCheatsTooltip}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 日志选项 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="10"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{converters:Localization Dialog.LoggingOptions}" 
+                                           FontSize="15" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,12"/>
+
+                                <CheckBox x:Name="EnableLoggingCheckBox"
+                                          Content="{converters:Localization Dialog.EnableLogging}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          IsChecked="True"
+                                          Margin="0,0,0,8"
+                                          ToolTip="{converters:Localization Dialog.EnableLoggingTooltip}"/>
+
+                                <CheckBox x:Name="ConsoleLogToFileCheckBox"
+                                          Content="{converters:Localization Dialog.ConsoleLogToFile}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          Margin="0,0,0,8"
+                                          ToolTip="{converters:Localization Dialog.ConsoleLogToFileTooltip}"/>
+
+                                <CheckBox x:Name="LogEchoCheckBox"
+                                          Content="{converters:Localization Dialog.LogEcho}"
+                                          Style="{StaticResource ModernCheckBox}"
+                                          IsChecked="True"
+                                          ToolTip="{converters:Localization Dialog.LogEchoTooltip}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
 
         <!-- 按钮 -->
         <Grid Grid.Row="2" Margin="0,24,0,0">
@@ -191,4 +497,3 @@
         </Grid>
     </Grid>
 </Window>
-

@@ -15,6 +15,8 @@ public class ServerManager : IServerManager
     private readonly ILogger<ServerManager> _logger;
     private readonly Dictionary<string, ServerProcess> _runningServers = new();
     private List<Server> _servers = new();
+    private readonly System.Threading.Timer _statusCheckTimer;
+    private readonly object _statusLock = new();
 
     public event EventHandler<LogReceivedEventArgs>? LogReceived;
     public event EventHandler<ServerStatusChangedEventArgs>? StatusChanged;
@@ -27,6 +29,181 @@ public class ServerManager : IServerManager
         _configService = configService;
         _platformProvider = providerRegistry.GetBestPlatformProvider();
         _logger = logger;
+        
+        // 启动后台状态检查任务，每5秒检查一次
+        _statusCheckTimer = new System.Threading.Timer(
+            CheckServerStatusesCallback, 
+            null, 
+            TimeSpan.FromSeconds(5), 
+            TimeSpan.FromSeconds(5));
+        
+        _logger.LogDebug("ServerManager initialized with status monitoring");
+    }
+    
+    /// <summary>
+    /// 后台定期检查所有服务器状态
+    /// </summary>
+    private void CheckServerStatusesCallback(object? state)
+    {
+        try
+        {
+            _ = CheckAndUpdateServerStatusesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "状态检查任务异常");
+        }
+    }
+    
+    /// <summary>
+    /// 检查并更新所有服务器状态
+    /// </summary>
+    public async Task CheckAndUpdateServerStatusesAsync()
+    {
+        lock (_statusLock)
+        {
+            var serversToUpdate = new List<(string serverId, ServerStatus newStatus)>();
+            
+            // 检查所有在运行列表中的服务器
+            foreach (var kvp in _runningServers.ToList())
+            {
+                var serverId = kvp.Key;
+                var serverProcess = kvp.Value;
+                
+                try
+                {
+                    // 检查进程是否已退出
+                    if (serverProcess.Process.HasExited)
+                    {
+                        _logger.LogWarning("检测到服务器进程已退出: {Name} (ExitCode: {ExitCode})", 
+                            serverProcess.Server.Name, serverProcess.Process.ExitCode);
+                        
+                        // 根据退出代码判断状态
+                        var newStatus = serverProcess.Process.ExitCode == 0 
+                            ? ServerStatus.Stopped 
+                            : ServerStatus.Crashed;
+                        
+                        serversToUpdate.Add((serverId, newStatus));
+                        _runningServers.Remove(serverId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "检查服务器状态失败: {Id}", serverId);
+                    serversToUpdate.Add((serverId, ServerStatus.Crashed));
+                    _runningServers.Remove(serverId);
+                }
+            }
+            
+            // 检查所有标记为Starting但超时的服务器
+            foreach (var server in _servers.Where(s => s.Status == ServerStatus.Starting))
+            {
+                // 如果服务器在Starting状态超过30秒，但不在运行列表中，设为Crashed
+                if (!_runningServers.ContainsKey(server.Id))
+                {
+                    if (server.LastStartedAt.HasValue && 
+                        DateTime.Now - server.LastStartedAt.Value > TimeSpan.FromSeconds(30))
+                    {
+                        _logger.LogWarning("服务器启动超时: {Name}", server.Name);
+                        serversToUpdate.Add((server.Id, ServerStatus.Crashed));
+                    }
+                }
+            }
+            
+            // 更新状态
+            foreach (var (serverId, newStatus) in serversToUpdate)
+            {
+                var server = _servers.FirstOrDefault(s => s.Id == serverId);
+                if (server != null)
+                {
+                    ChangeServerStatus(server, newStatus);
+                }
+            }
+        }
+        
+        await Task.CompletedTask;
+    }
+    
+    /// <summary>
+    /// 手动刷新指定服务器的状态
+    /// </summary>
+    public async Task<ServerStatus> RefreshServerStatusAsync(string serverId)
+    {
+        var server = await GetServerByIdAsync(serverId);
+        if (server == null)
+        {
+            throw new InvalidOperationException($"Server not found: {serverId}");
+        }
+        
+        lock (_statusLock)
+        {
+            // 如果在运行列表中
+            if (_runningServers.TryGetValue(serverId, out var serverProcess))
+            {
+                try
+                {
+                    if (serverProcess.Process.HasExited)
+                    {
+                        // 进程已退出
+                        _runningServers.Remove(serverId);
+                        var newStatus = serverProcess.Process.ExitCode == 0 
+                            ? ServerStatus.Stopped 
+                            : ServerStatus.Crashed;
+                        ChangeServerStatus(server, newStatus);
+                        _logger.LogInformation("刷新状态: {Name} -> {Status}", server.Name, newStatus);
+                    }
+                    else
+                    {
+                        // 进程仍在运行，确保状态正确
+                        if (server.Status != ServerStatus.Running)
+                        {
+                            ChangeServerStatus(server, ServerStatus.Running);
+                            _logger.LogInformation("修正状态: {Name} -> Running", server.Name);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "刷新服务器状态失败: {Id}", serverId);
+                    _runningServers.Remove(serverId);
+                    ChangeServerStatus(server, ServerStatus.Crashed);
+                }
+            }
+            else
+            {
+                // 不在运行列表中，应该是Stopped
+                if (server.Status != ServerStatus.Stopped && server.Status != ServerStatus.Crashed)
+                {
+                    ChangeServerStatus(server, ServerStatus.Stopped);
+                    _logger.LogInformation("修正状态: {Name} -> Stopped", server.Name);
+                }
+            }
+        }
+        
+        return server.Status;
+    }
+    
+    /// <summary>
+    /// 应用启动时恢复服务器状态
+    /// </summary>
+    public async Task RestoreServerStatesAsync()
+    {
+        _logger.LogInformation("开始恢复服务器状态...");
+        
+        foreach (var server in _servers)
+        {
+            // 将所有非Stopped状态的服务器重置为Stopped
+            // 因为应用重启后，之前的进程引用已失效
+            if (server.Status != ServerStatus.Stopped && server.Status != ServerStatus.Crashed)
+            {
+                _logger.LogWarning("恢复服务器状态: {Name} {OldStatus} -> Stopped", 
+                    server.Name, server.Status);
+                ChangeServerStatus(server, ServerStatus.Stopped);
+            }
+        }
+        
+        await _configService.SaveServersAsync(_servers);
+        _logger.LogInformation("服务器状态恢复完成");
     }
 
     public async Task<List<Server>> GetServersAsync()
@@ -447,6 +624,7 @@ public class ServerManager : IServerManager
     {
         var args = new List<string>
         {
+            // 必需参数
             "-dedicated",
             $"-ip {config.IpAddress}",
             $"-port {config.Port}",
@@ -458,59 +636,165 @@ public class ServerManager : IServerManager
             $"+map {config.Map}"
         };
 
-        // 添加控制台参数
+        // ========== 控制台和进程选项 ==========
+        
         if (config.EnableConsole)
         {
             args.Add("-console");
         }
 
-        // 添加进程优先级
-        if (!string.IsNullOrEmpty(config.ProcessPriority))
+        // 进程优先级 (-high, -normal, -low)
+        if (!string.IsNullOrEmpty(config.ProcessPriority) && config.ProcessPriority != "normal")
         {
-            args.Add(config.ProcessPriority);
+            args.Add($"-{config.ProcessPriority}");
         }
 
-        // 添加日志配置
-        if (config.EnableLogging)
+        // ========== 网络设置 ==========
+        
+        // 局域网模式
+        if (config.IsLanMode)
         {
-            args.Add("+log on");
-            args.Add("+mp_logfile 1");
-            args.Add("+sv_logfile 1");
-            args.Add("+sv_logecho 1");
-            args.Add("+mp_logdetail 3");
+            args.Add("+sv_lan 1");
+        }
+        else
+        {
+            args.Add("+sv_lan 0");
         }
 
-        // 添加服务器名称
+        // 禁用VAC
+        if (config.InsecureMode)
+        {
+            args.Add("-insecure");
+        }
+
+        // ========== 性能优化 ==========
+        
+        // 最大FPS
+        if (config.MaxFps.HasValue && config.MaxFps.Value > 0)
+        {
+            args.Add($"+fps_max {config.MaxFps.Value}");
+        }
+
+        // 线程数
+        if (config.ThreadCount.HasValue && config.ThreadCount.Value > 0)
+        {
+            args.Add($"-threads {config.ThreadCount.Value}");
+        }
+
+        // 禁用HLTV/GOTV
+        if (config.DisableHltv)
+        {
+            args.Add("+tv_enable 0");
+        }
+
+        // ========== 服务器身份 ==========
+        
+        // 服务器名称
         if (!string.IsNullOrEmpty(config.ServerName))
         {
             args.Add($"+hostname \"{config.ServerName}\"");
         }
 
-        // 添加服务器密码
+        // 服务器密码
         if (!string.IsNullOrEmpty(config.ServerPassword))
         {
             args.Add($"+sv_password \"{config.ServerPassword}\"");
         }
 
-        // 添加RCON密码
+        // RCON密码
         if (!string.IsNullOrEmpty(config.RconPassword))
         {
             args.Add($"+rcon_password \"{config.RconPassword}\"");
         }
 
-        // 添加Steam令牌
+        // Steam令牌 (GSLT)
         if (!string.IsNullOrEmpty(config.SteamToken))
         {
             args.Add($"+sv_setsteamaccount {config.SteamToken}");
         }
 
-        // 添加自定义参数
-        foreach (var (key, value) in config.CustomArgs)
+        // ========== 游戏规则 ==========
+        
+        // 作弊模式
+        if (config.EnableCheats)
         {
-            args.Add($"{key} {value}");
+            args.Add("+sv_cheats 1");
+        }
+        else
+        {
+            args.Add("+sv_cheats 0");
         }
 
-        return string.Join(" ", args);
+        // BOT设置
+        if (config.BotQuota > 0)
+        {
+            args.Add($"+bot_quota {config.BotQuota}");
+            args.Add("+bot_quota_mode fill"); // 填满模式
+            
+            // BOT难度 (0=简单, 1=普通, 2=困难, 3=专家)
+            args.Add($"+bot_difficulty {config.BotDifficulty}");
+        }
+        else
+        {
+            args.Add("+bot_quota 0");
+        }
+
+        // 自动踢出闲置玩家
+        if (config.KickIdleTime.HasValue && config.KickIdleTime.Value > 0)
+        {
+            args.Add($"+mp_autokick 1");
+            args.Add($"+mp_autokick_timeout {config.KickIdleTime.Value * 60}"); // 转换为秒
+        }
+
+        // ========== 日志设置 ==========
+        
+        if (config.EnableLogging)
+        {
+            args.Add("+log on");
+            args.Add("+sv_logfile 1");
+            args.Add("+mp_logdetail 3");
+            
+            // 日志回显
+            if (config.LogEcho)
+            {
+                args.Add("+sv_logecho 1");
+            }
+            else
+            {
+                args.Add("+sv_logecho 0");
+            }
+            
+            // 控制台日志写入文件
+            if (config.ConsoleLogToFile)
+            {
+                args.Add("+con_logfile 1");
+            }
+        }
+        else
+        {
+            args.Add("+log off");
+            args.Add("+sv_logfile 0");
+        }
+
+        // ========== 自定义参数 ==========
+        
+        // 允许用户添加任意自定义启动参数
+        foreach (var (key, value) in config.CustomArgs)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                args.Add($"{key} {value}");
+            }
+            else
+            {
+                args.Add(key);
+            }
+        }
+
+        var finalArgs = string.Join(" ", args);
+        _logger.LogDebug("构建的启动参数: {Args}", finalArgs);
+        
+        return finalArgs;
     }
 
     private void StartReadingOutput(ServerProcess serverProcess)

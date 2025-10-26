@@ -5,6 +5,8 @@ namespace CSP2.Core.Models;
 /// </summary>
 public class ServerConfig
 {
+    // ============ 基础配置 ============
+    
     /// <summary>
     /// 服务器端口
     /// </summary>
@@ -45,13 +47,10 @@ public class ServerConfig
     /// </summary>
     public int TickRate { get; set; } = 128;
 
+    // ============ 服务器身份 ============
+    
     /// <summary>
-    /// Steam令牌（用于公开服务器）
-    /// </summary>
-    public string? SteamToken { get; set; }
-
-    /// <summary>
-    /// 服务器名称
+    /// 服务器名称（显示在服务器浏览器中）
     /// </summary>
     public string? ServerName { get; set; }
 
@@ -66,6 +65,25 @@ public class ServerConfig
     public string? RconPassword { get; set; }
 
     /// <summary>
+    /// Steam令牌（用于公开服务器）
+    /// </summary>
+    public string? SteamToken { get; set; }
+
+    // ============ 网络设置 ============
+    
+    /// <summary>
+    /// 局域网模式 (0=互联网, 1=局域网)
+    /// </summary>
+    public bool IsLanMode { get; set; } = false;
+
+    /// <summary>
+    /// 禁用VAC (Valve反外挂系统)
+    /// </summary>
+    public bool InsecureMode { get; set; } = false;
+
+    // ============ 性能优化 ============
+    
+    /// <summary>
     /// 是否启用控制台
     /// </summary>
     public bool EnableConsole { get; set; } = true;
@@ -73,13 +91,64 @@ public class ServerConfig
     /// <summary>
     /// 进程优先级（-high, -normal, -low）
     /// </summary>
-    public string ProcessPriority { get; set; } = "-high";
+    public string ProcessPriority { get; set; } = "normal";
 
+    /// <summary>
+    /// 最大FPS
+    /// </summary>
+    public int? MaxFps { get; set; }
+
+    /// <summary>
+    /// 工作线程数 (留空自动检测)
+    /// </summary>
+    public int? ThreadCount { get; set; }
+
+    /// <summary>
+    /// 禁用HLTV/GOTV
+    /// </summary>
+    public bool DisableHltv { get; set; } = false;
+
+    // ============ 游戏规则 ============
+    
+    /// <summary>
+    /// 启用作弊命令
+    /// </summary>
+    public bool EnableCheats { get; set; } = false;
+
+    /// <summary>
+    /// BOT数量 (0表示无BOT)
+    /// </summary>
+    public int BotQuota { get; set; } = 0;
+
+    /// <summary>
+    /// BOT难度 (0=简单, 1=普通, 2=困难, 3=专家)
+    /// </summary>
+    public int BotDifficulty { get; set; } = 2;
+
+    /// <summary>
+    /// 自动踢出闲置玩家 (分钟)
+    /// </summary>
+    public int? KickIdleTime { get; set; }
+
+    // ============ 日志设置 ============
+    
     /// <summary>
     /// 是否启用日志
     /// </summary>
     public bool EnableLogging { get; set; } = true;
 
+    /// <summary>
+    /// 控制台日志输出到文件
+    /// </summary>
+    public bool ConsoleLogToFile { get; set; } = false;
+
+    /// <summary>
+    /// 启用日志回显
+    /// </summary>
+    public bool LogEcho { get; set; } = true;
+
+    // ============ 自定义参数 ============
+    
     /// <summary>
     /// 自定义启动参数
     /// </summary>

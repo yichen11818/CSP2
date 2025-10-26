@@ -162,6 +162,26 @@ public partial class MainWindowViewModel : ObservableObject
         StatusText = _localizationService.GetString("Nav.LogConsole");
     }
 
+    /// <summary>
+    /// 导航到日志控制台并选择指定服务器
+    /// </summary>
+    public void NavigateToLogConsole(string serverId)
+    {
+        SelectedMenuItem = _localizationService.GetString("Nav.LogConsole");
+        
+        // 获取或创建日志控制台页面
+        var logConsolePage = _serviceProvider.GetRequiredService<Views.Pages.LogConsolePage>();
+        
+        // 设置选中的服务器
+        if (logConsolePage.DataContext is LogConsoleViewModel viewModel)
+        {
+            viewModel.SelectServerById(serverId);
+        }
+        
+        CurrentPage = logConsolePage;
+        StatusText = _localizationService.GetString("Nav.LogConsole");
+    }
+
     [RelayCommand]
     private void NavigateToPluginMarket()
     {
