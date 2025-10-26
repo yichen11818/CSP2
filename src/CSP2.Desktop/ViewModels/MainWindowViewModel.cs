@@ -4,6 +4,8 @@ using CSP2.Core.Abstractions;
 using CSP2.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace CSP2.Desktop.ViewModels;
@@ -92,7 +94,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private void OnServerStatusChanged(object? sender, Core.Models.ServerStatusChangedEventArgs e)
+    private void OnServerStatusChanged(object? sender, ServerStatusChangedEventArgs e)
     {
         // 服务器状态变化时更新统计
         _ = UpdateServerStatisticsAsync();
