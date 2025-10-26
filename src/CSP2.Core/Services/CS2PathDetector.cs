@@ -108,7 +108,7 @@ public class CS2PathDetector
                     var info = new CS2InstallInfo
                     {
                         InstallPath = installPath,
-                        Source = "Windows注册表"
+                        Source = "Steam游戏目录"
                     };
 
                     await ValidateInstallationAsync(info);
@@ -128,7 +128,7 @@ public class CS2PathDetector
                     var info = new CS2InstallInfo
                     {
                         InstallPath = installPath,
-                        Source = "Windows注册表"
+                        Source = "Steam游戏目录"
                     };
 
                     await ValidateInstallationAsync(info);
