@@ -201,8 +201,9 @@ public partial class App : Application
             await _host.StartAsync();
             Log.Information("Host服务启动成功");
 
-            // 初始化本地化服务
+            // 初始化本地化服务 - 必须在创建任何窗口之前！
             var localization = _host.Services.GetRequiredService<JsonLocalizationService>();
+            Helpers.LocalizationHelper.Instance.Initialize(localization);
             Log.Information("本地化服务已初始化，当前语言: {Language}", localization.CurrentLanguageCode);
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();

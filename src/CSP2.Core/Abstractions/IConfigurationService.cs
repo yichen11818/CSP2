@@ -105,6 +105,11 @@ public class UiSettings
     /// 是否已询问过用户首次关闭行为
     /// </summary>
     public bool MinimizeToTrayAsked { get; set; } = false;
+
+    /// <summary>
+    /// 是否首次运行（用于显示欢迎动画）
+    /// </summary>
+    public bool IsFirstRun { get; set; } = true;
 }
 
 /// <summary>

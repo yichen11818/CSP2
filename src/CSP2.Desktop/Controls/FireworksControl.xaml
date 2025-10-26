@@ -1,0 +1,16 @@
+<UserControl x:Class="CSP2.Desktop.Controls.FireworksControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200"
+             Background="Transparent"
+             IsHitTestVisible="False">
+    
+    <Canvas x:Name="FireworksCanvas">
+        <!-- 烟花粒子将动态添加到这里 -->
+    </Canvas>
+</UserControl>
+
+
