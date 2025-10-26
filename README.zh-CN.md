@@ -55,7 +55,7 @@ CSP2 是一款面向 CS2 服务器管理员的开源桌面管理工具，灵感�
 
 #### 方式一：下载预编译版本（推荐）
 
-1. 前往 [Releases](https://github.com/yichen11818/csp2/releases) 页面
+1. 前往 [Releases](https://github.com/yichen11818/csp2/releases) 页面(仍在开发)
 2. 下载最新版本的 `CSP2-vX.X.X-Windows.zip`
 3. 解压到任意目录
 4. 运行 `CSP2.Desktop.exe`
@@ -104,20 +104,14 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
    - 配置服务器参数
    - 启动并实时查看日志
 
-### 详细文档
-
--  [用户手册](docs/用户手册.md)（即将添加）
--  [开发者文档](docs/01-技术设计文档.md)
--  [WPF 快速入门](docs/04-WPF快速入门.md)
-
 ---
 
 ## 🔌 支持的插件框架
 
 | 框架 | 状态 | 说明 |
 |------|------|------|
-| Metamod:Source | ✅ 支持 | CS2 插件加载器基础 |
-| CounterStrikeSharp | ✅ 支持 | C# 插件开发框架 |
+| Metamod:Source | ✅ 开发中 | CS2 插件加载器基础 |
+| CounterStrikeSharp | ✅ 开发中 | C# 插件开发框架 |
 | Swiftly | 🚧 计划中 | 新兴插件框架 |
 
 
@@ -188,27 +182,6 @@ A: 当前版本仅支持 Windows。Linux 支持将在 v2.0 版本中提供。
 A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugins)（计划中）
 
 ---
-
-## 📄 开源协议
-
-本项目采用 [MIT License](LICENSE) 开源协议。
-
-```
-MIT License
-
-Copyright (c) 2025 CSP2 Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-...
-```
-
----
-
 
 ## 📧 联系方式
 

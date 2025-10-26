@@ -55,7 +55,7 @@ CSP2 is an open-source desktop management tool for CS2 server administrators, in
 
 #### Option 1: Download Pre-built Version (Recommended)
 
-1. Go to [Releases](https://github.com/yichen11818/csp2/releases) page
+1. Go to [Releases](https://github.com/yichen11818/csp2/releases) page(still Develop)
 2. Download the latest version of `CSP2-vX.X.X-Windows.zip`
 3. Extract to any directory
 4. Run `CSP2.Desktop.exe`
@@ -102,20 +102,14 @@ cd src/CSP2.Desktop/bin/Release/net8.0-windows
    - Configure server parameters
    - Start and view logs in real-time
 
-### Detailed Documentation
-
-- 📚 [User Manual](docs/用户手册.md) (Coming soon)
-- 🔧 [Developer Documentation](docs/01-技术设计文档.md)
-- 🎓 [WPF Quick Start](docs/04-WPF快速入门.md)
-
 ---
 
 ## 🔌 Supported Plugin Frameworks
 
 | Framework | Status | Description |
 |-----------|--------|-------------|
-| Metamod:Source | ✅ Supported | CS2 plugin loader foundation |
-| CounterStrikeSharp | ✅ Supported | C# plugin development framework |
+| Metamod:Source | ✅ Developing | CS2 plugin loader foundation |
+| CounterStrikeSharp | ✅ Developing | C# plugin development framework |
 | Swiftly | 🚧 Planned | Emerging plugin framework |
 
 *Community can add new framework support by implementing the `IFrameworkProvider` interface*
@@ -184,25 +178,6 @@ A: Current version only supports Windows. Linux support will be available in v2.
 ### Q: Where does the plugin data come from?
 A: From our maintained [plugin repository](https://github.com/yichen11818/csp2-plugins) (planned)
 
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-```
-MIT License
-
-Copyright (c) 2025 CSP2 Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-...
-```
 
 ---
 
