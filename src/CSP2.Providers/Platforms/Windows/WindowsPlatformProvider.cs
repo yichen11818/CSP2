@@ -37,7 +37,7 @@ public class WindowsPlatformProvider : IPlatformProvider
             CreateNoWindow = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            RedirectStandardInput = true
+            RedirectStandardInput = false  // 不重定向stdin，避免与CS2控制台冲突
         };
 
         var process = new Process { StartInfo = startInfo };
@@ -58,33 +58,24 @@ public class WindowsPlatformProvider : IPlatformProvider
             return;
         }
 
-        if (force)
+        // CS2服务器不支持通过stdin发送quit命令（会导致控制台错误）
+        // 直接终止进程是最可靠的方式
+        try
         {
-            process.Kill(entireProcessTree: true);
+            if (!force)
+            {
+                // 给进程一点时间保存状态
+                await Task.Delay(500);
+            }
+            
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
         }
-        else
+        catch (Exception)
         {
-            // 尝试优雅关闭
-            try
-            {
-                await process.StandardInput.WriteLineAsync("quit");
-                await process.StandardInput.FlushAsync();
-                
-                // 等待最多10秒
-                if (!await Task.Run(() => process.WaitForExit(10000)))
-                {
-                    // 超时则强制终止
-                    process.Kill(entireProcessTree: true);
-                }
-            }
-            catch
-            {
-                // 如果优雅关闭失败,强制终止
-                if (!process.HasExited)
-                {
-                    process.Kill(entireProcessTree: true);
-                }
-            }
+            // 进程可能已经退出，忽略异常
         }
     }
 

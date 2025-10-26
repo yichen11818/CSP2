@@ -542,25 +542,15 @@ public class ServerManager : IServerManager
 
     public async Task<bool> SendCommandAsync(string serverId, string command)
     {
-        if (!_runningServers.ContainsKey(serverId))
-        {
-            return false;
-        }
-
-        try
-        {
-            var serverProcess = _runningServers[serverId];
-            await serverProcess.Process.StandardInput.WriteLineAsync(command);
-            await serverProcess.Process.StandardInput.FlushAsync();
-
-            _logger.LogDebug("已发送命令到服务器 {Id}: {Command}", serverId, command);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "发送命令失败: {Command}", command);
-            return false;
-        }
+        // 注意：CS2服务器不支持通过stdin发送命令（会导致CTextConsoleWin错误）
+        // 要发送命令到服务器，请配置RCON密码并使用RCON工具
+        
+        _logger.LogWarning("通过stdin发送命令已禁用（避免控制台错误）。请使用RCON发送命令到服务器。");
+        _logger.LogInformation("尝试发送的命令: {Command} 到服务器 {Id}", command, serverId);
+        
+        // 返回false表示不支持此操作
+        await Task.CompletedTask;
+        return false;
     }
 
     /// <summary>
@@ -626,6 +616,7 @@ public class ServerManager : IServerManager
         {
             // 必需参数
             "-dedicated",
+            "-norestart", // 禁用自动重启，减少控制台输入错误
             $"-ip {config.IpAddress}",
             $"-port {config.Port}",
             $"-maxplayers {config.MaxPlayers}",
