@@ -1,0 +1,138 @@
+<Window x:Class="CSP2.Desktop.Views.Dialogs.RestartConfirmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
+        Title="{converters:Localization Dialog.RestartRequired}"
+        Height="280" Width="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Border Background="{StaticResource SurfaceBrush}"
+            CornerRadius="12"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" 
+                              ShadowDepth="0" 
+                              Color="Black" 
+                              Opacity="0.15"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" 
+                    Background="{StaticResource PrimaryBrush}"
+                    CornerRadius="12,12,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" 
+                                Orientation="Horizontal" 
+                                VerticalAlignment="Center" 
+                                Margin="20,0">
+                        <TextBlock Text="{StaticResource InfoIcon}" 
+                                   Style="{StaticResource BaseIconStyle}"
+                                   FontSize="18"
+                                   Foreground="White" 
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Text="{converters:Localization Dialog.RestartRequired}" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" 
+                            Content="{StaticResource CloseIcon}"
+                            Style="{StaticResource BaseIconStyle}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="White"
+                            FontSize="14"
+                            Width="40" Height="40"
+                            Margin="0,0,10,0"
+                            Click="CloseButton_Click"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" 
+                                        CornerRadius="6">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#40FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 内容区域 -->
+            <StackPanel Grid.Row="1" 
+                        Margin="30,20">
+                <TextBlock x:Name="MessageTextBlock"
+                           Text="{converters:Localization Dialog.RestartMessage}"
+                           FontSize="14"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           TextWrapping="Wrap"
+                           LineHeight="22"
+                           Margin="0,0,0,15"/>
+
+                <Border Background="{StaticResource HoverBackgroundBrush}"
+                        CornerRadius="8"
+                        Padding="15,12"
+                        Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{StaticResource WarningIcon}" 
+                                   Style="{StaticResource BaseIconStyle}"
+                                   FontSize="16"
+                                   Foreground="{StaticResource WarningBrush}" 
+                                   Margin="0,0,10,0"/>
+                        <TextBlock Text="{converters:Localization Dialog.RestartWarning}"
+                                   FontSize="13"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- 按钮区域 -->
+            <Border Grid.Row="2" 
+                    Background="{StaticResource HoverBackgroundBrush}"
+                    CornerRadius="0,0,12,12">
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Right" 
+                            VerticalAlignment="Center"
+                            Margin="20">
+                    <Button Content="{converters:Localization Common.Cancel}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="100" Height="36"
+                            Margin="0,0,12,0"
+                            Click="CancelButton_Click"/>
+                    
+                    <Button Content="{converters:Localization Dialog.RestartNow}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Tag="{StaticResource RestartIcon}"
+                            Width="120" Height="36"
+                            Click="RestartButton_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

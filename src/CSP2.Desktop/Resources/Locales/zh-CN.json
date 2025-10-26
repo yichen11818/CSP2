@@ -137,7 +137,8 @@
     "Save": "保存",
     "Delete": "删除",
     "Edit": "编辑",
-    "Refresh": "刷新"
+    "Refresh": "刷新",
+    "Browse": "浏览"
   },
   "Msg": {
     "AlreadyRunning": "CSP2 已经在运行中！\n\n请检查系统托盘图标。",
@@ -279,6 +280,10 @@
     "UninstallFailed": "卸载服务器失败: {0}"
   },
   "Dialog": {
+    "RestartRequired": "需要重启",
+    "RestartMessage": "设置已更改，需要重启应用程序以完全生效。",
+    "RestartWarning": "重启后将关闭所有正在运行的服务器实例。",
+    "RestartNow": "立即重启",
     "AddServer": "添加服务器",
     "AddServerTitle": "✨ 添加 CS2 服务器",
     "AddServerSubtitle": "配置你的服务器信息",

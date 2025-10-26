@@ -20,16 +20,39 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly JsonLocalizationService _localizationService;
     private readonly ThemeService _themeService;
+    private readonly ApplicationRestartService _restartService;
 
     [ObservableProperty]
     private string _theme = "Light";
     
     partial void OnThemeChanged(string value)
     {
-        if (!_isLoadingSettings && _themeService != null)
+        if (_themeService != null)
         {
             _themeService.ApplyTheme(value);
-            _ = SaveThemeSettingAsync(value);
+            
+            if (!_isLoadingSettings)
+            {
+                _ = SaveThemeSettingAsync(value);
+                
+                // 询问是否重启以完全应用主题
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(500); // 短暂延迟，让设置保存完成
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        try
+                        {
+                            var mainWindow = Application.Current.MainWindow;
+                            _restartService.ShowRestartConfirmation(mainWindow, "Theme");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "显示重启确认对话框失败");
+                        }
+                    });
+                });
+            }
         }
     }
 
@@ -61,11 +84,23 @@ public partial class SettingsViewModel : ObservableObject
             // 自动保存语言设置
             _ = SaveLanguageSettingAsync(value.Code);
             
-            MessageBox.Show(
-                _localizationService.GetString("Msg.LanguageChanged"),
-                "CSP2",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            // 询问是否重启以完全应用语言设置
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(500); // 短暂延迟，让设置保存完成
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        var mainWindow = Application.Current.MainWindow;
+                        _restartService.ShowRestartConfirmation(mainWindow, "Language");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "显示重启确认对话框失败");
+                    }
+                });
+            });
         }
         catch (Exception ex)
         {
@@ -152,13 +187,15 @@ public partial class SettingsViewModel : ObservableObject
         ISteamCmdService steamCmdService,
         ILogger<SettingsViewModel> logger,
         JsonLocalizationService localizationService,
-        ThemeService themeService)
+        ThemeService themeService,
+        ApplicationRestartService restartService)
     {
         _configurationService = configurationService;
         _steamCmdService = steamCmdService;
         _logger = logger;
         _localizationService = localizationService;
         _themeService = themeService;
+        _restartService = restartService;
         
         _logger.LogInformation("SettingsViewModel 初始化");
         DebugLogger.Debug("SettingsViewModel", "构造函数开始执行");

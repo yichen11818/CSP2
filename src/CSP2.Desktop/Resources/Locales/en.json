@@ -137,7 +137,8 @@
     "Save": "Save",
     "Delete": "Delete",
     "Edit": "Edit",
-    "Refresh": "Refresh"
+    "Refresh": "Refresh",
+    "Browse": "Browse"
   },
   "Msg": {
     "AlreadyRunning": "CSP2 is already running!\n\nPlease check the system tray icon.",
@@ -279,6 +280,10 @@
     "UninstallFailed": "Failed to uninstall server: {0}"
   },
   "Dialog": {
+    "RestartRequired": "Restart Required",
+    "RestartMessage": "Settings have been changed and require a restart to take full effect.",
+    "RestartWarning": "All running server instances will be closed after restart.",
+    "RestartNow": "Restart Now",
     "AddServer": "Add Server",
     "AddServerTitle": "✨ Add CS2 Server",
     "AddServerSubtitle": "Configure your server information",

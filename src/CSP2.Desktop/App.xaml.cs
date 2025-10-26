@@ -171,6 +171,9 @@ public partial class App : Application
                     
                     // 注册主题服务
                     services.AddSingleton<ThemeService>();
+                    
+                    // 注册应用重启服务
+                    services.AddSingleton<ApplicationRestartService>();
 
                     // 注册核心服务
                     services.AddSingleton<IConfigurationService, ConfigurationService>();
