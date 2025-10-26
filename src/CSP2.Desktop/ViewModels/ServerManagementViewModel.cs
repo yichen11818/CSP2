@@ -245,7 +245,8 @@ public partial class ServerManagementViewModel : ObservableObject
 
     private bool CanStartServer(Server? server)
     {
-        return server != null && server.Status == ServerStatus.Stopped;
+        // 允许在停止或崩溃状态下启动服务器
+        return server != null && (server.Status == ServerStatus.Stopped || server.Status == ServerStatus.Crashed);
     }
 
     /// <summary>
@@ -688,7 +689,8 @@ public partial class ServerManagementViewModel : ObservableObject
 
     private bool CanEditServerSettings(Server? server)
     {
-        return server != null && server.Status == ServerStatus.Stopped;
+        // 允许在停止或崩溃状态下编辑设置
+        return server != null && (server.Status == ServerStatus.Stopped || server.Status == ServerStatus.Crashed);
     }
 
     /// <summary>
