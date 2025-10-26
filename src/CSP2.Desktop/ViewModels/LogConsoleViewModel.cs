@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
+using CSP2.Core.Utilities;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -18,6 +19,8 @@ public partial class LogConsoleViewModel : ObservableObject
     private readonly IServerManager _serverManager;
     private readonly StreamWriter? _logFileWriter;
     private readonly string? _currentLogFilePath;
+    private readonly CommandHistory _commandHistory;
+    private IRCONClient? _rconClient;
 
     [ObservableProperty]
     private ObservableCollection<Server> _servers = new();
@@ -37,11 +40,29 @@ public partial class LogConsoleViewModel : ObservableObject
     [ObservableProperty]
     private string _logText = string.Empty;
 
+    [ObservableProperty]
+    private bool _useRCON = false;
+
+    [ObservableProperty]
+    private bool _rconConnected = false;
+
+    [ObservableProperty]
+    private string _rconStatus = "未连接";
+
+    [ObservableProperty]
+    private ObservableCollection<string> _quickCommands = new();
+
     public LogConsoleViewModel(IServerManager serverManager)
     {
         _serverManager = serverManager;
         
         DebugLogger.Debug("LogConsoleViewModel", "构造函数开始执行");
+        
+        // 初始化命令历史
+        var dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+        var historyPath = Path.Combine(dataDirectory, "command_history.txt");
+        _commandHistory = new CommandHistory(maxHistorySize: 100, persistencePath: historyPath);
+        DebugLogger.Debug("LogConsoleViewModel", $"命令历史已初始化，历史文件: {historyPath}");
         
         // 创建日志文件
         try
@@ -204,6 +225,9 @@ public partial class LogConsoleViewModel : ObservableObject
 
         try
         {
+            // 添加命令到历史
+            _commandHistory.Add(CommandText);
+            
             // 添加命令到日志
             var commandLog = new LogEntry
             {
@@ -213,9 +237,33 @@ public partial class LogConsoleViewModel : ObservableObject
             };
             Logs.Add(commandLog);
 
-            // 发送命令
-            await _serverManager.SendCommandAsync(SelectedServer.Id, CommandText);
-            DebugLogger.Debug("SendCommandAsync", "命令发送成功");
+            // 根据选择使用 RCON 或 stdin 发送命令
+            if (UseRCON && _rconClient?.IsConnected == true)
+            {
+                // 通过 RCON 发送
+                var response = await _rconClient.SendCommandAsync(CommandText);
+                
+                // 显示 RCON 响应
+                if (!string.IsNullOrWhiteSpace(response))
+                {
+                    var responseLog = new LogEntry
+                    {
+                        Timestamp = DateTime.Now,
+                        Message = response,
+                        Level = UILogLevel.Info
+                    };
+                    Logs.Add(responseLog);
+                    LogText += $"[{responseLog.Timestamp:HH:mm:ss}] {response}{Environment.NewLine}";
+                }
+                
+                DebugLogger.Debug("SendCommandAsync", "RCON 命令发送成功");
+            }
+            else
+            {
+                // 通过 stdin 发送
+                await _serverManager.SendCommandAsync(SelectedServer.Id, CommandText);
+                DebugLogger.Debug("SendCommandAsync", "命令发送成功");
+            }
             
             // 清空输入框
             CommandText = string.Empty;
@@ -236,9 +284,128 @@ public partial class LogConsoleViewModel : ObservableObject
 
     private bool CanSendCommand()
     {
-        return SelectedServer != null && 
-               SelectedServer.Status == ServerStatus.Running && 
-               !string.IsNullOrWhiteSpace(CommandText);
+        if (SelectedServer == null || string.IsNullOrWhiteSpace(CommandText))
+            return false;
+
+        // 如果使用 RCON，必须已连接
+        if (UseRCON)
+            return RconConnected;
+
+        // 否则服务器必须在运行
+        return SelectedServer.Status == ServerStatus.Running;
+    }
+
+    /// <summary>
+    /// 连接 RCON
+    /// </summary>
+    [RelayCommand]
+    private async Task ConnectRCONAsync()
+    {
+        if (SelectedServer == null)
+            return;
+
+        try
+        {
+            DebugLogger.Info("ConnectRCONAsync", "开始连接 RCON");
+
+            // 创建 RCON 客户端
+            _rconClient = new CSP2.Core.Services.RCONClient();
+
+            // 获取 RCON 配置
+            var config = SelectedServer.RCONConfig;
+            if (string.IsNullOrWhiteSpace(config.Password))
+            {
+                System.Windows.MessageBox.Show(
+                    "请先在服务器配置中设置 RCON 密码！",
+                    "RCON 配置错误",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            RconStatus = "连接中...";
+
+            // 连接
+            var success = await _rconClient.ConnectAsync(
+                config.Host,
+                config.Port,
+                config.Password,
+                config.Timeout);
+
+            if (success)
+            {
+                RconConnected = true;
+                RconStatus = $"已连接 ({config.Host}:{config.Port})";
+                DebugLogger.Info("ConnectRCONAsync", "RCON 连接成功");
+
+                var logEntry = new LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Message = $"=== RCON 已连接到 {config.Host}:{config.Port} ===",
+                    Level = UILogLevel.Info
+                };
+                Logs.Add(logEntry);
+                LogText += $"[{logEntry.Timestamp:HH:mm:ss}] {logEntry.Message}{Environment.NewLine}";
+            }
+            else
+            {
+                RconConnected = false;
+                RconStatus = "连接失败";
+                DebugLogger.Error("ConnectRCONAsync", "RCON 连接失败", null!);
+
+                System.Windows.MessageBox.Show(
+                    $"RCON 连接失败！\n\n请检查:\n1. 服务器是否启动\n2. RCON 密码是否正确\n3. IP 和端口是否正确",
+                    "RCON 连接失败",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            RconConnected = false;
+            RconStatus = "连接失败";
+            DebugLogger.Error("ConnectRCONAsync", $"RCON 连接异常: {ex.Message}", ex);
+
+            System.Windows.MessageBox.Show(
+                $"RCON 连接异常:\n{ex.Message}",
+                "错误",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// 断开 RCON
+    /// </summary>
+    [RelayCommand]
+    private async Task DisconnectRCONAsync()
+    {
+        try
+        {
+            if (_rconClient != null)
+            {
+                await _rconClient.DisconnectAsync();
+                _rconClient.Dispose();
+                _rconClient = null;
+            }
+
+            RconConnected = false;
+            RconStatus = "未连接";
+            DebugLogger.Info("DisconnectRCONAsync", "RCON 已断开连接");
+
+            var logEntry = new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Message = "=== RCON 已断开连接 ===",
+                Level = UILogLevel.Info
+            };
+            Logs.Add(logEntry);
+            LogText += $"[{logEntry.Timestamp:HH:mm:ss}] {logEntry.Message}{Environment.NewLine}";
+        }
+        catch (Exception ex)
+        {
+            DebugLogger.Error("DisconnectRCONAsync", $"断开 RCON 失败: {ex.Message}", ex);
+        }
     }
 
     /// <summary>
@@ -339,6 +506,109 @@ public partial class LogConsoleViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 导航到上一条命令（↑ 键）
+    /// </summary>
+    public void NavigateHistoryOlder()
+    {
+        var command = _commandHistory.GetOlder();
+        if (command != null)
+        {
+            CommandText = command;
+        }
+    }
+
+    /// <summary>
+    /// 导航到下一条命令（↓ 键）
+    /// </summary>
+    public void NavigateHistoryNewer()
+    {
+        var command = _commandHistory.GetNewer();
+        if (command != null)
+        {
+            CommandText = command;
+        }
+    }
+
+    /// <summary>
+    /// 添加快捷命令
+    /// </summary>
+    [RelayCommand]
+    private async Task AddQuickCommandAsync()
+    {
+        if (SelectedServer == null || string.IsNullOrWhiteSpace(CommandText))
+            return;
+
+        var command = CommandText.Trim();
+
+        // 检查是否已存在
+        if (QuickCommands.Contains(command))
+        {
+            System.Windows.MessageBox.Show(
+                "该命令已存在于快捷命令列表中！",
+                "提示",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        // 添加到列表
+        QuickCommands.Add(command);
+        
+        // 保存到服务器配置
+        SelectedServer.Config.QuickCommands = QuickCommands.ToList();
+        await _serverManager.UpdateServerAsync(SelectedServer);
+
+        DebugLogger.Info("AddQuickCommandAsync", $"添加快捷命令: {command}");
+        
+        System.Windows.MessageBox.Show(
+            $"快捷命令已添加：{command}",
+            "成功",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+    }
+
+    /// <summary>
+    /// 执行快捷命令
+    /// </summary>
+    [RelayCommand]
+    private async Task ExecuteQuickCommandAsync(string? command)
+    {
+        if (string.IsNullOrWhiteSpace(command))
+            return;
+
+        // 设置到输入框并发送
+        CommandText = command;
+        await SendCommandAsync();
+    }
+
+    /// <summary>
+    /// 删除快捷命令
+    /// </summary>
+    [RelayCommand]
+    private async Task RemoveQuickCommandAsync(string? command)
+    {
+        if (string.IsNullOrWhiteSpace(command) || SelectedServer == null)
+            return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"确定要删除快捷命令吗？\n\n{command}",
+            "确认删除",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            QuickCommands.Remove(command);
+            
+            // 保存到服务器配置
+            SelectedServer.Config.QuickCommands = QuickCommands.ToList();
+            await _serverManager.UpdateServerAsync(SelectedServer);
+
+            DebugLogger.Info("RemoveQuickCommandAsync", $"删除快捷命令: {command}");
+        }
+    }
+
+    /// <summary>
     /// 切换服务器
     /// </summary>
     partial void OnSelectedServerChanged(Server? value)
@@ -347,18 +617,44 @@ public partial class LogConsoleViewModel : ObservableObject
         Logs.Clear();
         LogText = string.Empty;
         
+        // 加载服务器的快捷命令
+        QuickCommands.Clear();
         if (value != null)
         {
             DebugLogger.Info("OnSelectedServerChanged", $"切换到服务器: {value.Name}");
             LogText = $"=== 已切换到服务器: {value.Name} ==={Environment.NewLine}{Environment.NewLine}";
+            
+            // 加载快捷命令
+            foreach (var cmd in value.Config.QuickCommands)
+            {
+                QuickCommands.Add(cmd);
+            }
         }
     }
     
+    /// <summary>
+    /// 切换 RCON 模式
+    /// </summary>
+    partial void OnUseRCONChanged(bool value)
+    {
+        if (value && !RconConnected)
+        {
+            // 自动尝试连接 RCON
+            _ = ConnectRCONAsync();
+        }
+        else if (!value && RconConnected)
+        {
+            // 切换回 stdin 时断开 RCON
+            _ = DisconnectRCONAsync();
+        }
+    }
+
     /// <summary>
     /// 释放资源
     /// </summary>
     ~LogConsoleViewModel()
     {
+        _rconClient?.Dispose();
         _logFileWriter?.Close();
         _logFileWriter?.Dispose();
     }
