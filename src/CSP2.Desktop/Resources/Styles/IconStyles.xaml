@@ -1,0 +1,172 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ========== 现代化图标字体 ========== -->
+    <!-- 使用 Segoe MDL2 Assets 字体（Windows 10+ 内置） -->
+    <FontFamily x:Key="FluentIconFont">Segoe MDL2 Assets</FontFamily>
+    
+    <!-- ========== 图标字符定义 ========== -->
+    <!-- 服务器管理相关图标 -->
+    <system:String x:Key="ServerIcon">&#xE968;</system:String>
+    <system:String x:Key="DatabaseIcon">&#xE7C3;</system:String>
+    <system:String x:Key="SettingsIcon">&#xE713;</system:String>
+    <system:String x:Key="ConsoleIcon">&#xE756;</system:String>
+    <system:String x:Key="PluginIcon">&#xE7C8;</system:String>
+    <system:String x:Key="DownloadIcon">&#xE896;</system:String>
+    <system:String x:Key="LogIcon">&#xE7C7;</system:String>
+    <system:String x:Key="DebugIcon">&#xE8AF;</system:String>
+    
+    <!-- 操作图标 -->
+    <system:String x:Key="PlayIcon">&#xE768;</system:String>
+    <system:String x:Key="StopIcon">&#xE71A;</system:String>
+    <system:String x:Key="RestartIcon">&#xE72C;</system:String>
+    <system:String x:Key="RefreshIcon">&#xE72C;</system:String>
+    <system:String x:Key="AddIcon">&#xE710;</system:String>
+    <system:String x:Key="DeleteIcon">&#xE74D;</system:String>
+    <system:String x:Key="EditIcon">&#xE70F;</system:String>
+    <system:String x:Key="ViewIcon">&#xE890;</system:String>
+    <system:String x:Key="SearchIcon">&#xE721;</system:String>
+    <system:String x:Key="FolderIcon">&#xE8B7;</system:String>
+    
+    <!-- 状态图标 -->
+    <system:String x:Key="OnlineIcon">&#xE73E;</system:String>
+    <system:String x:Key="OfflineIcon">&#xE711;</system:String>
+    <system:String x:Key="WarningIcon">&#xE7BA;</system:String>
+    <system:String x:Key="ErrorIcon">&#xE783;</system:String>
+    <system:String x:Key="SuccessIcon">&#xE73E;</system:String>
+    <system:String x:Key="InfoIcon">&#xE946;</system:String>
+    
+    <!-- 导航图标 -->
+    <system:String x:Key="MenuIcon">&#xE700;</system:String>
+    <system:String x:Key="BackIcon">&#xE72B;</system:String>
+    <system:String x:Key="ForwardIcon">&#xE72A;</system:String>
+    <system:String x:Key="UpIcon">&#xE70E;</system:String>
+    <system:String x:Key="DownIcon">&#xE70D;</system:String>
+    <system:String x:Key="LeftIcon">&#xE76B;</system:String>
+    <system:String x:Key="RightIcon">&#xE76C;</system:String>
+    
+    <!-- 窗口控制图标 -->
+    <system:String x:Key="MinimizeIcon">&#xE921;</system:String>
+    <system:String x:Key="MaximizeIcon">&#xE922;</system:String>
+    <system:String x:Key="RestoreIcon">&#xE923;</system:String>
+    <system:String x:Key="CloseIcon">&#xE8BB;</system:String>
+    
+    <!-- ========== 图标样式 ========== -->
+    <!-- 基础图标样式 -->
+    <Style x:Key="BaseIconStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FluentIconFont}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- 小图标样式 -->
+    <Style x:Key="SmallIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+    
+    <!-- 中等图标样式 -->
+    <Style x:Key="MediumIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="18"/>
+    </Style>
+    
+    <!-- 大图标样式 -->
+    <Style x:Key="LargeIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="24"/>
+    </Style>
+    
+    <!-- 导航图标样式 -->
+    <Style x:Key="NavIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+    
+    <!-- 状态图标样式 -->
+    <Style x:Key="StatusIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    
+    <!-- 操作图标样式 -->
+    <Style x:Key="ActionIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- ========== 图标按钮组合样式 ========== -->
+    <!-- 带图标的按钮模板 -->
+    <ControlTemplate x:Key="IconButtonTemplate" TargetType="Button">
+        <Border x:Name="border"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="8"
+                Padding="{TemplateBinding Padding}">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Border.RenderTransform>
+            <Border.RenderTransformOrigin>
+                <Point X="0.5" Y="0.5"/>
+            </Border.RenderTransformOrigin>
+            <StackPanel Orientation="Horizontal" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center">
+                <TextBlock x:Name="iconText"
+                          Style="{StaticResource ActionIconStyle}"
+                          Text="{TemplateBinding Tag}"
+                          Foreground="{TemplateBinding Foreground}"/>
+                <ContentPresenter x:Name="contentPresenter"
+                                Content="{TemplateBinding Content}"
+                                VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="border"
+                                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                           To="1.02" Duration="0:0:0.1"/>
+                            <DoubleAnimation Storyboard.TargetName="border"
+                                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                           To="1.02" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="border"
+                                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                           To="1.0" Duration="0:0:0.1"/>
+                            <DoubleAnimation Storyboard.TargetName="border"
+                                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                           To="1.0" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="border" Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+            </Trigger>
+            <!-- 当Content为空时隐藏图标的右边距 -->
+            <Trigger Property="Content" Value="{x:Null}">
+                <Setter TargetName="iconText" Property="Margin" Value="0"/>
+            </Trigger>
+            <Trigger Property="Content" Value="">
+                <Setter TargetName="iconText" Property="Margin" Value="0"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+</ResourceDictionary>

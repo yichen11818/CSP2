@@ -56,6 +56,18 @@ public class ServerConfig
     /// </summary>
     public bool IsLanMode { get; set; } = false;
     
+    /// <summary>
+    /// 在应用内打开控制台（捕获服务器日志到应用内）
+    /// </summary>
+    public bool OpenConsoleInApp { get; set; } = true;
+    
+    // ============ 网络配置 ============
+    
+    /// <summary>
+    /// 服务器IP地址（默认 0.0.0.0 监听所有网卡）
+    /// </summary>
+    public string IpAddress { get; set; } = "0.0.0.0";
+    
     // ============ 自定义参数 ============
     
     /// <summary>
@@ -65,12 +77,6 @@ public class ServerConfig
     public string CustomParameters { get; set; } = string.Empty;
     
     // ============ 内部使用（不暴露给用户UI）============
-    
-    /// <summary>
-    /// 服务器IP地址（固定为 0.0.0.0，监听所有网卡）
-    /// </summary>
-    [JsonIgnore]
-    public string IpAddress => "0.0.0.0";
     
     /// <summary>
     /// 地图组（自动推断，固定为 mg_active）

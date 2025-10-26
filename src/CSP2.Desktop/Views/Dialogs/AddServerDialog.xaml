@@ -62,17 +62,46 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="InstallPathTextBox"
                                      Grid.Column="0"
                                      Style="{StaticResource ModernTextBox}"/>
                             <Button Grid.Column="1"
+                                    Content="自动检测"
+                                    Tag="{StaticResource SearchIcon}"
+                                    Click="AutoDetectButton_Click"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="12,0,0,0"
+                                    Padding="16,10"
+                                    ToolTip="自动扫描CS2服务器安装路径"/>
+                            <Button Grid.Column="2"
                                     Content="{converters:Localization Common.Browse}"
+                                    Tag="{StaticResource FolderIcon}"
                                     Click="BrowseButton_Click"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Margin="12,0,0,0"
                                     Padding="16,10"/>
                         </Grid>
+                        
+                        <!-- 检测到的服务器列表 -->
+                        <ComboBox x:Name="DetectedServersComboBox"
+                                  Style="{StaticResource ModernComboBox}"
+                                  Margin="0,0,0,6"
+                                  SelectionChanged="DetectedServersComboBox_SelectionChanged"
+                                  Visibility="Collapsed">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding InstallPath}" 
+                                                   FontSize="11" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        
                         <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
                                    FontSize="12" 
                                    Foreground="{StaticResource TextTertiaryBrush}"

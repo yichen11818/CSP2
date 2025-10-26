@@ -168,6 +168,9 @@ public partial class App : Application
 
                     // 注册本地化服务
                     services.AddSingleton<JsonLocalizationService>();
+                    
+                    // 注册主题服务
+                    services.AddSingleton<ThemeService>();
 
                     // 注册核心服务
                     services.AddSingleton<IConfigurationService, ConfigurationService>();
@@ -210,6 +213,21 @@ public partial class App : Application
 
             // 初始化本地化服务 - 必须在创建任何窗口之前！
             var localization = _host.Services.GetRequiredService<JsonLocalizationService>();
+            
+            // 初始化主题服务
+            var themeService = _host.Services.GetRequiredService<ThemeService>();
+            var configService = _host.Services.GetRequiredService<IConfigurationService>();
+            try
+            {
+                var settings = await configService.LoadAppSettingsAsync();
+                themeService.ApplyTheme(settings.Ui?.Theme ?? "Light");
+                Log.Information("主题初始化完成: {Theme}", settings.Ui?.Theme ?? "Light");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "主题初始化失败，使用默认主题");
+                themeService.ApplyTheme("Light");
+            }
             Helpers.LocalizationHelper.Instance.Initialize(localization);
             Log.Information("本地化服务已初始化，当前语言: {Language}", localization.CurrentLanguageCode);
 

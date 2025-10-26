@@ -27,6 +27,7 @@ public partial class SimpleServerConfigDialog : Window
     private void LoadConfig(ServerConfig config)
     {
         // 核心配置
+        IpAddressTextBox.Text = config.IpAddress;
         PortTextBox.Text = config.Port.ToString();
         MapComboBox.Text = config.Map;
         MaxPlayersTextBox.Text = config.MaxPlayers.ToString();
@@ -37,6 +38,7 @@ public partial class SimpleServerConfigDialog : Window
         DisableBotsCheckBox.IsChecked = config.DisableBots;
         InsecureModeCheckBox.IsChecked = config.InsecureMode;
         LanModeCheckBox.IsChecked = config.IsLanMode;
+        OpenConsoleInAppCheckBox.IsChecked = config.OpenConsoleInApp;
 
         // 自定义参数
         CustomParametersTextBox.Text = config.CustomParameters;
@@ -54,6 +56,7 @@ public partial class SimpleServerConfigDialog : Window
         ServerConfig = new ServerConfig
         {
             // 核心配置
+            IpAddress = IpAddressTextBox.Text.Trim(),
             Port = int.Parse(PortTextBox.Text),
             Map = MapComboBox.Text,
             MaxPlayers = int.Parse(MaxPlayersTextBox.Text),
@@ -65,6 +68,7 @@ public partial class SimpleServerConfigDialog : Window
             DisableBots = DisableBotsCheckBox.IsChecked == true,
             InsecureMode = InsecureModeCheckBox.IsChecked == true,
             IsLanMode = LanModeCheckBox.IsChecked == true,
+            OpenConsoleInApp = OpenConsoleInAppCheckBox.IsChecked == true,
 
             // 自定义参数
             CustomParameters = CustomParametersTextBox.Text.Trim(),
@@ -89,6 +93,17 @@ public partial class SimpleServerConfigDialog : Window
 
     private bool ValidateInput()
     {
+        // 验证IP地址
+        if (string.IsNullOrWhiteSpace(IpAddressTextBox.Text))
+        {
+            MessageBox.Show("请输入IP地址", 
+                "验证失败", 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Warning);
+            IpAddressTextBox.Focus();
+            return false;
+        }
+
         // 验证端口
         if (!int.TryParse(PortTextBox.Text, out int port) || port < 1 || port > 65535)
         {

@@ -46,6 +46,14 @@
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,16"/>
 
+                        <!-- IP地址 -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="IP地址" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="IpAddressTextBox" 
+                                     Text="0.0.0.0"
+                                     ToolTip="服务器监听IP地址（0.0.0.0 表示监听所有网卡）"/>
+                        </StackPanel>
+
                         <!-- 端口和地图 -->
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -135,7 +143,13 @@
                         
                         <CheckBox x:Name="LanModeCheckBox" 
                                   Content="局域网模式" 
+                                  Margin="0,0,0,8"
                                   ToolTip="服务器仅在局域网中可见"/>
+                        
+                        <CheckBox x:Name="OpenConsoleInAppCheckBox" 
+                                  Content="在应用内打开控制台" 
+                                  IsChecked="True"
+                                  ToolTip="将服务器日志重定向到应用内控制台，便于监控和保存（注意：CS2控制台窗口仍会弹出）"/>
                     </StackPanel>
                 </Border>
 

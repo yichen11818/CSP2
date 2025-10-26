@@ -657,6 +657,17 @@ public class ServerManager : IServerManager
         {
             args.Add("+sv_lan 0");
         }
+        
+        // 应用内控制台模式
+        // 注意：目前CS2的-hideconsole参数不工作，即使启用此选项，CS2控制台窗口仍会弹出
+        // 但日志会被重定向到应用内控制台，便于监控和保存
+        if (config.OpenConsoleInApp)
+        {
+            // 启用调试日志，确保日志输出到stdout（被应用捕获）
+            args.Add("-condebug");
+            // 尝试隐藏CS2控制台窗口（目前此参数在CS2中不工作）
+            // args.Add("-hideconsole");  // 暂时注释，因为CS2不支持
+        }
 
         // ========== 高级配置（可选，建议使用 autoexec.cfg）==========
         

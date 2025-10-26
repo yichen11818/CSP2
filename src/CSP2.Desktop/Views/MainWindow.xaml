@@ -146,7 +146,7 @@
 
                 <!-- 左侧导航栏 -->
                 <Border Grid.Column="0" 
-                        Background="{StaticResource PrimaryBrush}"
+                        Background="{StaticResource SidebarBackgroundBrush}"
                         CornerRadius="12,0,0,12">
                     <Border.Style>
                         <Style TargetType="Border">
@@ -194,7 +194,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Logo -->
-                        <Border Grid.Row="0" Padding="20,24" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="12,0,0,0">
+                        <Border Grid.Row="0" Padding="20,24" Background="{StaticResource SidebarDarkBackgroundBrush}" CornerRadius="12,0,0,0">
                             <Grid>
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{converters:Localization App.Name}" 
@@ -243,14 +243,17 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" 
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="🖥️" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource ServerIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.ServerManagement}"/>
                                     </StackPanel>
-                                    <TextBlock Text="🖥️" 
-                                              FontSize="20" 
+                                    <TextBlock Text="{StaticResource ServerIcon}" 
+                                              FontSize="18" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -270,14 +273,17 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource LogIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.LogConsole}"/>
                                     </StackPanel>
-                                    <TextBlock Text="📋" 
-                                              FontSize="20" 
+                                    <TextBlock Text="{StaticResource LogIcon}" 
+                                              FontSize="18" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -297,14 +303,17 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="🧩" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource PluginIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.PluginMarket}"/>
                                     </StackPanel>
-                                    <TextBlock Text="🧩" 
-                                              FontSize="20" 
+                                    <TextBlock Text="{StaticResource PluginIcon}" 
+                                              FontSize="18" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -328,7 +337,10 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="📥" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource DownloadIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.DownloadManager}"/>
                                         <Border Background="{StaticResource PrimaryBrush}"
                                                 CornerRadius="10"
@@ -353,8 +365,9 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Grid.Style>
-                                        <TextBlock Text="📥" 
-                                                  FontSize="20" 
+                                        <TextBlock Text="{StaticResource DownloadIcon}" 
+                                                  Style="{StaticResource NavIconStyle}"
+                                                  FontSize="18" 
                                                   HorizontalAlignment="Center"/>
                                         <Border Background="{StaticResource DangerBrush}"
                                                 Width="10"
@@ -375,14 +388,17 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource SettingsIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.Settings}"/>
                                     </StackPanel>
-                                    <TextBlock Text="⚙️" 
-                                              FontSize="20" 
+                                    <TextBlock Text="{StaticResource SettingsIcon}" 
+                                              FontSize="18" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -404,14 +420,17 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="🐛" FontSize="16" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{StaticResource DebugIcon}" 
+                                                  Style="{StaticResource NavIconStyle}" 
+                                                  FontSize="16" 
+                                                  Margin="0,0,12,0"/>
                                         <TextBlock Text="{converters:Localization Nav.DebugConsole}"/>
                                     </StackPanel>
-                                    <TextBlock Text="🐛" 
-                                              FontSize="20" 
+                                    <TextBlock Text="{StaticResource DebugIcon}" 
+                                              FontSize="18" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -468,7 +487,7 @@
                         </Border>
 
                         <!-- 版本信息 -->
-                        <Border Grid.Row="3" Padding="20,16" Background="{StaticResource PrimaryDarkBrush}" CornerRadius="0,0,0,12">
+                        <Border Grid.Row="3" Padding="20,16" Background="{StaticResource SidebarDarkBackgroundBrush}" CornerRadius="0,0,0,12">
                             <Grid>
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{converters:Localization App.Version}" 

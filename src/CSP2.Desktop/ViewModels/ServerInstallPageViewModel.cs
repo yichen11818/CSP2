@@ -138,8 +138,23 @@ public partial class ServerInstallPageViewModel : ObservableObject
             _logger.LogInformation("用户确认将安装 SteamCMD");
         }
         
+        // 让用户选择下载路径
+        var dialog = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "选择CS2服务器下载路径",
+            SelectedPath = InstallPath
+        };
+
+        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+        {
+            return;
+        }
+        
+        InstallPath = dialog.SelectedPath;
         SelectedMode = "steamcmd";
-        CurrentStep = 2;
+        
+        // 直接开始下载
+        await StartDownloadOnlyAsync();
     }
 
     [RelayCommand]
@@ -155,9 +170,19 @@ public partial class ServerInstallPageViewModel : ObservableObject
             return;
         }
 
-        SelectedMode = "existing";
-        SelectedInstallation = DetectedInstallations.FirstOrDefault();
-        CurrentStep = 2;
+        // 提示用户使用"添加服务器"功能
+        var message = "检测到以下CS2服务器安装：\n\n" + 
+                      string.Join("\n", DetectedInstallations.Select(i => $"• {i.Source}: {i.InstallPath}")) +
+                      "\n\n请返回「服务器管理」页面，点击「➕ 添加服务器」按钮来配置和添加这些服务器。";
+        
+        System.Windows.MessageBox.Show(
+            message,
+            "使用现有服务器",
+            System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
+        
+        // 返回服务器管理页面
+        _onCancel?.Invoke();
     }
 
     [RelayCommand]
@@ -178,6 +203,72 @@ public partial class ServerInstallPageViewModel : ObservableObject
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
         {
             InstallPath = dialog.SelectedPath;
+        }
+    }
+
+    /// <summary>
+    /// 仅下载CS2服务器文件（不创建服务器配置）
+    /// </summary>
+    private async Task StartDownloadOnlyAsync()
+    {
+        if (string.IsNullOrWhiteSpace(InstallPath))
+        {
+            System.Windows.MessageBox.Show(
+                "请选择有效的下载路径",
+                "验证失败",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        IsInstalling = true;
+
+        try
+        {
+            _logger.LogInformation("开始纯下载CS2服务器文件到: {Path}", InstallPath);
+            
+            // 检查 SteamCMD
+            if (!await _steamCmdService.IsSteamCmdInstalledAsync())
+            {
+                _logger.LogInformation("SteamCMD未安装，开始安装");
+                
+                var steamCmdPath = _steamCmdService.GetSteamCmdPath();
+                if (!await _steamCmdService.InstallSteamCmdAsync(steamCmdPath, null))
+                {
+                    throw new InvalidOperationException("SteamCMD 安装失败");
+                }
+            }
+
+            // 下载CS2服务器文件（SteamCmdService会自动将任务添加到DownloadManager）
+            if (!await _steamCmdService.InstallOrUpdateServerAsync(InstallPath, false, null))
+            {
+                throw new InvalidOperationException("CS2 服务器下载失败");
+            }
+
+            _logger.LogInformation("CS2服务器文件下载任务已启动");
+            
+            // 显示成功消息
+            System.Windows.MessageBox.Show(
+                $"CS2服务器文件下载任务已启动！\n\n下载路径：{InstallPath}\n\n下载完成后，请返回「服务器管理」页面，点击「➕ 添加服务器」按钮来配置和添加服务器。\n\n您可以在「下载管理」页面查看下载进度。",
+                "下载已启动",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+            
+            // 返回服务器管理页面
+            _onCancel?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "下载失败");
+            System.Windows.MessageBox.Show(
+                $"下载失败：{ex.Message}",
+                "下载失败",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsInstalling = false;
         }
     }
 
@@ -227,7 +318,6 @@ public partial class ServerInstallPageViewModel : ObservableObject
                 Map = "de_dust2",
                 MaxPlayers = 10,
                 TickRate = 128,
-                MapGroup = "mg_active",
                 ServerName = ServerName
             };
 

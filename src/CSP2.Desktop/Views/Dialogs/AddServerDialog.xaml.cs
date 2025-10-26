@@ -1,8 +1,13 @@
 using CSP2.Core.Models;
+using CSP2.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using static CSP2.Core.Services.CS2PathDetector;
 
 namespace CSP2.Desktop.Views.Dialogs;
 
@@ -11,12 +16,16 @@ public partial class AddServerDialog : Window
     public string ServerName => ServerNameTextBox.Text;
     public string InstallPath => InstallPathTextBox.Text;
     public ServerConfig ServerConfig { get; private set; }
+    
+    private readonly CS2PathDetector? _pathDetector;
+    private ObservableCollection<CS2InstallInfo> _detectedInstallations = new();
 
-    public AddServerDialog()
+    public AddServerDialog(CS2PathDetector? pathDetector = null)
     {
         InitializeComponent();
         ServerNameTextBox.Focus();
         ServerConfig = new ServerConfig();
+        _pathDetector = pathDetector;
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -163,16 +172,17 @@ public partial class AddServerDialog : Window
             }
         }
 
-        // 构建配置
+        // 构建配置（使用简化的配置模型）
         ServerConfig = new ServerConfig
         {
-            // 基础配置
+            // 网络配置
             IpAddress = IpAddressTextBox.Text,
             Port = port,
+            
+            // 核心配置
             Map = MapTextBox.Text,
             MaxPlayers = maxPlayers,
             TickRate = tickRate,
-            MapGroup = MapGroupTextBox.Text,
 
             // 服务器身份
             ServerName = string.IsNullOrWhiteSpace(ServerDisplayNameTextBox.Text) ? null : ServerDisplayNameTextBox.Text,
@@ -180,27 +190,10 @@ public partial class AddServerDialog : Window
             ServerPassword = string.IsNullOrWhiteSpace(ServerPasswordBox.Password) ? null : ServerPasswordBox.Password,
             RconPassword = string.IsNullOrWhiteSpace(RconPasswordBox.Password) ? null : RconPasswordBox.Password,
 
-            // 网络设置
+            // 常用选项
             IsLanMode = LanModeCheckBox.IsChecked == true,
             InsecureMode = InsecureModeCheckBox.IsChecked == true,
-
-            // 性能优化
-            EnableConsole = EnableConsoleCheckBox.IsChecked == true,
-            ProcessPriority = processPriority,
-            MaxFps = maxFps,
-            ThreadCount = threadCount,
-            DisableHltv = DisableHltvCheckBox.IsChecked == true,
-
-            // 游戏规则
-            EnableCheats = EnableCheatsCheckBox.IsChecked == true,
-            BotQuota = botQuota,
-            BotDifficulty = botDifficulty,
-            KickIdleTime = kickIdleTime,
-
-            // 日志设置
-            EnableLogging = EnableLoggingCheckBox.IsChecked == true,
-            ConsoleLogToFile = ConsoleLogToFileCheckBox.IsChecked == true,
-            LogEcho = LogEchoCheckBox.IsChecked == true
+            DisableBots = botQuota == 0
         };
 
         DialogResult = true;
@@ -211,5 +204,92 @@ public partial class AddServerDialog : Window
     {
         DialogResult = false;
         Close();
+    }
+    
+    private async void AutoDetectButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_pathDetector == null)
+        {
+            MessageBox.Show(
+                "自动检测功能不可用",
+                "提示",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+        
+        // 显示加载状态
+        var button = sender as System.Windows.Controls.Button;
+        if (button != null)
+        {
+            button.IsEnabled = false;
+            button.Content = "⏳ 检测中...";
+        }
+        
+        try
+        {
+            // 执行自动检测
+            var installations = await _pathDetector.DetectAllInstallationsAsync();
+            var validInstallations = installations.Where(i => i.IsValid).ToList();
+            
+            if (validInstallations.Count == 0)
+            {
+                MessageBox.Show(
+                    "未检测到CS2服务器安装。\n\n请确保已安装CS2服务器，或手动选择安装路径。",
+                    "未检测到服务器",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+            
+            // 填充检测结果
+            _detectedInstallations.Clear();
+            foreach (var install in validInstallations)
+            {
+                _detectedInstallations.Add(install);
+            }
+            
+            DetectedServersComboBox.ItemsSource = _detectedInstallations;
+            DetectedServersComboBox.Visibility = Visibility.Visible;
+            DetectedServersComboBox.SelectedIndex = 0;
+            
+            MessageBox.Show(
+                $"检测到 {validInstallations.Count} 个CS2服务器安装！\n\n请从下拉列表中选择要添加的服务器。",
+                "检测成功",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"自动检测失败：{ex.Message}",
+                "检测失败",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            // 恢复按钮状态
+            if (button != null)
+            {
+                button.IsEnabled = true;
+                button.Content = "🔍 自动检测";
+            }
+        }
+    }
+    
+    private void DetectedServersComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DetectedServersComboBox.SelectedItem is CS2InstallInfo selectedInstall)
+        {
+            InstallPathTextBox.Text = selectedInstall.InstallPath;
+            
+            // 根据来源设置服务器名称（如果用户还没有修改）
+            if (string.IsNullOrWhiteSpace(ServerNameTextBox.Text) || 
+                ServerNameTextBox.Text == "My CS2 Server")
+            {
+                ServerNameTextBox.Text = $"CS2 Server ({selectedInstall.Source})";
+            }
+        }
     }
 }

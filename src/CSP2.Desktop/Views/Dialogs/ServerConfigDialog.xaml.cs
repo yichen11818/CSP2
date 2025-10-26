@@ -123,8 +123,6 @@ public partial class ServerConfigDialog : Window
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
-            Config.MapGroup = MapGroupComboBox.Text.Trim();
             
             if (!int.TryParse(MaxPlayersTextBox.Text, out var maxPlayers) || maxPlayers < 1 || maxPlayers > 64)
             {

@@ -150,7 +150,7 @@ public partial class ServerManagementViewModel : ObservableObject
             // 显示添加服务器对话框
             var dialog = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                var dlg = new Views.Dialogs.AddServerDialog
+                var dlg = new Views.Dialogs.AddServerDialog(_pathDetector)
                 {
                     Owner = System.Windows.Application.Current.MainWindow
                 };

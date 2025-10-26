@@ -101,22 +101,29 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                    <Button Content="{converters:Localization ServerMgmt.InstallServer}"
-                            Command="{Binding InstallServerCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}"/>
-                    
-                    <Button Content="{converters:Localization ServerMgmt.AddServer}"
+                    <!-- 添加服务器 - 主要操作 -->
+                    <Button Content="添加服务器"
+                            Tag="{StaticResource AddIcon}"
                             Command="{Binding AddServerCommand}"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Margin="12,0,0,0"/>
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            FontSize="15"
+                            Padding="20,12"/>
                     
-                    <Button Content="🔄"
+                    <!-- 下载CS2服务器 - 辅助操作（仅下载） -->
+                    <Button Content="下载CS2"
+                            Tag="{StaticResource DownloadIcon}"
+                            Command="{Binding InstallServerCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="12,0,0,0"
+                            ToolTip="下载CS2服务器文件（不包含配置）"/>
+                    
+                    <Button Tag="{StaticResource RefreshIcon}"
                             Command="{Binding RefreshCommand}"
                             Style="{StaticResource IconButtonStyle}"
                             ToolTip="{converters:Localization ServerMgmt.Refresh}"
                             Margin="12,0,0,0"
-                            Width="40"
-                            Height="40"
+                            Width="44"
+                            Height="44"
                             FontSize="16"/>
                 </StackPanel>
             </Grid>
@@ -140,14 +147,19 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ℹ️" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="14"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               TextWrapping="Wrap"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{StaticResource InfoIcon}" 
+                                              Style="{StaticResource BaseIconStyle}"
+                                              FontSize="16" 
+                                              Margin="0,0,10,0" 
+                                              VerticalAlignment="Center"
+                                              Foreground="{StaticResource InfoBrush}"/>
+                                    <TextBlock Text="{Binding StatusMessage}"
+                                               FontSize="14"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
             </Border>
         </Grid>
 
@@ -297,12 +309,14 @@
                                     <!-- 主要操作 -->
                                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                                         <Button Content="{converters:Localization ServerMgmt.Start}"
+                                                Tag="{StaticResource PlayIcon}"
                                                 Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SuccessButtonStyle}"
                                                 Padding="16,10"/>
 
                                         <Button Content="{converters:Localization ServerMgmt.Stop}"
+                                                Tag="{StaticResource StopIcon}"
                                                 Command="{Binding DataContext.StopServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource DangerButtonStyle}"
@@ -310,6 +324,7 @@
                                                 Margin="10,0,0,0"/>
 
                                         <Button Content="{converters:Localization ServerMgmt.Restart}"
+                                                Tag="{StaticResource RestartIcon}"
                                                 Command="{Binding DataContext.RestartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource WarningButtonStyle}"
@@ -320,24 +335,26 @@
                                     <!-- 次要操作 -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <Button Content="{converters:Localization ServerMgmt.ViewLog}"
+                                                Tag="{StaticResource ViewIcon}"
                                                 Command="{Binding DataContext.ViewServerLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Padding="16,10"/>
 
                                         <Button Content="{converters:Localization ServerMgmt.Settings}"
+                                                Tag="{StaticResource SettingsIcon}"
                                                 Command="{Binding DataContext.EditServerSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Padding="16,10"
                                                 Margin="10,0,0,0"/>
 
-                                        <Button Content="💣"
+                                        <Button Tag="{StaticResource DeleteIcon}"
                                                 Command="{Binding DataContext.UninstallServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="{converters:Localization ServerMgmt.UninstallTooltip}"
-                                                Width="40"
-                                                Height="40"
+                                                Width="44"
+                                                Height="44"
                                                 FontSize="16"
                                                 Margin="10,0,0,0">
                                             <Button.Style>
@@ -355,12 +372,12 @@
                                             </Button.Style>
                                         </Button>
 
-                                        <Button Content="🗑️"
+                                        <Button Tag="{StaticResource DeleteIcon}"
                                                 Command="{Binding DataContext.DeleteServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="{converters:Localization ServerMgmt.DeleteTooltip}"
-                                                Width="40"
-                                                Height="40"
+                                                Width="44"
+                                                Height="44"
                                                 FontSize="16"
                                                 Margin="10,0,0,0">
                                             <Button.Style>
@@ -394,10 +411,12 @@
                         Height="120"
                         CornerRadius="60"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="📦" 
+                    <TextBlock Text="{StaticResource ServerIcon}" 
+                               Style="{StaticResource BaseIconStyle}"
                                FontSize="64" 
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
+                               Foreground="{StaticResource Gray400Brush}"
                                Opacity="0.6"/>
                 </Border>
                 <TextBlock Text="{converters:Localization ServerMgmt.NoServers}" 

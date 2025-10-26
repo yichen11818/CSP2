@@ -48,64 +48,32 @@
                 </StackPanel>
             </Grid>
 
-            <!-- 步骤指示器 -->
-            <Grid Margin="0,24,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- 步骤1 -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="1">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock Text="1" FontSize="18" FontWeight="Bold" Foreground="White" 
-                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="{converters:Localization ServerInstall.Step1}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
-                               VerticalAlignment="Center"/>
+            <!-- 提示信息 -->
+            <Border Margin="0,24,0,0" 
+                    Background="{StaticResource InfoLightBrush}"
+                    BorderBrush="{StaticResource InfoBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="20">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ℹ️" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}">
+                        <Run Text="此页面仅用于下载CS2服务器文件。" FontWeight="Bold"/>
+                        <LineBreak/>
+                        <Run Text="下载完成后，请通过"/>
+                        <Run Text="「添加服务器」" FontWeight="Bold"/>
+                        <Run Text="按钮配置并添加服务器到管理列表。"/>
+                    </TextBlock>
                 </StackPanel>
-
-                <!-- 步骤2 -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Border Width="36" Height="36" CornerRadius="18" Margin="0,0,12,0">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Background" Value="{StaticResource Gray300Brush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock Text="2" FontSize="18" FontWeight="Bold" Foreground="White" 
-                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="{converters:Localization ServerInstall.Step2}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" 
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            </Border>
         </StackPanel>
 
         <!-- 主内容区域 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid>
-                <!-- 步骤1：选择安装方式 -->
-                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}">
-                    <TextBlock Text="{converters:Localization ServerInstall.SelectModeDesc}" 
+                <!-- 选择下载方式 -->
+                <StackPanel>
+                    <TextBlock Text="选择下载方式" 
                                FontSize="24" 
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimaryBrush}"
@@ -257,96 +225,32 @@
                             </StackPanel>
                         </Border>
                     </Grid>
-                </StackPanel>
-
-                <!-- 步骤2：配置服务器 -->
-                <StackPanel Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}">
-                    <TextBlock Text="{converters:Localization ServerInstall.ServerInfo}" 
-                               FontSize="24" 
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               Margin="0,0,0,24"/>
-
-                    <!-- 服务器名称 -->
-                    <TextBlock Text="{converters:Localization ServerInstall.ServerName}" 
-                               FontSize="14" 
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource ModernTextBox}"
-                             Margin="0,0,0,24"/>
-
-                    <!-- 安装路径（SteamCMD模式） -->
-                    <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=steamcmd}">
-                        <TextBlock Text="{converters:Localization ServerInstall.DownloadPath}" 
-                                   FontSize="14" 
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,8"/>
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding InstallPath, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBox}"/>
-                            <Button Grid.Column="1"
-                                    Content="{converters:Localization ServerInstall.BrowsePath}"
-                                    Command="{Binding BrowseInstallPathCommand}"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Margin="12,0,0,0"
-                                    Padding="16,10"/>
-                        </Grid>
-                        <TextBlock Text="{converters:Localization ServerInstall.DownloadPathDesc}" 
-                                   FontSize="12" 
-                                   Foreground="{StaticResource TextTertiaryBrush}"
-                                   Margin="0,0,0,24"/>
-                    </StackPanel>
-
-                    <!-- 选择现有安装（现有安装模式） -->
-                    <StackPanel Visibility="{Binding SelectedMode, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=existing}">
-                        <TextBlock Text="{converters:Localization ServerInstall.SelectInstallation}" 
-                                   FontSize="14" 
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,8"/>
-                        <ComboBox ItemsSource="{Binding DetectedInstallations}"
-                                  SelectedItem="{Binding SelectedInstallation}"
-                                  Style="{StaticResource ModernComboBox}"
-                                  Margin="0,0,0,24">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding InstallPath}" 
-                                                   FontSize="12" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- 配置说明 -->
-                    <Border Background="{StaticResource InfoLightBrush}"
+                    
+                    <!-- 下载提示 -->
+                    <Border Background="{StaticResource SuccessLightBrush}"
+                            BorderBrush="{StaticResource SuccessBrush}"
+                            BorderThickness="1"
                             CornerRadius="12"
                             Padding="20"
-                            Margin="0,0,0,24">
+                            Margin="32,32,32,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="ℹ️" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                            <TextBlock Text="✅" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
                             <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}">
-                                <Run Text="服务器配置（端口、地图等）可以在添加后通过"/>
-                                <Run Text="编辑服务器设置" FontWeight="Bold"/>
-                                <Run Text="或"/>
-                                <Run Text="启动参数" FontWeight="Bold"/>
-                                <Run Text="进行修改。"/>
+                                <Run Text="💡 下载完成后的操作：" FontWeight="Bold"/>
                                 <LineBreak/><LineBreak/>
-                                <Run Text="💡 提示：" FontWeight="Bold"/>
-                                <Run Text="点击确认后，服务器将被添加到列表，下载任务将在后台进行。你可以在"/>
-                                <Run Text="下载管理" FontWeight="Bold"/>
-                                <Run Text="页面查看下载进度。"/>
+                                <Run Text="1. 返回"/>
+                                <Run Text="「服务器管理」" FontWeight="Bold"/>
+                                <Run Text="页面"/>
+                                <LineBreak/>
+                                <Run Text="2. 点击"/>
+                                <Run Text="「➕ 添加服务器」" FontWeight="Bold"/>
+                                <Run Text="按钮"/>
+                                <LineBreak/>
+                                <Run Text="3. 选择刚才下载的服务器路径，完成配置"/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="📦 下载任务可以在"/>
+                                <Run Text="「下载管理」" FontWeight="Bold"/>
+                                <Run Text="页面查看进度。"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -356,37 +260,13 @@
 
         <!-- 底部按钮 -->
         <Grid Grid.Row="2" Margin="0,32,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <Button Content="{converters:Localization Common.Cancel}"
+            <Button Content="🏠 返回服务器管理"
                     Command="{Binding CancelCommand}"
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    HorizontalAlignment="Left"
-                    Padding="24,14"
-                    Width="140"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Padding="32,14"
+                    Width="200"
                     FontSize="15"/>
-
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="{converters:Localization ServerInstall.BackToStepOne}"
-                        Command="{Binding BackToStepOneCommand}"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Padding="24,14"
-                        Width="140"
-                        FontSize="15"
-                        Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
-
-                <Button Content="{converters:Localization ServerInstall.StartInstall}"
-                        Command="{Binding StartInstallCommand}"
-                        Style="{StaticResource SuccessButtonStyle}"
-                        Padding="24,14"
-                        Width="160"
-                        FontSize="15"
-                        Margin="16,0,0,0"
-                        Visibility="{Binding CurrentStep, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"/>
-            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

@@ -19,9 +19,19 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISteamCmdService _steamCmdService;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly JsonLocalizationService _localizationService;
+    private readonly ThemeService _themeService;
 
     [ObservableProperty]
     private string _theme = "Light";
+    
+    partial void OnThemeChanged(string value)
+    {
+        if (!_isLoadingSettings && _themeService != null)
+        {
+            _themeService.ApplyTheme(value);
+            _ = SaveThemeSettingAsync(value);
+        }
+    }
 
     private bool _isLoadingSettings = false;
 
@@ -83,6 +93,24 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// 保存主题设置
+    /// </summary>
+    private async Task SaveThemeSettingAsync(string theme)
+    {
+        try
+        {
+            var settings = await _configurationService.LoadAppSettingsAsync();
+            settings.Ui.Theme = theme;
+            await _configurationService.SaveAppSettingsAsync(settings);
+            _logger.LogInformation("主题设置已自动保存: {Theme}", theme);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "保存主题设置失败");
+        }
+    }
+
     [ObservableProperty]
     private bool _autoCheckUpdates = true;
 
@@ -123,12 +151,14 @@ public partial class SettingsViewModel : ObservableObject
         IConfigurationService configurationService,
         ISteamCmdService steamCmdService,
         ILogger<SettingsViewModel> logger,
-        JsonLocalizationService localizationService)
+        JsonLocalizationService localizationService,
+        ThemeService themeService)
     {
         _configurationService = configurationService;
         _steamCmdService = steamCmdService;
         _logger = logger;
         _localizationService = localizationService;
+        _themeService = themeService;
         
         _logger.LogInformation("SettingsViewModel 初始化");
         DebugLogger.Debug("SettingsViewModel", "构造函数开始执行");
