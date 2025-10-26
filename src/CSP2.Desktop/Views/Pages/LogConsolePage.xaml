@@ -131,6 +131,15 @@
                             </Button>
                         </StackPanel>
                     </Border>
+                    
+                    <!-- 配置提示 -->
+                    <TextBlock Grid.Column="3" 
+                               Text="💡 在服务器管理页面配置 RCON"
+                               FontSize="11"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               VerticalAlignment="Center"
+                               Margin="10,0,0,0"
+                               ToolTip="点击服务器管理页面的'编辑设置'按钮，在 RCON 配置标签页中设置"/>
 
                     <Button Content="📋 复制"
                             Command="{Binding CopyLogsCommand}"

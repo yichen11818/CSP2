@@ -1,0 +1,476 @@
+<Window x:Class="CSP2.Desktop.Views.Dialogs.ServerConfigDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="服务器配置" 
+        Height="700" 
+        Width="900"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        MinHeight="600"
+        MinWidth="800"
+        Background="{DynamicResource BackgroundBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="⚙️ 服务器配置" 
+                       FontSize="28" 
+                       FontWeight="Bold"/>
+            <TextBlock Text="配置服务器启动参数和运行选项" 
+                       FontSize="14" 
+                       Foreground="{DynamicResource SecondaryTextBrush}"
+                       Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- 配置选项卡 -->
+        <TabControl Grid.Row="1" Margin="0,0,0,20">
+            <!-- Tab 1: 基本配置 -->
+            <TabItem Header="📋 基本配置">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <!-- 网络配置 -->
+                        <TextBlock Text="网络配置" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- IP地址 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="IP 地址" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="IpAddressTextBox" 
+                                         Text="0.0.0.0"
+                                         ToolTip="服务器绑定的IP地址，0.0.0.0表示监听所有网卡"/>
+                            </StackPanel>
+
+                            <!-- 端口 -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="端口" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="PortTextBox" 
+                                         Text="27015"
+                                         ToolTip="服务器监听端口，默认27015"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 游戏配置 -->
+                        <TextBlock Text="游戏配置" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 初始地图 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="初始地图" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="MapComboBox" IsEditable="True" Text="de_dust2"
+                                          ToolTip="服务器启动时加载的地图">
+                                    <ComboBoxItem Content="de_dust2"/>
+                                    <ComboBoxItem Content="de_mirage"/>
+                                    <ComboBoxItem Content="de_inferno"/>
+                                    <ComboBoxItem Content="de_nuke"/>
+                                    <ComboBoxItem Content="de_vertigo"/>
+                                    <ComboBoxItem Content="de_ancient"/>
+                                    <ComboBoxItem Content="de_anubis"/>
+                                    <ComboBoxItem Content="cs_office"/>
+                                    <ComboBoxItem Content="cs_italy"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 地图组 -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="地图组" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="MapGroupComboBox" IsEditable="True" Text="mg_active"
+                                          ToolTip="地图轮换组">
+                                    <ComboBoxItem Content="mg_active"/>
+                                    <ComboBoxItem Content="mg_dust247"/>
+                                    <ComboBoxItem Content="mg_mirage"/>
+                                    <ComboBoxItem Content="mg_hostage"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 最大玩家数 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="最大玩家数" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="MaxPlayersTextBox" 
+                                         Text="10"
+                                         ToolTip="服务器允许的最大玩家数 (1-64)"/>
+                            </StackPanel>
+
+                            <!-- Tick Rate -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Tick Rate" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="TickRateComboBox" SelectedIndex="1"
+                                          ToolTip="服务器刷新率，越高越流畅但占用更多资源">
+                                    <ComboBoxItem Content="64"/>
+                                    <ComboBoxItem Content="128"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 游戏类型 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="游戏类型" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="GameTypeComboBox" SelectedIndex="0"
+                                          ToolTip="游戏模式类型">
+                                    <ComboBoxItem Content="0 - 经典竞技" Tag="0"/>
+                                    <ComboBoxItem Content="1 - 军备竞赛" Tag="1"/>
+                                    <ComboBoxItem Content="2 - 休闲模式" Tag="2"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 游戏模式 -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="游戏模式" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="GameModeComboBox" SelectedIndex="1"
+                                          ToolTip="具体的游戏模式">
+                                    <ComboBoxItem Content="0 - 休闲" Tag="0"/>
+                                    <ComboBoxItem Content="1 - 竞技" Tag="1"/>
+                                    <ComboBoxItem Content="2 - 翼人" Tag="2"/>
+                                    <ComboBoxItem Content="3 - 武器大师" Tag="3"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: 服务器身份 -->
+            <TabItem Header="🏷️ 服务器身份">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <!-- 显示信息 -->
+                        <TextBlock Text="显示信息" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="服务器名称" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="ServerNameTextBox" 
+                                     ToolTip="在服务器浏览器中显示的名称"/>
+                            <TextBlock Text="💡 留空则不设置hostname" 
+                                       FontSize="12" 
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <!-- 认证信息 -->
+                        <TextBlock Text="认证信息" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="Steam Token (GSLT)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="SteamTokenTextBox" 
+                                     ToolTip="公开服务器必需的Steam令牌"/>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,0">
+                                <Run Text="💡 在"/>
+                                <Hyperlink NavigateUri="https://steamcommunity.com/dev/managegameservers" 
+                                           RequestNavigate="Hyperlink_RequestNavigate">
+                                    <Run Text="Steam游戏服务器账户管理"/>
+                                </Hyperlink>
+                                <Run Text="页面获取"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- 安全信息 -->
+                        <TextBlock Text="安全信息" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="服务器密码" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <PasswordBox x:Name="ServerPasswordBox" 
+                                         ToolTip="进入服务器需要的密码"/>
+                            <TextBlock Text="💡 留空则不设置密码，任何人都可以加入" 
+                                       FontSize="12" 
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 3: RCON 配置 -->
+            <TabItem Header="🌐 RCON 配置">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <!-- 说明信息 -->
+                        <Border Background="#eff6ff"
+                                BorderBrush="#3b82f6"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="15"
+                                Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Foreground="#1e40af" Margin="0,0,0,8">
+                                    <Run Text="ℹ️ 什么是 RCON？"/>
+                                </TextBlock>
+                                <TextBlock Text="RCON (Remote Console) 是 Source 引擎服务器的远程控制协议。" 
+                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,6"/>
+                                <TextBlock Text="• 用于远程管理服务器（发送命令、获取响应）" 
+                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,3"/>
+                                <TextBlock Text="• 本地服务器可以直接通过 stdin 发送命令（更简单）" 
+                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,3"/>
+                                <TextBlock Text="• 推荐仅在需要远程管理时启用 RCON" 
+                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 启用 RCON -->
+                        <CheckBox x:Name="RconEnabledCheckBox"
+                                  Content="启用 RCON 远程管理"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Margin="0,0,0,20"
+                                  ToolTip="启用后将可以通过 RCON 协议远程管理服务器"/>
+
+                        <!-- RCON 服务器配置 -->
+                        <TextBlock Text="连接配置" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- RCON 服务器地址 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="服务器地址" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="RconHostTextBox" 
+                                         Text="127.0.0.1"
+                                         ToolTip="RCON 服务器的 IP 地址或主机名"/>
+                                <TextBlock Text="💡 本地服务器使用 127.0.0.1" 
+                                           FontSize="11" 
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <!-- RCON 端口 -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="RCON 端口" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="RconPortTextBox" 
+                                         Text="27015"
+                                         ToolTip="RCON 端口，通常与服务器端口相同"/>
+                                <TextBlock Text="💡 默认与游戏端口相同" 
+                                           FontSize="11" 
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- RCON 密码 -->
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="RCON 密码" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="RconPasswordTextBox" 
+                                     ToolTip="RCON 密码（与启动参数 +rcon_password 一致）"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0">
+                                <Run Text="💡 此密码应与启动参数"/>
+                                <Run Text="+rcon_password" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                <Run Text="一致"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- 连接超时 -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="连接超时（毫秒）" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="RconTimeoutTextBox" 
+                                     Text="5000"
+                                     ToolTip="连接超时时间，单位毫秒"/>
+                            <TextBlock Text="💡 推荐值：本地 5000，远程 10000" 
+                                       FontSize="11" 
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 注意事项 -->
+                        <Border Background="#fef3c7"
+                                BorderBrush="#f59e0b"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="15"
+                                Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Foreground="#92400e" Margin="0,0,0,8">
+                                    <Run Text="⚠️ 重要提示"/>
+                                </TextBlock>
+                                <TextBlock Text="• 确保服务器启动参数包含 +rcon_password" 
+                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12" Margin="0,0,0,3"/>
+                                <TextBlock Text="• RCON 密码与此处配置的密码必须一致" 
+                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12" Margin="0,0,0,3"/>
+                                <TextBlock Text="• 配置后可在日志控制台页面进行连接和管理" 
+                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 4: 高级选项 -->
+            <TabItem Header="🔧 高级选项">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <!-- 网络选项 -->
+                        <TextBlock Text="网络选项" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,12">
+                            <CheckBox x:Name="IsLanModeCheckBox" Content="局域网模式" 
+                                      ToolTip="启用局域网模式（不连接Steam服务器）"/>
+                            <CheckBox x:Name="InsecureModeCheckBox" Content="禁用 VAC (不安全模式)" Margin="0,8,0,0"
+                                      ToolTip="禁用Valve反外挂系统，允许运行未签名的插件"/>
+                        </StackPanel>
+
+                        <!-- 性能选项 -->
+                        <TextBlock Text="性能选项" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,12">
+                            <CheckBox x:Name="EnableConsoleCheckBox" Content="启用控制台窗口" IsChecked="True"
+                                      ToolTip="显示服务器控制台窗口"/>
+                            <CheckBox x:Name="DisableHltvCheckBox" Content="禁用 HLTV/GOTV" Margin="0,8,0,0"
+                                      ToolTip="禁用观战系统以节省资源"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 进程优先级 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="进程优先级" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="ProcessPriorityComboBox" SelectedIndex="1"
+                                          ToolTip="服务器进程的CPU优先级">
+                                    <ComboBoxItem Content="低" Tag="low"/>
+                                    <ComboBoxItem Content="普通" Tag="normal"/>
+                                    <ComboBoxItem Content="高" Tag="high"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 最大FPS -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="最大 FPS" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="MaxFpsTextBox" 
+                                         ToolTip="服务器最大帧率，留空表示不限制"/>
+                                <TextBlock Text="💡 留空 = 不限制，300 = 推荐值" 
+                                           FontSize="11" 
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="工作线程数" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="ThreadCountTextBox" 
+                                     ToolTip="服务器使用的线程数"/>
+                            <TextBlock Text="💡 留空表示自动检测（推荐）" 
+                                       FontSize="11" 
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 游戏规则 -->
+                        <TextBlock Text="游戏规则" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,12">
+                            <CheckBox x:Name="EnableCheatsCheckBox" Content="启用作弊命令 (sv_cheats 1)" 
+                                      ToolTip="允许使用作弊命令（仅限测试）"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- BOT数量 -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="BOT 数量" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="BotQuotaTextBox" Text="0"
+                                         ToolTip="服务器中的AI机器人数量"/>
+                            </StackPanel>
+
+                            <!-- BOT难度 -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="BOT 难度" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="BotDifficultyComboBox" SelectedIndex="2"
+                                          ToolTip="AI机器人的难度等级">
+                                    <ComboBoxItem Content="0 - 简单" Tag="0"/>
+                                    <ComboBoxItem Content="1 - 普通" Tag="1"/>
+                                    <ComboBoxItem Content="2 - 困难" Tag="2"/>
+                                    <ComboBoxItem Content="3 - 专家" Tag="3"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="踢出闲置时间 (分钟)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="KickIdleTimeTextBox" 
+                                     ToolTip="自动踢出闲置玩家的时间"/>
+                            <TextBlock Text="💡 留空表示不踢出闲置玩家" 
+                                       FontSize="11" 
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 日志选项 -->
+                        <TextBlock Text="日志选项" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <StackPanel Margin="0,0,0,16">
+                            <CheckBox x:Name="EnableLoggingCheckBox" Content="启用日志记录" IsChecked="True"
+                                      ToolTip="记录服务器日志到文件"/>
+                            <CheckBox x:Name="LogEchoCheckBox" Content="日志回显到控制台" IsChecked="True" Margin="0,8,0,0"
+                                      ToolTip="在控制台显示日志信息"/>
+                            <CheckBox x:Name="ConsoleLogToFileCheckBox" Content="控制台日志写入文件" Margin="0,8,0,0"
+                                      ToolTip="将控制台输出保存到日志文件"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- 底部按钮 -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Content="取消" Click="CancelButton_Click" 
+                    MinWidth="100" Padding="16,10"/>
+            <Button Grid.Column="3" Content="确定" Click="OkButton_Click" 
+                    MinWidth="100" Padding="16,10"
+                    Style="{StaticResource PrimaryButtonStyle}"/>
+        </Grid>
+    </Grid>
+</Window>
+

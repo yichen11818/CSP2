@@ -17,6 +17,8 @@ namespace CSP2.Desktop.ViewModels;
 public partial class LogConsoleViewModel : ObservableObject
 {
     private readonly IServerManager _serverManager;
+    private readonly IMapHistoryService? _mapHistoryService;
+    private readonly ISteamWorkshopService? _workshopService;
     private readonly StreamWriter? _logFileWriter;
     private readonly string? _currentLogFilePath;
     private readonly CommandHistory _commandHistory;
@@ -52,9 +54,14 @@ public partial class LogConsoleViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> _quickCommands = new();
 
-    public LogConsoleViewModel(IServerManager serverManager)
+    public LogConsoleViewModel(
+        IServerManager serverManager,
+        IMapHistoryService? mapHistoryService = null,
+        ISteamWorkshopService? workshopService = null)
     {
         _serverManager = serverManager;
+        _mapHistoryService = mapHistoryService;
+        _workshopService = workshopService;
         
         DebugLogger.Debug("LogConsoleViewModel", "构造函数开始执行");
         
@@ -264,6 +271,9 @@ public partial class LogConsoleViewModel : ObservableObject
                 await _serverManager.SendCommandAsync(SelectedServer.Id, CommandText);
                 DebugLogger.Debug("SendCommandAsync", "命令发送成功");
             }
+
+            // 检测并记录 Workshop 地图加载
+            TryRecordWorkshopMapAsync(CommandText);
             
             // 清空输入框
             CommandText = string.Empty;
@@ -407,6 +417,7 @@ public partial class LogConsoleViewModel : ObservableObject
             DebugLogger.Error("DisconnectRCONAsync", $"断开 RCON 失败: {ex.Message}", ex);
         }
     }
+
 
     /// <summary>
     /// 清空日志
@@ -613,6 +624,12 @@ public partial class LogConsoleViewModel : ObservableObject
     /// </summary>
     partial void OnSelectedServerChanged(Server? value)
     {
+        // 断开之前的 RCON 连接
+        if (RconConnected)
+        {
+            _ = DisconnectRCONAsync();
+        }
+
         // 切换服务器时清空日志
         Logs.Clear();
         LogText = string.Empty;
@@ -623,6 +640,9 @@ public partial class LogConsoleViewModel : ObservableObject
         {
             DebugLogger.Info("OnSelectedServerChanged", $"切换到服务器: {value.Name}");
             LogText = $"=== 已切换到服务器: {value.Name} ==={Environment.NewLine}{Environment.NewLine}";
+            
+            // 同步 RCON 配置
+            UseRCON = value.RCONConfig.Enabled;
             
             // 加载快捷命令
             foreach (var cmd in value.Config.QuickCommands)
@@ -637,6 +657,25 @@ public partial class LogConsoleViewModel : ObservableObject
     /// </summary>
     partial void OnUseRCONChanged(bool value)
     {
+        // 同步到服务器配置
+        if (SelectedServer != null)
+        {
+            SelectedServer.RCONConfig.Enabled = value;
+            // 异步保存配置
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _serverManager.UpdateServerAsync(SelectedServer);
+                    DebugLogger.Info("OnUseRCONChanged", $"RCON 启用状态已同步: {value}");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Error("OnUseRCONChanged", "保存 RCON 配置失败", ex);
+                }
+            });
+        }
+
         if (value && !RconConnected)
         {
             // 自动尝试连接 RCON
@@ -646,6 +685,72 @@ public partial class LogConsoleViewModel : ObservableObject
         {
             // 切换回 stdin 时断开 RCON
             _ = DisconnectRCONAsync();
+        }
+    }
+
+    /// <summary>
+    /// 尝试记录 Workshop 地图加载
+    /// 检测 host_workshop_map 命令并记录到地图历史
+    /// </summary>
+    private void TryRecordWorkshopMapAsync(string command)
+    {
+        if (_mapHistoryService == null || _workshopService == null || SelectedServer == null)
+        {
+            return;
+        }
+
+        try
+        {
+            // 清理命令文本
+            var cleanCommand = command.Trim().ToLower();
+
+            // 检测 host_workshop_map 命令
+            if (!cleanCommand.StartsWith("host_workshop_map"))
+            {
+                return;
+            }
+
+            // 提取参数
+            var parts = command.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 2)
+            {
+                DebugLogger.Warning("TryRecordWorkshopMapAsync", "host_workshop_map 命令缺少参数");
+                return;
+            }
+
+            var mapInput = parts[1];
+            DebugLogger.Debug("TryRecordWorkshopMapAsync", $"检测到地图加载命令: {mapInput}");
+
+            // 解析 Workshop ID (支持 URL 和纯 ID)
+            var workshopId = _workshopService.ParseWorkshopId(mapInput);
+            if (string.IsNullOrEmpty(workshopId))
+            {
+                DebugLogger.Warning("TryRecordWorkshopMapAsync", $"无法解析 Workshop ID: {mapInput}");
+                return;
+            }
+
+            DebugLogger.Info("TryRecordWorkshopMapAsync", 
+                $"开始记录 Workshop 地图: ID={workshopId}, Server={SelectedServer.Name}");
+
+            // 异步记录（不阻塞UI）
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _mapHistoryService.RecordMapLoadAsync(SelectedServer.Id, workshopId);
+                    DebugLogger.Info("TryRecordWorkshopMapAsync", 
+                        $"成功记录地图历史: {workshopId}");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Error("TryRecordWorkshopMapAsync", 
+                        $"记录地图历史失败: {ex.Message}", ex);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            DebugLogger.Error("TryRecordWorkshopMapAsync", $"处理地图命令失败: {ex.Message}", ex);
         }
     }
 

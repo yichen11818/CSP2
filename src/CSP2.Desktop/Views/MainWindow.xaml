@@ -568,43 +568,94 @@
                             BorderBrush="{StaticResource BorderBrush}"
                             BorderThickness="0,1,0,0"
                             CornerRadius="0,0,12,0"
-                            Padding="20,10">
+                            Padding="16,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
+                            <!-- 左侧：系统状态 -->
                             <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <!-- 在线状态指示器 -->
                                 <Border Background="{StaticResource SuccessLightBrush}"
                                         CornerRadius="6"
                                         Padding="8,4"
-                                        Margin="0,0,10,0"
+                                        Margin="0,0,12,0"
                                         VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0"/>
-                                        <TextBlock Text="{converters:Localization Status.Ready}" 
-                                                   FontSize="12"
+                                        <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Style.Triggers>
+                                                        <EventTrigger RoutedEvent="Loaded">
+                                                            <BeginStoryboard>
+                                                                <Storyboard RepeatBehavior="Forever">
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                   From="1.0" To="0.3" Duration="0:0:1.5"
+                                                                                   AutoReverse="True"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock Text="在线" 
+                                                   FontSize="11"
                                                    Foreground="{StaticResource SuccessDarkBrush}"
                                                    FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Border>
-                                <TextBlock Text="{Binding StatusText}" 
-                                           FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
+                                
+                                <!-- 运行服务器数量 -->
+                                <Border Background="#f3f4f6"
+                                        CornerRadius="6"
+                                        Padding="8,4"
+                                        Margin="0,0,12,0"
+                                        VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🖥️" FontSize="11" Margin="0,0,4,0"/>
+                                        <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                                            <Run Text="{Binding RunningServerCount, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                                            <Run Text="/" />
+                                            <Run Text="{Binding TotalServerCount, Mode=OneWay}"/>
+                                            <Run Text="运行中"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <!-- 系统资源 -->
+                                <TextBlock Text="{Binding SystemInfo}" 
+                                           FontSize="11"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,12,0"/>
                             </StackPanel>
                             
-                            <StackPanel Grid.Column="1" 
+                            <!-- 中间：状态消息（如有） -->
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding StatusText}" 
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="8,0"/>
+                            
+                            <!-- 右侧：版本信息 -->
+                            <StackPanel Grid.Column="2" 
                                         Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                <TextBlock Text="{converters:Localization Status.CurrentPageLabel}"
-                                           FontSize="12"
+                                <TextBlock Text="CSP2" 
+                                           FontSize="10"
                                            Foreground="{StaticResource TextTertiaryBrush}"
+                                           FontWeight="SemiBold"
                                            Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding SelectedMenuItem}"
-                                           FontSize="12"
-                                           Foreground="{StaticResource TextTertiaryBrush}"/>
+                                <TextBlock Text="v0.1.0"
+                                           FontSize="10"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           Opacity="0.7"/>
                             </StackPanel>
                         </Grid>
                     </Border>

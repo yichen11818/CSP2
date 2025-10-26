@@ -177,6 +177,10 @@ public partial class App : Application
                     services.AddSingleton<IPluginRepositoryService, PluginRepositoryService>();
                     services.AddSingleton<IPluginManager, PluginManager>();
                     services.AddSingleton<CS2PathDetector>();
+                    
+                    // Workshop 地图相关服务
+                    services.AddSingleton<ISteamWorkshopService, SteamWorkshopService>();
+                    services.AddSingleton<IMapHistoryService, MapHistoryService>();
 
                     // 注册ViewModels
                     services.AddSingleton<MainWindowViewModel>(); // 改为单例以保持下载状态
@@ -186,6 +190,7 @@ public partial class App : Application
                     services.AddTransient<PluginMarketViewModel>();
                     services.AddTransient<SettingsViewModel>();
                     services.AddSingleton<DebugConsoleViewModel>(); // Debug控制台使用单例
+                    services.AddTransient<MapHistoryViewModel>();
 
                     // 注册Views
                     services.AddTransient<MainWindow>();
@@ -195,6 +200,8 @@ public partial class App : Application
                     services.AddTransient<Views.Pages.DownloadManagerPage>();
                     services.AddTransient<Views.Pages.SettingsPage>();
                     services.AddTransient<Views.Pages.DebugConsolePage>();
+                    services.AddTransient<Views.Pages.MapHistoryPage>();
+                    services.AddTransient<MapHistoryView>();
                 })
                 .Build();
 

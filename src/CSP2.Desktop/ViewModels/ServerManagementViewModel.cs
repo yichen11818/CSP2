@@ -130,6 +130,9 @@ public partial class ServerManagementViewModel : ObservableObject
         {
             IsLoading = false;
             DebugLogger.Debug("LoadServersAsync", "IsLoading = false");
+            
+            // 通知命令更新（解决按钮初始无法点击的问题）
+            InstallServerCommand.NotifyCanExecuteChanged();
         }
     }
 
@@ -642,51 +645,43 @@ public partial class ServerManagementViewModel : ObservableObject
         try
         {
             _logger.LogInformation("编辑服务器设置: {ServerName}", server.Name);
-            
-            // TODO: 实现完整的设置对话框
-            // 暂时使用简单的消息框显示当前配置
-            var configInfo = $"""
-                服务器配置
-                
-                名称: {server.Name}
-                路径: {server.InstallPath}
-                
-                网络设置:
-                - IP地址: {server.Config.IpAddress}
-                - 端口: {server.Config.Port}
-                
-                游戏设置:
-                - 地图: {server.Config.Map}
-                - 最大玩家: {server.Config.MaxPlayers}
-                - Tick Rate: {server.Config.TickRate}
-                - 游戏类型: {server.Config.GameType}
-                - 游戏模式: {server.Config.GameMode}
-                
-                高级设置:
-                - 服务器名称: {server.Config.ServerName ?? "未设置"}
-                - RCON密码: {(string.IsNullOrEmpty(server.Config.RconPassword) ? "未设置" : "已设置")}
-                - Steam令牌: {(string.IsNullOrEmpty(server.Config.SteamToken) ? "未设置" : "已设置")}
-                - 控制台: {(server.Config.EnableConsole ? "启用" : "禁用")}
-                - 日志: {(server.Config.EnableLogging ? "启用" : "禁用")}
-                - 进程优先级: {server.Config.ProcessPriority}
-                
-                提示: 完整的设置编辑器正在开发中...
-                """;
+            DebugLogger.Info("EditServerSettingsAsync", $"打开配置对话框: {server.Name}");
 
-            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            bool? result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                System.Windows.MessageBox.Show(
-                    configInfo,
-                    $"服务器设置 - {server.Name}",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Information);
+                // 打开服务器配置对话框（传入 Config 和 RCONConfig）
+                var dialog = new Views.Dialogs.ServerConfigDialog(server.Config, server.RCONConfig)
+                {
+                    Owner = System.Windows.Application.Current.MainWindow,
+                    Title = $"配置服务器 - {server.Name}"
+                };
+                
+                return dialog.ShowDialog();
             });
 
-            _logger.LogInformation("设置查看完成");
+            // 用户点击确定后保存配置
+            if (result == true)
+            {
+                _logger.LogInformation("用户确认保存配置: {ServerName}", server.Name);
+                DebugLogger.Info("EditServerSettingsAsync", "用户确认保存配置，更新服务器");
+                
+                // 更新服务器配置
+                await _serverManager.UpdateServerAsync(server);
+                
+                ShowSuccess($"服务器 {server.Name} 配置已保存");
+                _logger.LogInformation("服务器配置已保存: {ServerName}", server.Name);
+                DebugLogger.Info("EditServerSettingsAsync", $"配置保存成功: {server.Name}");
+            }
+            else
+            {
+                _logger.LogInformation("用户取消配置编辑");
+                DebugLogger.Debug("EditServerSettingsAsync", "用户取消编辑");
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "编辑服务器设置失败: {ServerName}", server.Name);
+            DebugLogger.Error("EditServerSettingsAsync", $"编辑失败: {ex.Message}", ex);
             ShowError($"编辑设置失败: {ex.Message}");
         }
     }

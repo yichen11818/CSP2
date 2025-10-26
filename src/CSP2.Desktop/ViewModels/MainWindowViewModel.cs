@@ -41,10 +41,23 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private double _downloadProgress = 0.0;
 
-    public MainWindowViewModel(IServiceProvider serviceProvider, IDownloadManager downloadManager, JsonLocalizationService localizationService)
+    [ObservableProperty]
+    private int _runningServerCount = 0;
+
+    [ObservableProperty]
+    private int _totalServerCount = 0;
+
+    [ObservableProperty]
+    private string _systemInfo = string.Empty;
+
+    private readonly IServerManager _serverManager;
+    private readonly System.Threading.Timer _statusUpdateTimer;
+
+    public MainWindowViewModel(IServiceProvider serviceProvider, IDownloadManager downloadManager, IServerManager serverManager, JsonLocalizationService localizationService)
     {
         _serviceProvider = serviceProvider;
         _downloadManager = downloadManager;
+        _serverManager = serverManager;
         _localizationService = localizationService;
         
         // 初始化本地化字符串
@@ -60,12 +73,64 @@ public partial class MainWindowViewModel : ObservableObject
         _downloadManager.TaskCompleted += OnDownloadTaskCompleted;
         _downloadManager.TaskFailed += OnDownloadTaskFailed;
         
+        // 订阅服务器状态变化事件
+        _serverManager.StatusChanged += OnServerStatusChanged;
+        
+        // 启动状态更新定时器（每3秒更新一次）
+        _statusUpdateTimer = new System.Threading.Timer(
+            _ => UpdateSystemStatus(),
+            null,
+            TimeSpan.Zero,
+            TimeSpan.FromSeconds(3));
+        
         // 初始化 - 默认显示服务器管理页面
         NavigateToServerManagement();
         
         if (IsDebugMode)
         {
             DebugLogger.Info("MainWindow", "主窗口ViewModel已初始化 (Debug模式)");
+        }
+    }
+
+    private void OnServerStatusChanged(object? sender, Core.Models.ServerStatusChangedEventArgs e)
+    {
+        // 服务器状态变化时更新统计
+        _ = UpdateServerStatisticsAsync();
+    }
+
+    private async void UpdateSystemStatus()
+    {
+        await Application.Current.Dispatcher.InvokeAsync(async () =>
+        {
+            try
+            {
+                // 更新服务器统计
+                await UpdateServerStatisticsAsync();
+                
+                // 获取系统信息
+                var process = System.Diagnostics.Process.GetCurrentProcess();
+                var memoryMB = process.WorkingSet64 / 1024 / 1024;
+                
+                SystemInfo = $"内存: {memoryMB}MB";
+            }
+            catch
+            {
+                // 忽略错误
+            }
+        });
+    }
+
+    private async Task UpdateServerStatisticsAsync()
+    {
+        try
+        {
+            var servers = await _serverManager.GetServersAsync();
+            TotalServerCount = servers.Count;
+            RunningServerCount = servers.Count(s => s.Status == Core.Models.ServerStatus.Running);
+        }
+        catch
+        {
+            // 忽略错误
         }
     }
 

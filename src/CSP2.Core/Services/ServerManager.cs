@@ -500,6 +500,9 @@ public class ServerManager : IServerManager
 
             var serverProcess = _runningServers[serverId];
             
+            // 标记为用户主动停止
+            serverProcess.IsManualStop = true;
+            
             // 检查进程是否已经退出
             if (serverProcess.Process.HasExited)
             {
@@ -843,11 +846,32 @@ public class ServerManager : IServerManager
                 _logger.LogInformation("服务器进程已退出，ServerId: {ServerId}, ExitCode: {ExitCode}", 
                     serverId, process.ExitCode);
                 
+                // 获取 ServerProcess 以检查是否为手动停止
+                var isManualStop = false;
+                if (_runningServers.TryGetValue(serverId, out var sp))
+                {
+                    isManualStop = sp.IsManualStop;
+                }
+                
                 _runningServers.Remove(serverId);
                 var server = await GetServerByIdAsync(serverId);
                 if (server != null)
                 {
-                    var newStatus = process.ExitCode == 0 ? ServerStatus.Stopped : ServerStatus.Crashed;
+                    // 如果是用户主动停止，则设置为 Stopped
+                    // 否则根据退出代码判断（0 表示正常退出，非 0 表示崩溃）
+                    ServerStatus newStatus;
+                    if (isManualStop)
+                    {
+                        newStatus = ServerStatus.Stopped;
+                        _logger.LogInformation("用户主动停止服务器，设置状态为 Stopped");
+                    }
+                    else
+                    {
+                        newStatus = process.ExitCode == 0 ? ServerStatus.Stopped : ServerStatus.Crashed;
+                        _logger.LogInformation("服务器自动退出，退出代码: {ExitCode}, 状态: {Status}", 
+                            process.ExitCode, newStatus);
+                    }
+                    
                     ChangeServerStatus(server, newStatus);
                 }
             }
@@ -897,5 +921,10 @@ internal class ServerProcess
 {
     public required Process Process { get; set; }
     public required Server Server { get; set; }
+    
+    /// <summary>
+    /// 标记是否为用户主动停止
+    /// </summary>
+    public bool IsManualStop { get; set; }
 }
 
