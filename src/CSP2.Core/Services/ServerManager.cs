@@ -613,13 +613,17 @@ public class ServerManager : IServerManager
         }
     }
 
+    /// <summary>
+    /// 构建服务器启动参数（简化版）
+    /// </summary>
     private string BuildStartupArguments(ServerConfig config)
     {
         var args = new List<string>
         {
-            // 必需参数
+            // ========== 核心必需参数 ==========
             "-dedicated",
-            "-norestart", // 禁用自动重启，减少控制台输入错误
+            "-norestart",
+            "-console",  // 默认总是启用控制台
             $"-ip {config.IpAddress}",
             $"-port {config.Port}",
             $"-maxplayers {config.MaxPlayers}",
@@ -630,20 +634,19 @@ public class ServerManager : IServerManager
             $"+map {config.Map}"
         };
 
-        // ========== 控制台和进程选项 ==========
+        // ========== 常用选项 ==========
         
-        if (config.EnableConsole)
+        // BOT 设置
+        if (config.DisableBots)
         {
-            args.Add("-console");
+            args.Add("+bot_quota 0");
         }
-
-        // 进程优先级 (-high, -normal, -low)
-        if (!string.IsNullOrEmpty(config.ProcessPriority) && config.ProcessPriority != "normal")
+        
+        // Insecure 模式（用于自定义地图）
+        if (config.InsecureMode)
         {
-            args.Add($"-{config.ProcessPriority}");
+            args.Add("-insecure");
         }
-
-        // ========== 网络设置 ==========
         
         // 局域网模式
         if (config.IsLanMode)
@@ -655,134 +658,44 @@ public class ServerManager : IServerManager
             args.Add("+sv_lan 0");
         }
 
-        // 禁用VAC
-        if (config.InsecureMode)
-        {
-            args.Add("-insecure");
-        }
-
-        // ========== 性能优化 ==========
+        // ========== 高级配置（可选，建议使用 autoexec.cfg）==========
         
-        // 最大FPS
-        if (config.MaxFps.HasValue && config.MaxFps.Value > 0)
-        {
-            args.Add($"+fps_max {config.MaxFps.Value}");
-        }
-
-        // 线程数
-        if (config.ThreadCount.HasValue && config.ThreadCount.Value > 0)
-        {
-            args.Add($"-threads {config.ThreadCount.Value}");
-        }
-
-        // 禁用HLTV/GOTV
-        if (config.DisableHltv)
-        {
-            args.Add("+tv_enable 0");
-        }
-
-        // ========== 服务器身份 ==========
-        
-        // 服务器名称
+        // 服务器名称（如果配置了）
         if (!string.IsNullOrEmpty(config.ServerName))
         {
             args.Add($"+hostname \"{config.ServerName}\"");
         }
 
-        // 服务器密码
+        // 服务器密码（如果配置了）
         if (!string.IsNullOrEmpty(config.ServerPassword))
         {
             args.Add($"+sv_password \"{config.ServerPassword}\"");
         }
 
-        // RCON密码
+        // RCON密码（如果配置了）
         if (!string.IsNullOrEmpty(config.RconPassword))
         {
             args.Add($"+rcon_password \"{config.RconPassword}\"");
         }
 
-        // Steam令牌 (GSLT)
+        // Steam令牌（如果配置了）
         if (!string.IsNullOrEmpty(config.SteamToken))
         {
             args.Add($"+sv_setsteamaccount {config.SteamToken}");
         }
 
-        // ========== 游戏规则 ==========
+        // ========== 日志设置（默认启用）==========
+        args.Add("+log on");
+        args.Add("+sv_logfile 1");
+        args.Add("+mp_logdetail 3");
+        args.Add("+sv_logecho 1");
+
+        // ========== 自定义参数（用户完全控制）==========
         
-        // 作弊模式
-        if (config.EnableCheats)
+        // 自定义参数字符串（新方式）
+        if (!string.IsNullOrWhiteSpace(config.CustomParameters))
         {
-            args.Add("+sv_cheats 1");
-        }
-        else
-        {
-            args.Add("+sv_cheats 0");
-        }
-
-        // BOT设置
-        if (config.BotQuota > 0)
-        {
-            args.Add($"+bot_quota {config.BotQuota}");
-            args.Add("+bot_quota_mode fill"); // 填满模式
-            
-            // BOT难度 (0=简单, 1=普通, 2=困难, 3=专家)
-            args.Add($"+bot_difficulty {config.BotDifficulty}");
-        }
-        else
-        {
-            args.Add("+bot_quota 0");
-        }
-
-        // 自动踢出闲置玩家
-        if (config.KickIdleTime.HasValue && config.KickIdleTime.Value > 0)
-        {
-            args.Add($"+mp_autokick 1");
-            args.Add($"+mp_autokick_timeout {config.KickIdleTime.Value * 60}"); // 转换为秒
-        }
-
-        // ========== 日志设置 ==========
-        
-        if (config.EnableLogging)
-        {
-            args.Add("+log on");
-            args.Add("+sv_logfile 1");
-            args.Add("+mp_logdetail 3");
-            
-            // 日志回显
-            if (config.LogEcho)
-            {
-                args.Add("+sv_logecho 1");
-            }
-            else
-            {
-                args.Add("+sv_logecho 0");
-            }
-            
-            // 控制台日志写入文件
-            if (config.ConsoleLogToFile)
-            {
-                args.Add("+con_logfile 1");
-            }
-        }
-        else
-        {
-            args.Add("+log off");
-            args.Add("+sv_logfile 0");
-        }
-
-        // ========== 自定义参数 ==========
-        
-        // 允许用户添加任意自定义启动参数
-        foreach (var (key, value) in config.CustomArgs)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                args.Add($"{key} {value}");
-            }
-            else
-            {
-                args.Add(key);
-            }
+            args.Add(config.CustomParameters.Trim());
         }
 
         var finalArgs = string.Join(" ", args);
