@@ -36,6 +36,10 @@ CSP2 is an open-source desktop management tool for CS2 server administrators, in
 
 > Project is still under development
 
+![Preview 1](docs/preview-1.png)
+
+![Preview 2](docs/preview-2.png)
+
 ---
 
 ## 🚀 Quick Start
