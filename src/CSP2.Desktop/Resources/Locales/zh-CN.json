@@ -239,7 +239,10 @@
     "NoExistingFound": "未检测到任何现有的 CS2 安装。\n\n请选择 SteamCMD 下载方式。",
     "NoExistingFoundTitle": "未找到安装",
     "OperationFailed": "操作失败: {0}",
-    "OperationFailedTitle": "错误"
+    "OperationFailedTitle": "错误",
+    "SteamCmdNotInstalled": "SteamCMD 未安装",
+    "SteamCmdNotInstalledMsg": "检测到 SteamCMD 尚未安装。使用 SteamCMD 下载服务器需要先安装 SteamCMD（约 2-3MB）。\n\n下载过程将分为两步：\n1. 安装 SteamCMD（约 2-3MB）\n2. 下载 CS2 服务器文件（约 30GB）\n\n是否继续？",
+    "CheckingSteamCmd": "正在检查 SteamCMD..."
   },
   "ServerOps": {
     "LoadFailed": "加载服务器列表失败: {0}",

@@ -239,7 +239,10 @@
     "NoExistingFound": "No existing CS2 installations detected.\n\nPlease choose SteamCMD download mode.",
     "NoExistingFoundTitle": "No Installation Found",
     "OperationFailed": "Operation failed: {0}",
-    "OperationFailedTitle": "Error"
+    "OperationFailedTitle": "Error",
+    "SteamCmdNotInstalled": "SteamCMD Not Installed",
+    "SteamCmdNotInstalledMsg": "SteamCMD is not installed yet. To download the server using SteamCMD, you need to install it first (~2-3MB).\n\nThe download process will be divided into two steps:\n1. Install SteamCMD (~2-3MB)\n2. Download CS2 server files (~30GB)\n\nDo you want to continue?",
+    "CheckingSteamCmd": "Checking SteamCMD..."
   },
   "ServerOps": {
     "LoadFailed": "Failed to load server list: {0}",
