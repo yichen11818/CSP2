@@ -650,14 +650,20 @@ public partial class ServerManagementViewModel : ObservableObject
 
             bool? result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                // 打开服务器配置对话框（传入 Config 和 RCONConfig）
-                var dialog = new Views.Dialogs.ServerConfigDialog(server.Config, server.RCONConfig)
+                // 打开简化的服务器配置对话框
+                var dialog = new Views.Dialogs.SimpleServerConfigDialog(server.Config)
                 {
                     Owner = System.Windows.Application.Current.MainWindow,
                     Title = $"配置服务器 - {server.Name}"
                 };
                 
-                return dialog.ShowDialog();
+                // 应用配置结果
+                if (dialog.ShowDialog() == true)
+                {
+                    server.Config = dialog.ServerConfig;
+                }
+                
+                return dialog.DialogResult;
             });
 
             // 用户点击确定后保存配置

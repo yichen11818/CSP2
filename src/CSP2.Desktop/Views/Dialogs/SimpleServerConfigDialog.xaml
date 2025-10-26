@@ -1,0 +1,251 @@
+<Window x:Class="CSP2.Desktop.Views.Dialogs.SimpleServerConfigDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="⚙️ 服务器配置" 
+        Height="650" 
+        Width="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource BackgroundBrush}">
+
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="⚙️ 服务器配置" 
+                       FontSize="28" 
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+            <TextBlock Text="配置服务器启动参数 · 简洁模式" 
+                       FontSize="14" 
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <!-- 配置表单 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 核心配置 -->
+                <Border Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="📋 核心配置" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,16"/>
+
+                        <!-- 端口和地图 -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="端口" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="PortTextBox" 
+                                         Text="27015"
+                                         ToolTip="服务器监听端口 (1-65535)"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="地图" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="MapComboBox" IsEditable="True" Text="de_dust2">
+                                    <ComboBoxItem Content="de_dust2"/>
+                                    <ComboBoxItem Content="de_mirage"/>
+                                    <ComboBoxItem Content="de_inferno"/>
+                                    <ComboBoxItem Content="de_nuke"/>
+                                    <ComboBoxItem Content="de_vertigo"/>
+                                    <ComboBoxItem Content="de_ancient"/>
+                                    <ComboBoxItem Content="de_anubis"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 玩家数和Tick Rate -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="最大玩家" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBox x:Name="MaxPlayersTextBox" Text="10" ToolTip="最大玩家数 (1-64)"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Tick Rate" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="TickRateComboBox" SelectedIndex="1">
+                                    <ComboBoxItem Content="64"/>
+                                    <ComboBoxItem Content="128"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 游戏模式 -->
+                        <StackPanel>
+                            <TextBlock Text="游戏模式" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <ComboBox x:Name="GameModeComboBox" SelectedIndex="1">
+                                <ComboBoxItem Content="休闲模式" Tag="0"/>
+                                <ComboBoxItem Content="竞技模式" Tag="1"/>
+                                <ComboBoxItem Content="翼人模式" Tag="2"/>
+                                <ComboBoxItem Content="武器大师" Tag="3"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 常用选项 -->
+                <Border Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="⚡ 常用选项" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,16"/>
+
+                        <CheckBox x:Name="DisableBotsCheckBox" 
+                                  Content="禁用 BOT" 
+                                  Margin="0,0,0,8"
+                                  ToolTip="服务器不会自动添加BOT"/>
+                        
+                        <CheckBox x:Name="InsecureModeCheckBox" 
+                                  Content="Insecure 模式（用于自定义地图）" 
+                                  Margin="0,0,0,8"
+                                  ToolTip="禁用VAC，允许运行自定义地图"/>
+                        
+                        <CheckBox x:Name="LanModeCheckBox" 
+                                  Content="局域网模式" 
+                                  ToolTip="服务器仅在局域网中可见"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 自定义参数 -->
+                <Border Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="🎛️ 自定义参数" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,8"/>
+                        
+                        <TextBlock Text="在此输入任何额外的启动参数" 
+                                   FontSize="12" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,12"/>
+                        
+                        <TextBox x:Name="CustomParametersTextBox"
+                                 Height="80"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas"
+                                 FontSize="12"
+                                 Padding="8"
+                                 ToolTip="例如: -high +sv_cheats 1 +exec custom.cfg"
+                                 Margin="0,0,0,12"/>
+                        
+                        <TextBlock TextWrapping="Wrap" 
+                                   FontSize="11" 
+                                   Foreground="{DynamicResource TextTertiaryBrush}">
+                            <Run Text="💡 提示：" FontWeight="SemiBold"/>
+                            <Run Text="可以添加任何CS2启动参数，每个参数用空格分隔。"/>
+                            <LineBreak/>
+                            <Run Text="例如: "/>
+                            <Run Text="-high" FontFamily="Consolas" Foreground="{DynamicResource PrimaryBrush}"/>
+                            <Run Text=" (高优先级进程) "/>
+                            <Run Text="+sv_cheats 1" FontFamily="Consolas" Foreground="{DynamicResource PrimaryBrush}"/>
+                            <Run Text=" (启用作弊)"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- autoexec 提示 -->
+                <Border Background="#e3f2fd"
+                        BorderBrush="{DynamicResource PrimaryBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel>
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8">
+                            <Run Text="💡"/>
+                            <Run Text=" 配置服务器名称和密码"/>
+                        </TextBlock>
+                        
+                        <TextBlock TextWrapping="Wrap" 
+                                   FontSize="12" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}">
+                            <Run Text="建议使用 "/>
+                            <Run Text="autoexec.cfg" FontFamily="Consolas" FontWeight="SemiBold"/>
+                            <Run Text=" 配置高级选项："/>
+                        </TextBlock>
+                        
+                        <TextBlock FontFamily="Consolas" 
+                                   FontSize="11" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,8,0,8">
+hostname "我的服务器"
+sv_password "密码"
+rcon_password "rcon密码"
+                        </TextBlock>
+                        
+                        <TextBlock TextWrapping="Wrap" 
+                                   FontSize="11" 
+                                   Foreground="{DynamicResource TextTertiaryBrush}">
+                            <Run Text="文件路径: "/>
+                            <Run Text="game/csgo/cfg/autoexec.cfg" FontFamily="Consolas"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 底部按钮 -->
+        <Grid Grid.Row="2" Margin="0,24,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1"
+                    Content="取消"
+                    Click="CancelButton_Click"
+                    MinWidth="100"
+                    Height="36"
+                    Style="{DynamicResource SecondaryButton}"/>
+
+            <Button Grid.Column="3"
+                    Content="✅ 保存配置"
+                    Click="SaveButton_Click"
+                    MinWidth="120"
+                    Height="36"
+                    Style="{DynamicResource PrimaryButton}"/>
+        </Grid>
+    </Grid>
+</Window>
+
