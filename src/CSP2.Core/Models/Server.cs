@@ -31,6 +31,11 @@ public class Server
     public ServerConfig Config { get; set; } = new();
 
     /// <summary>
+    /// RCON 连接配置
+    /// </summary>
+    public RCONConfig RCONConfig { get; set; } = new();
+
+    /// <summary>
     /// 已安装的框架列表
     /// </summary>
     public List<InstalledFramework> Frameworks { get; set; } = new();

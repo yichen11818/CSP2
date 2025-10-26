@@ -153,5 +153,10 @@ public class ServerConfig
     /// 自定义启动参数
     /// </summary>
     public Dictionary<string, string> CustomArgs { get; set; } = new();
+
+    /// <summary>
+    /// 快捷命令列表
+    /// </summary>
+    public List<string> QuickCommands { get; set; } = new();
 }
 
