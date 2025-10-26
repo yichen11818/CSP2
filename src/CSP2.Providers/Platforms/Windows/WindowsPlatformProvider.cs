@@ -34,7 +34,7 @@ public class WindowsPlatformProvider : IPlatformProvider
             Arguments = arguments,
             WorkingDirectory = workingDirectory,
             UseShellExecute = false,
-            CreateNoWindow = true,
+            CreateNoWindow = false,  // 允许显示服务器控制台窗口
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             RedirectStandardInput = false  // 不重定向stdin，避免与CS2控制台冲突
