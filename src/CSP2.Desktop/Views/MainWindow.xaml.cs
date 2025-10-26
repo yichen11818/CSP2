@@ -25,8 +25,7 @@ public partial class MainWindow : Window
         _configurationService = configurationService;
         _localizationService = localizationService;
         
-        // 初始化本地化助手 - 必须在 InitializeComponent() 之前！
-        LocalizationHelper.Instance.Initialize(localizationService);
+        // 注意：LocalizationHelper 已在 App.xaml.cs 的 OnStartup 中初始化
         
         InitializeComponent();
         DataContext = viewModel;
@@ -36,6 +35,48 @@ public partial class MainWindow : Window
         
         // 监听窗口状态变化
         this.StateChanged += MainWindow_StateChanged;
+        
+        // 窗口加载完成后检查是否首次运行
+        this.Loaded += MainWindow_Loaded;
+    }
+
+    /// <summary>
+    /// 窗口加载完成事件
+    /// </summary>
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 检查是否首次运行
+            var settings = await _configurationService.LoadAppSettingsAsync();
+            
+            if (settings.Ui.IsFirstRun)
+            {
+                DebugLogger.Info("MainWindow", "首次运行，播放欢迎烟花动画");
+                
+                // 延迟一点时间以确保窗口完全显示
+                await Task.Delay(300);
+                
+                // 显示烟花动画
+                FireworksAnimation.Visibility = Visibility.Visible;
+                FireworksAnimation.Play();
+                
+                // 动画播放1.5秒后隐藏
+                await Task.Delay(1500);
+                FireworksAnimation.Visibility = Visibility.Collapsed;
+                
+                // 标记为已运行
+                settings.Ui.IsFirstRun = false;
+                await _configurationService.SaveAppSettingsAsync(settings);
+                
+                DebugLogger.Info("MainWindow", "欢迎动画播放完成");
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugLogger.Error("MainWindow", $"播放欢迎动画失败: {ex.Message}", ex);
+            // 动画失败不影响主程序运行
+        }
     }
 
     /// <summary>

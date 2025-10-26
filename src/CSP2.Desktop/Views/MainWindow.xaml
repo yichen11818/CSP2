@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:CSP2.Desktop.ViewModels"
         xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
+        xmlns:controls="clr-namespace:CSP2.Desktop.Controls"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
@@ -122,11 +123,12 @@
         </Style>
     </Window.Resources>
     
-    <!-- 外层边框和阴影 -->
-    <Border Background="{StaticResource BackgroundBrush}" 
-            CornerRadius="12"
-            BorderThickness="1"
-            BorderBrush="{StaticResource BorderBrush}">
+    <Grid>
+        <!-- 外层边框和阴影 -->
+        <Border Background="{StaticResource BackgroundBrush}" 
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{StaticResource BorderBrush}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" 
                             ShadowDepth="0" 
@@ -695,5 +697,11 @@
                 </Grid>
         </Grid>
     </Border>
+        
+        <!-- 烟花动画层（首次启动时显示） -->
+        <controls:FireworksControl x:Name="FireworksAnimation"
+                                   Visibility="Collapsed"
+                                   Panel.ZIndex="999"/>
+    </Grid>
 </Window>
 

@@ -112,8 +112,32 @@ public partial class ServerInstallPageViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectSteamCmdMode()
+    private async Task SelectSteamCmdModeAsync()
     {
+        _logger.LogInformation("用户选择 SteamCMD 下载模式");
+        
+        // 检查 SteamCMD 是否已安装
+        bool isInstalled = await _steamCmdService.IsSteamCmdInstalledAsync();
+        _logger.LogInformation("SteamCMD 安装状态: {IsInstalled}", isInstalled);
+        
+        if (!isInstalled)
+        {
+            // 提示用户需要先安装 SteamCMD
+            var result = System.Windows.MessageBox.Show(
+                _localizationService.GetString("ServerInstall.SteamCmdNotInstalledMsg"),
+                _localizationService.GetString("ServerInstall.SteamCmdNotInstalled"),
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Information);
+            
+            if (result != System.Windows.MessageBoxResult.Yes)
+            {
+                _logger.LogInformation("用户取消 SteamCMD 下载");
+                return;
+            }
+            
+            _logger.LogInformation("用户确认将安装 SteamCMD");
+        }
+        
         SelectedMode = "steamcmd";
         CurrentStep = 2;
     }
