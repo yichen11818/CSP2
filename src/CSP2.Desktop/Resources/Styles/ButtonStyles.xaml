@@ -9,6 +9,12 @@
                 BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="8"
                 Padding="{TemplateBinding Padding}">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Border.RenderTransform>
+            <Border.RenderTransformOrigin>
+                <Point X="0.5" Y="0.5"/>
+            </Border.RenderTransformOrigin>
             <ContentPresenter HorizontalAlignment="Center" 
                             VerticalAlignment="Center"/>
         </Border>
@@ -62,7 +68,7 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="44"/>
-        <Setter Property="Template" Value="{StaticResource IconButtonTemplate}"/>
+        <Setter Property="Template" Value="{StaticResource ModernButtonTemplate}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource PrimaryDarkBrush}"/>
@@ -86,7 +92,7 @@
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="44"/>
-        <Setter Property="Template" Value="{StaticResource IconButtonTemplate}"/>
+        <Setter Property="Template" Value="{StaticResource ModernButtonTemplate}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource Gray200Brush}"/>
@@ -159,7 +165,7 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="44"/>
-        <Setter Property="Template" Value="{StaticResource IconButtonTemplate}"/>
+        <Setter Property="Template" Value="{StaticResource ModernButtonTemplate}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource SuccessDarkBrush}"/>
@@ -183,7 +189,7 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="44"/>
-        <Setter Property="Template" Value="{StaticResource IconButtonTemplate}"/>
+        <Setter Property="Template" Value="{StaticResource ModernButtonTemplate}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource DangerDarkBrush}"/>
@@ -207,7 +213,7 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="44"/>
-        <Setter Property="Template" Value="{StaticResource IconButtonTemplate}"/>
+        <Setter Property="Template" Value="{StaticResource ModernButtonTemplate}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource WarningDarkBrush}"/>
@@ -248,6 +254,34 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{StaticResource TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ========== 社交媒体按钮样式 ========== -->
+    <Style x:Key="SocialButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#ffffff15"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#ffffff20"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

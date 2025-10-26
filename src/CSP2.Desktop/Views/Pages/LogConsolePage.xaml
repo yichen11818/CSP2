@@ -68,11 +68,13 @@
                             Padding="10,5"
                             Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🌐 RCON"
-                                       FontSize="13"
+                            <TextBlock FontSize="13"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                                       Margin="0,0,10,0">
+                                <Run Text="{StaticResource GlobeIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" RCON"/>
+                            </TextBlock>
                             
                             <CheckBox IsChecked="{Binding UseRCON}"
                                       Content="启用"
@@ -134,12 +136,14 @@
                     
                     <!-- 配置提示 -->
                     <TextBlock Grid.Column="3" 
-                               Text="💡 在服务器管理页面配置 RCON"
                                FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                VerticalAlignment="Center"
                                Margin="10,0,0,0"
-                               ToolTip="点击服务器管理页面的'编辑设置'按钮，在 RCON 配置标签页中设置"/>
+                               ToolTip="点击服务器管理页面的'编辑设置'按钮，在 RCON 配置标签页中设置">
+                        <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                        <Run Text=" 在服务器管理页面配置 RCON"/>
+                    </TextBlock>
 
                     <Button Content="📋 复制"
                             Command="{Binding CopyLogsCommand}"
@@ -370,7 +374,8 @@
                     VerticalAlignment="Center" 
                     HorizontalAlignment="Center"
                     Visibility="{Binding Logs.Count, Converter={StaticResource CountToVisibilityConverter}}">
-            <TextBlock Text="📋" 
+            <TextBlock Text="{StaticResource LogIcon}" 
+                       FontFamily="{StaticResource FontAwesomeSolid}"
                        FontSize="64" 
                        HorizontalAlignment="Center"
                        Opacity="0.3"/>

@@ -20,10 +20,12 @@
 
         <!-- 标题 -->
         <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock Text="⚙️ 服务器配置" 
-                       FontSize="28" 
+            <TextBlock FontSize="28" 
                        FontWeight="Bold"
-                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}">
+                <Run Text="{StaticResource SettingsIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                <Run Text=" 服务器配置"/>
+            </TextBlock>
             <TextBlock Text="配置服务器启动参数 · 简洁模式" 
                        FontSize="14" 
                        Foreground="{DynamicResource TextSecondaryBrush}"
@@ -41,10 +43,12 @@
                         Padding="20"
                         Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="📋 核心配置" 
-                                   FontSize="16" 
+                        <TextBlock FontSize="16" 
                                    FontWeight="SemiBold"
-                                   Margin="0,0,0,16"/>
+                                   Margin="0,0,0,16">
+                            <Run Text="{StaticResource ClipboardIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                            <Run Text=" 核心配置"/>
+                        </TextBlock>
 
                         <!-- IP地址 -->
                         <StackPanel Margin="0,0,0,16">
@@ -185,7 +189,8 @@
                         <TextBlock TextWrapping="Wrap" 
                                    FontSize="11" 
                                    Foreground="{DynamicResource TextTertiaryBrush}">
-                            <Run Text="💡 提示：" FontWeight="SemiBold"/>
+                            <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                            <Run Text=" 提示：" FontWeight="SemiBold"/>
                             <Run Text="可以添加任何CS2启动参数，每个参数用空格分隔。"/>
                             <LineBreak/>
                             <Run Text="例如: "/>
@@ -205,7 +210,7 @@
                         Padding="16">
                     <StackPanel>
                         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8">
-                            <Run Text="💡"/>
+                            <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
                             <Run Text=" 配置服务器名称和密码"/>
                         </TextBlock>
                         

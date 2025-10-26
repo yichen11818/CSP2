@@ -1,61 +1,74 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:fa="http://schemas.fontawesome.com/icons/">
 
-    <!-- ========== 现代化图标字体 ========== -->
-    <!-- 使用 Segoe MDL2 Assets 字体（Windows 10+ 内置） -->
-    <FontFamily x:Key="FluentIconFont">Segoe MDL2 Assets</FontFamily>
+    <!-- ========== Font Awesome 字体 ========== -->
+    <FontFamily x:Key="FontAwesomeSolid">pack://application:,,,/FontAwesome.Sharp;component/fonts/#Font Awesome 6 Free Solid</FontFamily>
+    <FontFamily x:Key="FontAwesomeBrands">pack://application:,,,/FontAwesome.Sharp;component/fonts/#Font Awesome 6 Brands</FontFamily>
     
-    <!-- ========== 图标字符定义 ========== -->
+    <!-- ========== 图标字符定义 (Font Awesome Unicode) ========== -->
     <!-- 服务器管理相关图标 -->
-    <system:String x:Key="ServerIcon">&#xE968;</system:String>
-    <system:String x:Key="DatabaseIcon">&#xE7C3;</system:String>
-    <system:String x:Key="SettingsIcon">&#xE713;</system:String>
-    <system:String x:Key="ConsoleIcon">&#xE756;</system:String>
-    <system:String x:Key="PluginIcon">&#xE7C8;</system:String>
-    <system:String x:Key="DownloadIcon">&#xE896;</system:String>
-    <system:String x:Key="LogIcon">&#xE7C7;</system:String>
-    <system:String x:Key="DebugIcon">&#xE8AF;</system:String>
+    <system:String x:Key="ServerIcon">&#xf233;</system:String>        <!-- fa-server -->
+    <system:String x:Key="DatabaseIcon">&#xf1c0;</system:String>      <!-- fa-database -->
+    <system:String x:Key="SettingsIcon">&#xf013;</system:String>      <!-- fa-gear -->
+    <system:String x:Key="ConsoleIcon">&#xf120;</system:String>       <!-- fa-terminal -->
+    <system:String x:Key="PluginIcon">&#xf12e;</system:String>        <!-- fa-puzzle-piece -->
+    <system:String x:Key="DownloadIcon">&#xf019;</system:String>      <!-- fa-download -->
+    <system:String x:Key="LogIcon">&#xf15c;</system:String>           <!-- fa-file-lines -->
+    <system:String x:Key="DebugIcon">&#xf188;</system:String>         <!-- fa-bug -->
     
     <!-- 操作图标 -->
-    <system:String x:Key="PlayIcon">&#xE768;</system:String>
-    <system:String x:Key="StopIcon">&#xE71A;</system:String>
-    <system:String x:Key="RestartIcon">&#xE72C;</system:String>
-    <system:String x:Key="RefreshIcon">&#xE72C;</system:String>
-    <system:String x:Key="AddIcon">&#xE710;</system:String>
-    <system:String x:Key="DeleteIcon">&#xE74D;</system:String>
-    <system:String x:Key="EditIcon">&#xE70F;</system:String>
-    <system:String x:Key="ViewIcon">&#xE890;</system:String>
-    <system:String x:Key="SearchIcon">&#xE721;</system:String>
-    <system:String x:Key="FolderIcon">&#xE8B7;</system:String>
+    <system:String x:Key="PlayIcon">&#xf04b;</system:String>          <!-- fa-play -->
+    <system:String x:Key="StopIcon">&#xf04d;</system:String>          <!-- fa-stop -->
+    <system:String x:Key="RestartIcon">&#xf2f1;</system:String>       <!-- fa-rotate -->
+    <system:String x:Key="RefreshIcon">&#xf021;</system:String>       <!-- fa-arrows-rotate -->
+    <system:String x:Key="AddIcon">&#xf067;</system:String>           <!-- fa-plus -->
+    <system:String x:Key="DeleteIcon">&#xf2ed;</system:String>        <!-- fa-trash-can -->
+    <system:String x:Key="EditIcon">&#xf044;</system:String>          <!-- fa-pen-to-square -->
+    <system:String x:Key="ViewIcon">&#xf06e;</system:String>          <!-- fa-eye -->
+    <system:String x:Key="SearchIcon">&#xf002;</system:String>        <!-- fa-magnifying-glass -->
+    <system:String x:Key="FolderIcon">&#xf07b;</system:String>        <!-- fa-folder -->
     
     <!-- 状态图标 -->
-    <system:String x:Key="OnlineIcon">&#xE73E;</system:String>
-    <system:String x:Key="OfflineIcon">&#xE711;</system:String>
-    <system:String x:Key="WarningIcon">&#xE7BA;</system:String>
-    <system:String x:Key="ErrorIcon">&#xE783;</system:String>
-    <system:String x:Key="SuccessIcon">&#xE73E;</system:String>
-    <system:String x:Key="InfoIcon">&#xE946;</system:String>
+    <system:String x:Key="OnlineIcon">&#xf058;</system:String>        <!-- fa-circle-check -->
+    <system:String x:Key="OfflineIcon">&#xf057;</system:String>       <!-- fa-circle-xmark -->
+    <system:String x:Key="WarningIcon">&#xf071;</system:String>       <!-- fa-triangle-exclamation -->
+    <system:String x:Key="ErrorIcon">&#xf06a;</system:String>         <!-- fa-circle-exclamation -->
+    <system:String x:Key="SuccessIcon">&#xf058;</system:String>       <!-- fa-circle-check -->
+    <system:String x:Key="InfoIcon">&#xf05a;</system:String>          <!-- fa-circle-info -->
     
     <!-- 导航图标 -->
-    <system:String x:Key="MenuIcon">&#xE700;</system:String>
-    <system:String x:Key="BackIcon">&#xE72B;</system:String>
-    <system:String x:Key="ForwardIcon">&#xE72A;</system:String>
-    <system:String x:Key="UpIcon">&#xE70E;</system:String>
-    <system:String x:Key="DownIcon">&#xE70D;</system:String>
-    <system:String x:Key="LeftIcon">&#xE76B;</system:String>
-    <system:String x:Key="RightIcon">&#xE76C;</system:String>
+    <system:String x:Key="MenuIcon">&#xf0c9;</system:String>          <!-- fa-bars -->
+    <system:String x:Key="BackIcon">&#xf053;</system:String>          <!-- fa-chevron-left -->
+    <system:String x:Key="ForwardIcon">&#xf054;</system:String>       <!-- fa-chevron-right -->
+    <system:String x:Key="UpIcon">&#xf077;</system:String>            <!-- fa-chevron-up -->
+    <system:String x:Key="DownIcon">&#xf078;</system:String>          <!-- fa-chevron-down -->
+    <system:String x:Key="LeftIcon">&#xf060;</system:String>          <!-- fa-arrow-left -->
+    <system:String x:Key="RightIcon">&#xf061;</system:String>         <!-- fa-arrow-right -->
     
     <!-- 窗口控制图标 -->
-    <system:String x:Key="MinimizeIcon">&#xE921;</system:String>
-    <system:String x:Key="MaximizeIcon">&#xE922;</system:String>
-    <system:String x:Key="RestoreIcon">&#xE923;</system:String>
-    <system:String x:Key="CloseIcon">&#xE8BB;</system:String>
+    <system:String x:Key="MinimizeIcon">&#xf068;</system:String>      <!-- fa-minus -->
+    <system:String x:Key="MaximizeIcon">&#xf2d0;</system:String>      <!-- fa-window-maximize -->
+    <system:String x:Key="RestoreIcon">&#xf2d2;</system:String>       <!-- fa-window-restore -->
+    <system:String x:Key="CloseIcon">&#xf00d;</system:String>         <!-- fa-xmark -->
+
+    <!-- 社交媒体图标 (使用 Brands 字体) -->
+    <system:String x:Key="GitHubIcon">&#xf09b;</system:String>        <!-- fa-brands fa-github -->
+    <system:String x:Key="DiscordIcon">&#xf392;</system:String>       <!-- fa-brands fa-discord -->
+    
+    <!-- 其他常用图标 -->
+    <system:String x:Key="LightbulbIcon">&#xf0eb;</system:String>     <!-- fa-lightbulb -->
+    <system:String x:Key="StarIcon">&#xf005;</system:String>          <!-- fa-star -->
+    <system:String x:Key="BoxIcon">&#xf466;</system:String>           <!-- fa-box -->
+    <system:String x:Key="CheckCircleIcon">&#xf058;</system:String>   <!-- fa-circle-check -->
+    <system:String x:Key="GlobeIcon">&#xf0ac;</system:String>         <!-- fa-globe -->
+    <system:String x:Key="ClipboardIcon">&#xf328;</system:String>     <!-- fa-clipboard-list -->
     
     <!-- ========== 图标样式 ========== -->
     <!-- 基础图标样式 -->
     <Style x:Key="BaseIconStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource FluentIconFont}"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontAwesomeSolid}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -93,6 +106,46 @@
     <Style x:Key="ActionIconStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseIconStyle}">
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- 社交媒体图标样式 (使用 Brands 字体) -->
+    <Style x:Key="SocialIconStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontAwesomeBrands}"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="#93c5fd"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Opacity" Value="0.9"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <!-- 社交媒体按钮样式 -->
+    <Style x:Key="SocialButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource HoverBackgroundBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ========== 图标按钮组合样式 ========== -->

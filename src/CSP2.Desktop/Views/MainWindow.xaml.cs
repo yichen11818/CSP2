@@ -7,6 +7,7 @@ using CSP2.Desktop.Services;
 using CSP2.Desktop.Helpers;
 using CSP2.Core.Abstractions;
 using System;
+using System.Diagnostics;
 
 namespace CSP2.Desktop.Views;
 
@@ -256,6 +257,30 @@ public partial class MainWindow : Window
             // 真正关闭
             _notifyIcon?.Dispose();
             base.OnClosing(e);
+        }
+    }
+
+    /// <summary>
+    /// GitHub按钮点击事件
+    /// </summary>
+    private void GitHubButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 打开GitHub仓库页面
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/yichen11818/CSP2", // 使用实际的GitHub仓库地址
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"无法打开GitHub页面：{ex.Message}",
+                "错误",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 }

@@ -22,11 +22,13 @@
         <!-- 标题栏 -->
         <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,15">
             <Grid>
-                <TextBlock Text="📥 下载管理器" 
-                           FontSize="18" 
+                <TextBlock FontSize="18" 
                            FontWeight="Bold"
                            Foreground="White"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center">
+                    <Run Text="{StaticResource DownloadIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                    <Run Text=" 下载管理器"/>
+                </TextBlock>
                 <Button Content="清空已完成"
                         Command="{Binding ClearCompletedCommand}"
                         HorizontalAlignment="Right"

@@ -87,7 +87,8 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock Text="📦"
+                                        <TextBlock Text="{StaticResource BoxIcon}"
+                                                   FontFamily="{StaticResource FontAwesomeSolid}"
                                                    FontSize="24"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -245,7 +246,8 @@
                         Height="120"
                         CornerRadius="60"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="📥" 
+                    <TextBlock Text="{StaticResource DownloadIcon}" 
+                               FontFamily="{StaticResource FontAwesomeSolid}"
                                FontSize="64" 
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"

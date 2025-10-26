@@ -26,19 +26,42 @@ public partial class AddServerDialog : Window
         ServerNameTextBox.Focus();
         ServerConfig = new ServerConfig();
         _pathDetector = pathDetector;
+        
+        // 窗口加载完成后自动执行检测
+        Loaded += AddServerDialog_Loaded;
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog
+        try
         {
-            Title = "选择 CS2 服务器根目录",
-            Multiselect = false
-        };
+            var dialog = new OpenFolderDialog
+            {
+                Title = "选择 CS2 服务器根目录",
+                Multiselect = false
+            };
 
-        if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true)
+            {
+                InstallPathTextBox.Text = dialog.FolderName;
+                
+                // 更新服务器名称（如果用户还没有修改）
+                if (string.IsNullOrWhiteSpace(ServerNameTextBox.Text) || 
+                    ServerNameTextBox.Text.StartsWith("CS2 Server") ||
+                    ServerNameTextBox.Text == "My CS2 Server")
+                {
+                    var folderName = Path.GetFileName(dialog.FolderName.TrimEnd('\\', '/'));
+                    ServerNameTextBox.Text = $"CS2 Server ({folderName})";
+                }
+            }
+        }
+        catch (Exception ex)
         {
-            InstallPathTextBox.Text = dialog.FolderName;
+            MessageBox.Show(
+                $"选择文件夹时发生错误：{ex.Message}",
+                "错误",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
@@ -206,39 +229,38 @@ public partial class AddServerDialog : Window
         Close();
     }
     
-    private async void AutoDetectButton_Click(object sender, RoutedEventArgs e)
+    private async void AddServerDialog_Loaded(object sender, RoutedEventArgs e)
+    {
+        // 自动执行检测
+        await PerformAutoDetectionAsync();
+    }
+    
+    private async System.Threading.Tasks.Task PerformAutoDetectionAsync()
     {
         if (_pathDetector == null)
         {
-            MessageBox.Show(
-                "自动检测功能不可用",
-                "提示",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            DetectionStatusIcon.Text = "⚠️";
+            DetectionStatusTextBlock.Text = "自动检测功能不可用，请手动选择服务器路径";
+            DetectionStatusTextBlock.Foreground = System.Windows.Media.Brushes.Orange;
             return;
-        }
-        
-        // 显示加载状态
-        var button = sender as System.Windows.Controls.Button;
-        if (button != null)
-        {
-            button.IsEnabled = false;
-            button.Content = "⏳ 检测中...";
         }
         
         try
         {
+            DetectionStatusIcon.Text = "🔍";
+            DetectionStatusTextBlock.Text = "正在自动检测CS2服务器安装...";
+            DetectionStatusTextBlock.Foreground = System.Windows.Media.Brushes.Gray;
+            
             // 执行自动检测
             var installations = await _pathDetector.DetectAllInstallationsAsync();
             var validInstallations = installations.Where(i => i.IsValid).ToList();
             
             if (validInstallations.Count == 0)
             {
-                MessageBox.Show(
-                    "未检测到CS2服务器安装。\n\n请确保已安装CS2服务器，或手动选择安装路径。",
-                    "未检测到服务器",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                DetectionStatusIcon.Text = "⚠️";
+                DetectionStatusTextBlock.Text = "未检测到CS2服务器安装，请手动选择安装路径";
+                DetectionStatusTextBlock.Foreground = System.Windows.Media.Brushes.Orange;
+                DetectedServersComboBox.Visibility = Visibility.Collapsed;
                 return;
             }
             
@@ -253,28 +275,16 @@ public partial class AddServerDialog : Window
             DetectedServersComboBox.Visibility = Visibility.Visible;
             DetectedServersComboBox.SelectedIndex = 0;
             
-            MessageBox.Show(
-                $"检测到 {validInstallations.Count} 个CS2服务器安装！\n\n请从下拉列表中选择要添加的服务器。",
-                "检测成功",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            DetectionStatusIcon.Text = "✅";
+            DetectionStatusTextBlock.Text = $"检测到 {validInstallations.Count} 个CS2服务器安装";
+            DetectionStatusTextBlock.Foreground = System.Windows.Media.Brushes.Green;
         }
         catch (Exception ex)
         {
-            MessageBox.Show(
-                $"自动检测失败：{ex.Message}",
-                "检测失败",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
-        finally
-        {
-            // 恢复按钮状态
-            if (button != null)
-            {
-                button.IsEnabled = true;
-                button.Content = "🔍 自动检测";
-            }
+            DetectionStatusIcon.Text = "❌";
+            DetectionStatusTextBlock.Text = $"自动检测失败：{ex.Message}";
+            DetectionStatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;
+            DetectedServersComboBox.Visibility = Visibility.Collapsed;
         }
     }
     

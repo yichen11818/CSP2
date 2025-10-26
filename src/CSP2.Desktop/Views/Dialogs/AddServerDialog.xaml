@@ -62,20 +62,11 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="InstallPathTextBox"
                                      Grid.Column="0"
                                      Style="{StaticResource ModernTextBox}"/>
                             <Button Grid.Column="1"
-                                    Content="自动检测"
-                                    Tag="{StaticResource SearchIcon}"
-                                    Click="AutoDetectButton_Click"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Margin="12,0,0,0"
-                                    Padding="16,10"
-                                    ToolTip="自动扫描CS2服务器安装路径"/>
-                            <Button Grid.Column="2"
                                     Content="{converters:Localization Common.Browse}"
                                     Tag="{StaticResource FolderIcon}"
                                     Click="BrowseButton_Click"
@@ -89,7 +80,7 @@
                                   Style="{StaticResource ModernComboBox}"
                                   Margin="0,0,0,6"
                                   SelectionChanged="DetectedServersComboBox_SelectionChanged"
-                                  Visibility="Collapsed">
+                                  Visibility="Visible">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel>
@@ -101,6 +92,26 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+                        
+                        <!-- 检测状态提示 -->
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                CornerRadius="8"
+                                Padding="12,8"
+                                Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="DetectionStatusIcon"
+                                           Text="{StaticResource SearchIcon}"
+                                           FontFamily="{StaticResource FontAwesomeSolid}"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock x:Name="DetectionStatusTextBlock"
+                                           Text="正在自动检测CS2服务器安装..."
+                                           FontSize="13" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                         
                         <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
                                    FontSize="12" 

@@ -227,7 +227,8 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="🖥️" 
+                                    <TextBlock Text="{StaticResource ServerIcon}" 
+                                               FontFamily="{StaticResource FontAwesomeSolid}"
                                                FontSize="24"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
@@ -239,6 +240,7 @@
                         <StackPanel Grid.Row="1" Margin="0,20,0,0">
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToServerManagementCommand}"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.ServerManagement}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" 
@@ -250,7 +252,7 @@
                                         <TextBlock Text="{converters:Localization Nav.ServerManagement}"/>
                                     </StackPanel>
                                     <TextBlock Text="{StaticResource ServerIcon}" 
-                                              FontSize="18" 
+                                              FontSize="16" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
@@ -268,7 +270,7 @@
                             
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToLogConsoleCommand}"
-                                    Margin="0,5,0,0"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.LogConsole}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
@@ -280,7 +282,7 @@
                                         <TextBlock Text="{converters:Localization Nav.LogConsole}"/>
                                     </StackPanel>
                                     <TextBlock Text="{StaticResource LogIcon}" 
-                                              FontSize="18" 
+                                              FontSize="16" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
@@ -298,7 +300,7 @@
                             
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToPluginMarketCommand}"
-                                    Margin="0,5,0,0"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.PluginMarket}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
@@ -310,7 +312,7 @@
                                         <TextBlock Text="{converters:Localization Nav.PluginMarket}"/>
                                     </StackPanel>
                                     <TextBlock Text="{StaticResource PluginIcon}" 
-                                              FontSize="18" 
+                                              FontSize="16" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
@@ -328,14 +330,10 @@
                             
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToDownloadManagerCommand}"
-                                    Margin="0,5,0,0"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.DownloadManager}">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+                                    <StackPanel Orientation="Horizontal"
                                                Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <TextBlock Text="{StaticResource DownloadIcon}" 
                                                   Style="{StaticResource NavIconStyle}" 
@@ -354,7 +352,7 @@
                                                       Foreground="White"/>
                                         </Border>
                                     </StackPanel>
-                                    <Grid Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Grid>
                                         <Grid.Style>
                                             <Style TargetType="Grid">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -367,7 +365,7 @@
                                         </Grid.Style>
                                         <TextBlock Text="{StaticResource DownloadIcon}" 
                                                   Style="{StaticResource NavIconStyle}"
-                                                  FontSize="18" 
+                                                  FontSize="16" 
                                                   HorizontalAlignment="Center"/>
                                         <Border Background="{StaticResource DangerBrush}"
                                                 Width="10"
@@ -383,7 +381,7 @@
                             
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToSettingsCommand}"
-                                    Margin="0,5,0,0"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.Settings}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal"
@@ -395,7 +393,7 @@
                                         <TextBlock Text="{converters:Localization Nav.Settings}"/>
                                     </StackPanel>
                                     <TextBlock Text="{StaticResource SettingsIcon}" 
-                                              FontSize="18" 
+                                              FontSize="16" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
@@ -414,7 +412,7 @@
                             <!-- Debug控制台 (仅Debug模式显示) -->
                             <Button Style="{StaticResource NavButtonStyle}"
                                     Command="{Binding NavigateToDebugConsoleCommand}"
-                                    Margin="0,5,0,0"
+                                    Margin="8,4"
                                     ToolTip="{converters:Localization Nav.DebugConsole}"
                                     Visibility="{Binding IsDebugMode, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Grid>
@@ -427,7 +425,7 @@
                                         <TextBlock Text="{converters:Localization Nav.DebugConsole}"/>
                                     </StackPanel>
                                     <TextBlock Text="{StaticResource DebugIcon}" 
-                                              FontSize="18" 
+                                              FontSize="16" 
                                               HorizontalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
@@ -486,32 +484,37 @@
                             </Button>
                         </Border>
 
-                        <!-- 版本信息 -->
+                        <!-- 社交媒体图标 -->
                         <Border Grid.Row="3" Padding="20,16" Background="{StaticResource SidebarDarkBackgroundBrush}" CornerRadius="0,0,0,12">
                             <Grid>
-                                <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="{converters:Localization App.Version}" 
-                                               FontSize="11" 
-                                               Foreground="#93c5fd"
-                                               Opacity="0.8"/>
-                                    <Border Background="#ffffff10"
-                                            CornerRadius="4"
-                                            Padding="6,2"
-                                            Margin="0,6,0,0"
-                                            HorizontalAlignment="Left">
-                                        <TextBlock Text="{converters:Localization App.DevVersion}" 
-                                                   FontSize="10" 
-                                                   Foreground="White"
-                                                   FontWeight="SemiBold"/>
-                                    </Border>
+                                <!-- 侧边栏展开时显示的社交媒体图标 -->
+                                <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Center">
+                                    <!-- GitHub 图标 -->
+                                    <Button x:Name="SidebarGitHubButton"
+                                            Style="{StaticResource SocialButtonStyle}"
+                                            Click="GitHubButton_Click"
+                                            ToolTip="访问 GitHub 仓库"
+                                            Margin="0,0,8,0">
+                                        <TextBlock Text="{StaticResource GitHubIcon}"
+                                                   Style="{StaticResource SocialIconStyle}"/>
+                                    </Button>
+                                    
+                                    <!-- Discord 图标 -->
+                                    <Button x:Name="SidebarDiscordButton"
+                                            Style="{StaticResource SocialButtonStyle}"
+                                            ToolTip="加入 Discord 社区（即将开放）">
+                                        <TextBlock Text="{StaticResource DiscordIcon}"
+                                                   Style="{StaticResource SocialIconStyle}"/>
+                                    </Button>
                                 </StackPanel>
-                                <TextBlock Text="v0.1" 
-                                           FontSize="9"
-                                           HorizontalAlignment="Center"
-                                           Foreground="#93c5fd"
-                                           Opacity="0.8">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                
+                                <!-- 侧边栏收起时显示的小图标 -->
+                                <StackPanel Orientation="Horizontal"
+                                           HorizontalAlignment="Center">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False">
@@ -519,8 +522,36 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </StackPanel.Style>
+                                    
+                                    <!-- GitHub 小图标 -->
+                                    <Button x:Name="SidebarGitHubButtonSmall"
+                                            Style="{StaticResource SocialButtonStyle}"
+                                            Click="GitHubButton_Click"
+                                            ToolTip="访问 GitHub 仓库"
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{StaticResource GitHubIcon}"
+                                                   FontFamily="{StaticResource FontAwesomeBrands}"
+                                                   FontSize="14"
+                                                   Foreground="#93c5fd"
+                                                   Opacity="0.8"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"/>
+                                    </Button>
+                                    
+                                    <!-- Discord 小图标 -->
+                                    <Button x:Name="SidebarDiscordButtonSmall"
+                                            Style="{StaticResource SocialButtonStyle}"
+                                            ToolTip="加入 Discord 社区（即将开放）">
+                                        <TextBlock Text="{StaticResource DiscordIcon}"
+                                                   FontFamily="{StaticResource FontAwesomeBrands}"
+                                                   FontSize="14"
+                                                   Foreground="#93c5fd"
+                                                   Opacity="0.8"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"/>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </Grid>
@@ -635,7 +666,9 @@
                                         Margin="0,0,12,0"
                                         VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🖥️" FontSize="11" Margin="0,0,4,0"/>
+                                        <TextBlock Text="{StaticResource ServerIcon}" 
+                                                   FontFamily="{StaticResource FontAwesomeSolid}"
+                                                   FontSize="11" Margin="0,0,4,0"/>
                                         <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
                                             <Run Text="{Binding RunningServerCount, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
                                             <Run Text="/" />
@@ -721,7 +754,8 @@
                                             <!-- 下载图标和数量 -->
                                             <StackPanel HorizontalAlignment="Center"
                                                        VerticalAlignment="Center">
-                                                <TextBlock Text="⬇️" 
+                                                <TextBlock Text="{StaticResource DownloadIcon}" 
+                                                          FontFamily="{StaticResource FontAwesomeSolid}"
                                                           FontSize="20"
                                                           HorizontalAlignment="Center"/>
                                                 <TextBlock Text="{Binding ActiveDownloadCount}"

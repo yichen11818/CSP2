@@ -88,7 +88,8 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
-                                   Text="🔍"
+                                   Text="{StaticResource SearchIcon}"
+                                   FontFamily="{StaticResource FontAwesomeSolid}"
                                    FontSize="16"
                                    Margin="12,0,8,0"
                                    VerticalAlignment="Center"
@@ -240,7 +241,8 @@
                                             Padding="10,6"
                                             Visibility="{Binding Featured, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="⭐"
+                                            <TextBlock Text="{StaticResource StarIcon}"
+                                                       FontFamily="{StaticResource FontAwesomeSolid}"
                                                        FontSize="11"
                                                        Margin="0,0,4,0"
                                                        VerticalAlignment="Center"/>
@@ -279,7 +281,8 @@
                         Height="120"
                         CornerRadius="60"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="🧩" 
+                    <TextBlock Text="{StaticResource PluginIcon}" 
+                               FontFamily="{StaticResource FontAwesomeSolid}"
                                FontSize="64" 
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"

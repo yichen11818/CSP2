@@ -99,7 +99,8 @@
                                         CornerRadius="40"
                                         HorizontalAlignment="Center"
                                         Margin="0,0,0,24">
-                                    <TextBlock Text="📦"
+                                    <TextBlock Text="{StaticResource BoxIcon}"
+                                               FontFamily="{StaticResource FontAwesomeSolid}"
                                                FontSize="40"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center"/>
@@ -234,7 +235,9 @@
                             Padding="20"
                             Margin="32,32,32,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="✅" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                            <TextBlock Text="{StaticResource CheckCircleIcon}" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="20" Margin="0,0,12,0" VerticalAlignment="Top"/>
                             <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}">
                                 <Run Text="💡 下载完成后的操作：" FontWeight="Bold"/>
                                 <LineBreak/><LineBreak/>
@@ -248,7 +251,7 @@
                                 <LineBreak/>
                                 <Run Text="3. 选择刚才下载的服务器路径，完成配置"/>
                                 <LineBreak/><LineBreak/>
-                                <Run Text="📦 下载任务可以在"/>
+                                <Run Text="💡 下载任务可以在"/>
                                 <Run Text="「下载管理」" FontWeight="Bold"/>
                                 <Run Text="页面查看进度。"/>
                             </TextBlock>

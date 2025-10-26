@@ -22,9 +22,11 @@
 
         <!-- 标题 -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="⚙️ 服务器配置" 
-                       FontSize="28" 
-                       FontWeight="Bold"/>
+            <TextBlock FontSize="28" 
+                       FontWeight="Bold">
+                <Run Text="{StaticResource SettingsIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                <Run Text=" 服务器配置"/>
+            </TextBlock>
             <TextBlock Text="配置服务器启动参数和运行选项" 
                        FontSize="14" 
                        Foreground="{DynamicResource SecondaryTextBrush}"
@@ -175,10 +177,12 @@
                             <TextBlock Text="服务器名称" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
                             <TextBox x:Name="ServerNameTextBox" 
                                      ToolTip="在服务器浏览器中显示的名称"/>
-                            <TextBlock Text="💡 留空则不设置hostname" 
-                                       FontSize="12" 
+                            <TextBlock FontSize="12" 
                                        Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,4,0,0"/>
+                                       Margin="0,4,0,0">
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 留空则不设置hostname"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <!-- 认证信息 -->
@@ -189,7 +193,8 @@
                             <TextBox x:Name="SteamTokenTextBox" 
                                      ToolTip="公开服务器必需的Steam令牌"/>
                             <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,0">
-                                <Run Text="💡 在"/>
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 在"/>
                                 <Hyperlink NavigateUri="https://steamcommunity.com/dev/managegameservers" 
                                            RequestNavigate="Hyperlink_RequestNavigate">
                                     <Run Text="Steam游戏服务器账户管理"/>
@@ -205,10 +210,12 @@
                             <TextBlock Text="服务器密码" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
                             <PasswordBox x:Name="ServerPasswordBox" 
                                          ToolTip="进入服务器需要的密码"/>
-                            <TextBlock Text="💡 留空则不设置密码，任何人都可以加入" 
-                                       FontSize="12" 
+                            <TextBlock FontSize="12" 
                                        Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,4,0,0"/>
+                                       Margin="0,4,0,0">
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 留空则不设置密码，任何人都可以加入"/>
+                            </TextBlock>
                         </StackPanel>
 
                     </StackPanel>
@@ -265,10 +272,12 @@
                                 <TextBox x:Name="RconHostTextBox" 
                                          Text="127.0.0.1"
                                          ToolTip="RCON 服务器的 IP 地址或主机名"/>
-                                <TextBlock Text="💡 本地服务器使用 127.0.0.1" 
-                                           FontSize="11" 
+                                <TextBlock FontSize="11" 
                                            Foreground="{DynamicResource SecondaryTextBrush}"
-                                           Margin="0,2,0,0"/>
+                                           Margin="0,2,0,0">
+                                    <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                    <Run Text=" 本地服务器使用 127.0.0.1"/>
+                                </TextBlock>
                             </StackPanel>
 
                             <!-- RCON 端口 -->
@@ -277,10 +286,12 @@
                                 <TextBox x:Name="RconPortTextBox" 
                                          Text="27015"
                                          ToolTip="RCON 端口，通常与服务器端口相同"/>
-                                <TextBlock Text="💡 默认与游戏端口相同" 
-                                           FontSize="11" 
+                                <TextBlock FontSize="11" 
                                            Foreground="{DynamicResource SecondaryTextBrush}"
-                                           Margin="0,2,0,0"/>
+                                           Margin="0,2,0,0">
+                                    <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                    <Run Text=" 默认与游戏端口相同"/>
+                                </TextBlock>
                             </StackPanel>
                         </Grid>
 
@@ -290,7 +301,8 @@
                             <TextBox x:Name="RconPasswordTextBox" 
                                      ToolTip="RCON 密码（与启动参数 +rcon_password 一致）"/>
                             <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0">
-                                <Run Text="💡 此密码应与启动参数"/>
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 此密码应与启动参数"/>
                                 <Run Text="+rcon_password" FontFamily="Consolas" FontWeight="SemiBold"/>
                                 <Run Text="一致"/>
                             </TextBlock>
@@ -302,10 +314,12 @@
                             <TextBox x:Name="RconTimeoutTextBox" 
                                      Text="5000"
                                      ToolTip="连接超时时间，单位毫秒"/>
-                            <TextBlock Text="💡 推荐值：本地 5000，远程 10000" 
-                                       FontSize="11" 
+                            <TextBlock FontSize="11" 
                                        Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,2,0,0"/>
+                                       Margin="0,2,0,0">
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 推荐值：本地 5000，远程 10000"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <!-- 注意事项 -->
@@ -317,7 +331,8 @@
                                 Margin="0,12,0,0">
                             <StackPanel>
                                 <TextBlock FontWeight="SemiBold" Foreground="#92400e" Margin="0,0,0,8">
-                                    <Run Text="⚠️ 重要提示"/>
+                                    <Run Text="{StaticResource WarningIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                    <Run Text=" 重要提示"/>
                                 </TextBlock>
                                 <TextBlock Text="• 确保服务器启动参数包含 +rcon_password" 
                                            TextWrapping="Wrap" Foreground="#78350f" FontSize="12" Margin="0,0,0,3"/>
@@ -378,10 +393,12 @@
                                 <TextBlock Text="最大 FPS" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
                                 <TextBox x:Name="MaxFpsTextBox" 
                                          ToolTip="服务器最大帧率，留空表示不限制"/>
-                                <TextBlock Text="💡 留空 = 不限制，300 = 推荐值" 
-                                           FontSize="11" 
+                                <TextBlock FontSize="11" 
                                            Foreground="{DynamicResource SecondaryTextBrush}"
-                                           Margin="0,2,0,0"/>
+                                           Margin="0,2,0,0">
+                                    <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                    <Run Text=" 留空 = 不限制，300 = 推荐值"/>
+                                </TextBlock>
                             </StackPanel>
                         </Grid>
 
@@ -389,10 +406,12 @@
                             <TextBlock Text="工作线程数" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
                             <TextBox x:Name="ThreadCountTextBox" 
                                      ToolTip="服务器使用的线程数"/>
-                            <TextBlock Text="💡 留空表示自动检测（推荐）" 
-                                       FontSize="11" 
+                            <TextBlock FontSize="11" 
                                        Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,2,0,0"/>
+                                       Margin="0,2,0,0">
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 留空表示自动检测（推荐）"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <!-- 游戏规则 -->
@@ -434,10 +453,12 @@
                             <TextBlock Text="踢出闲置时间 (分钟)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
                             <TextBox x:Name="KickIdleTimeTextBox" 
                                      ToolTip="自动踢出闲置玩家的时间"/>
-                            <TextBlock Text="💡 留空表示不踢出闲置玩家" 
-                                       FontSize="11" 
+                            <TextBlock FontSize="11" 
                                        Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,2,0,0"/>
+                                       Margin="0,2,0,0">
+                                <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                                <Run Text=" 留空表示不踢出闲置玩家"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <!-- 日志选项 -->
