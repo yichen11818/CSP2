@@ -112,7 +112,7 @@ public class ThemeService
                 // 背景色
                 ["BackgroundBrush"] = Color.FromRgb(0x1e, 0x1e, 0x1e),
                 ["SurfaceBrush"] = Color.FromRgb(0x2d, 0x2d, 0x2d),
-                ["CardBackgroundBrush"] = Color.FromRgb(0x2d, 0x2d, 0x2d),
+                ["CardBackgroundBrush"] = Color.FromRgb(0x25, 0x25, 0x25),
                 ["HoverBackgroundBrush"] = Color.FromRgb(0x3c, 0x3c, 0x3c),
                 ["SidebarBackgroundBrush"] = Color.FromRgb(0x0f, 0x17, 0x2a),
                 ["SidebarDarkBackgroundBrush"] = Color.FromRgb(0x0c, 0x14, 0x21),

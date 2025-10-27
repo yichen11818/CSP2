@@ -6,7 +6,7 @@
     <!-- 背景色 -->
     <Color x:Key="DarkBackgroundColor">#1e1e1e</Color>
     <Color x:Key="DarkSurfaceColor">#2d2d2d</Color>
-    <Color x:Key="DarkCardBackgroundColor">#2d2d2d</Color>
+    <Color x:Key="DarkCardBackgroundColor">#252525</Color>
     <Color x:Key="DarkHoverBackgroundColor">#3c3c3c</Color>
     <Color x:Key="DarkSidebarBackgroundColor">#0f172a</Color>
     <Color x:Key="DarkSidebarDarkBackgroundColor">#0c1421</Color>

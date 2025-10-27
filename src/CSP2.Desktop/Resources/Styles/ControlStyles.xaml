@@ -312,8 +312,8 @@
 
     <!-- ========== 现代化Card 容器样式 ========== -->
     <Style x:Key="CardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding" Value="24"/>
@@ -337,7 +337,7 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Effect">
                     <Setter.Value>
-                        <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.15" Color="{StaticResource ShadowColor}"/>
+                        <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.25" Color="{StaticResource ShadowColor}"/>
                     </Setter.Value>
                 </Setter>
                 <Trigger.EnterActions>
