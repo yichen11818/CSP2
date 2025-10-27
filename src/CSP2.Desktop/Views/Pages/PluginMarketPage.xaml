@@ -61,6 +61,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
@@ -68,9 +69,51 @@
                            FontSize="18"
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
-                           Margin="0,0,0,16"/>
+                           Margin="0,0,0,12"/>
 
-                <Grid Grid.Row="1">
+                <!-- 服务器选择器 -->
+                <Border Grid.Row="1"
+                        Background="{StaticResource BackgroundBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📂"
+                                       FontSize="16"
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="安装到服务器: "
+                                       FontSize="14"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding SelectedServer.Name, FallbackValue='未选择服务器'}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="{Binding SelectedServer.InstallPath, FallbackValue='请在左侧选择一个服务器'}"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                       Margin="0,2,0,0"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding SelectedServer.InstallPath}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="16"/>

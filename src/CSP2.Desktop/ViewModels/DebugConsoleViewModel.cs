@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CSP2.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
@@ -235,83 +236,3 @@ public class DebugLogEntry
     public string Message { get; set; } = string.Empty;
     public string? Exception { get; set; }
 }
-
-/// <summary>
-/// 全局Debug日志记录器
-/// </summary>
-public static class DebugLogger
-{
-    public static event EventHandler<DebugLogEventArgs>? LogReceived;
-    public static bool IsDebugMode { get; set; }
-    
-    // 历史日志缓冲区 - 保存最近的日志用于后续订阅者
-    private static readonly List<DebugLogEventArgs> _historyBuffer = new();
-    private static readonly object _bufferLock = new object();
-    private const int MaxHistorySize = 5000;
-
-    /// <summary>
-    /// 获取历史日志（用于初始化订阅者）
-    /// </summary>
-    public static IReadOnlyList<DebugLogEventArgs> GetHistory()
-    {
-        lock (_bufferLock)
-        {
-            return _historyBuffer.ToList();
-        }
-    }
-
-    public static void Log(LogLevel level, string category, string message, Exception? exception = null)
-    {
-        if (!IsDebugMode && level < LogLevel.Information)
-            return;
-
-        var logEvent = new DebugLogEventArgs
-        {
-            Timestamp = DateTime.Now,
-            Level = level,
-            Category = category,
-            Message = message,
-            Exception = exception?.ToString()
-        };
-
-        // 添加到历史缓冲区
-        lock (_bufferLock)
-        {
-            _historyBuffer.Add(logEvent);
-            
-            // 限制缓冲区大小
-            if (_historyBuffer.Count > MaxHistorySize)
-            {
-                _historyBuffer.RemoveAt(0);
-            }
-        }
-
-        // 触发事件通知订阅者
-        LogReceived?.Invoke(null, logEvent);
-    }
-
-    public static void Debug(string category, string message) =>
-        Log(LogLevel.Debug, category, message);
-
-    public static void Info(string category, string message) =>
-        Log(LogLevel.Information, category, message);
-
-    public static void Warning(string category, string message) =>
-        Log(LogLevel.Warning, category, message);
-
-    public static void Error(string category, string message, Exception? exception = null) =>
-        Log(LogLevel.Error, category, message, exception);
-}
-
-/// <summary>
-/// Debug日志事件参数
-/// </summary>
-public class DebugLogEventArgs : EventArgs
-{
-    public DateTime Timestamp { get; set; }
-    public LogLevel Level { get; set; }
-    public string Category { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-    public string? Exception { get; set; }
-}
-

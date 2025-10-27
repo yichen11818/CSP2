@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
+using CSP2.Core.Logging;
 using CSP2.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;

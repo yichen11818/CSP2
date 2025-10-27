@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using CSP2.Core.Abstractions;
+using CSP2.Core.Logging;
 using CSP2.Core.Services;
 using CSP2.Providers.Platforms.Windows;
 using CSP2.Providers.Frameworks.Metamod;
@@ -35,7 +36,7 @@ public partial class App : Application
             
             // 记录到日志系统
             Log.Fatal(ex, "未处理的异常 (AppDomain)");
-            ViewModels.DebugLogger.Error("UnhandledException", $"严重错误: {ex?.Message}", ex);
+            DebugLogger.Error("UnhandledException", $"严重错误: {ex?.Message}", ex);
             
             // 使用新的错误对话框显示详细信息
             Dispatcher.Invoke(() =>
@@ -52,7 +53,7 @@ public partial class App : Application
         {
             // 记录到日志系统
             Log.Error(e.Exception, "UI线程未处理的异常");
-            ViewModels.DebugLogger.Error("DispatcherException", $"UI线程异常: {e.Exception.Message}", e.Exception);
+            DebugLogger.Error("DispatcherException", $"UI线程异常: {e.Exception.Message}", e.Exception);
             
             // 使用新的错误对话框显示详细信息
             Views.ErrorDialog.Show(
@@ -70,7 +71,7 @@ public partial class App : Application
         {
             // 记录到日志系统
             Log.Error(e.Exception, "Task中未观察到的异常");
-            ViewModels.DebugLogger.Error("UnobservedTaskException", $"异步任务异常: {e.Exception.Message}", e.Exception);
+            DebugLogger.Error("UnobservedTaskException", $"异步任务异常: {e.Exception.Message}", e.Exception);
             
             // 标记异常已处理，防止程序崩溃
             e.SetObserved();
@@ -106,11 +107,14 @@ public partial class App : Application
         // 检查是否为Debug模式
         var isDebugMode = e.Args.Contains("--debug") || 
                          Environment.GetEnvironmentVariable("CSP2_DEBUG") == "true";
-        ViewModels.DebugLogger.IsDebugMode = isDebugMode;
+        DebugLogger.IsDebugMode = isDebugMode;
 
         // 配置Serilog日志
         var logsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
         Directory.CreateDirectory(logsDirectory);
+        
+        // 初始化DebugLogger文件日志（应用程序级别的日志）
+        DebugLogger.InitializeFileLogging(logsDirectory);
 
         var logLevel = isDebugMode ? LogEventLevel.Debug : LogEventLevel.Information;
 
@@ -135,8 +139,10 @@ public partial class App : Application
         
         if (isDebugMode)
         {
-            ViewModels.DebugLogger.Info("Startup", "Debug模式已启用 - 详细日志记录已开启");
+            DebugLogger.Info("Startup", "Debug模式已启用 - 详细日志记录已开启");
         }
+        
+        DebugLogger.Info("Startup", $"CSP2 面板启动 - 运行模式: {(isDebugMode ? "DEBUG" : "RELEASE")}");
 
         try
         {

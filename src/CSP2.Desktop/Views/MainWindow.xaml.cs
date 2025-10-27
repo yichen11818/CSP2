@@ -2,10 +2,12 @@ using System.Windows;
 using System.Windows.Input;
 using System.Drawing;
 using System.Windows.Forms;
+using CSP2.Core.Abstractions;
+using CSP2.Core.Logging;
 using CSP2.Desktop.ViewModels;
 using CSP2.Desktop.Services;
 using CSP2.Desktop.Helpers;
-using CSP2.Core.Abstractions;
+using DebugLogger = CSP2.Core.Logging.DebugLogger;
 using System;
 using System.Diagnostics;
 
