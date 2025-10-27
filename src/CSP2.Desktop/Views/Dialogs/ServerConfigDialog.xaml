@@ -323,8 +323,8 @@
                         </StackPanel>
 
                         <!-- 注意事项 -->
-                        <Border Background="#fef3c7"
-                                BorderBrush="#f59e0b"
+                        <Border Background="{StaticResource WarningLightBrush}"
+                                BorderBrush="{StaticResource WarningBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Padding="15"

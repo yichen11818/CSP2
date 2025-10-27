@@ -98,7 +98,7 @@
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="Paused">
                                                         <Setter Property="Text" Value="⏸ 暂停"/>
-                                                        <Setter Property="Foreground" Value="#f59e0b"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="Cancelled">
                                                         <Setter Property="Text" Value="已取消"/>

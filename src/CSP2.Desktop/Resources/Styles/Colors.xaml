@@ -15,8 +15,8 @@
     <Color x:Key="SuccessDarkColor">#059669</Color>
     <Color x:Key="SuccessLightColor">#d1fae5</Color>
     
-    <Color x:Key="WarningColor">#f59e0b</Color>
-    <Color x:Key="WarningDarkColor">#d97706</Color>
+    <Color x:Key="WarningColor">#fbbf24</Color>
+    <Color x:Key="WarningDarkColor">#f59e0b</Color>
     <Color x:Key="WarningLightColor">#fef3c7</Color>
     
     <Color x:Key="DangerColor">#ef4444</Color>
