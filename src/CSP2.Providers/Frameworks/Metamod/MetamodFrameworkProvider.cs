@@ -55,17 +55,31 @@ public class MetamodFrameworkProvider : IFrameworkProvider
     public async Task<bool> IsInstalledAsync(string serverPath)
     {
         var metaModPath = Path.Combine(serverPath, "game", "csgo", "addons", "metamod");
-        var dllPath = Path.Combine(metaModPath, "bin", "win64", "metamod.dll");
+        
+        // Windows: 检查两个关键文件
+        var metamodBgtDll = Path.Combine(metaModPath, "bin", "metamod.2.bgt.dll");
+        var serverDll = Path.Combine(metaModPath, "bin", "win64", "server.dll");
+        
+        // Linux: 检查 .so 文件
         var soPath = Path.Combine(metaModPath, "bin", "linuxsteamrt64", "metamod.so");
         
         var dirExists = Directory.Exists(metaModPath);
-        var dllExists = File.Exists(dllPath);
+        var metamodBgtExists = File.Exists(metamodBgtDll);
+        var serverDllExists = File.Exists(serverDll);
         var soExists = File.Exists(soPath);
         
         DebugLogger.Debug("Metamod-Check", $"检查路径: {metaModPath}");
-        DebugLogger.Debug("Metamod-Check", $"目录存在: {dirExists}, DLL存在: {dllExists}, SO存在: {soExists}");
+        DebugLogger.Debug("Metamod-Check", $"目录存在: {dirExists}");
+        DebugLogger.Debug("Metamod-Check", $"metamod.2.bgt.dll: {metamodBgtExists}");
+        DebugLogger.Debug("Metamod-Check", $"server.dll: {serverDllExists}");
+        DebugLogger.Debug("Metamod-Check", $"metamod.so: {soExists}");
         
-        return await Task.FromResult(dirExists && (dllExists || soExists));
+        // Windows: 需要两个文件都存在
+        // Linux: 只需要 .so 文件存在
+        var windowsInstalled = metamodBgtExists && serverDllExists;
+        var linuxInstalled = soExists;
+        
+        return await Task.FromResult(dirExists && (windowsInstalled || linuxInstalled));
     }
 
     public async Task<string?> GetInstalledVersionAsync(string serverPath)
@@ -230,7 +244,10 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                             entry.ExtractToFile(destinationPath, overwrite: true);
                             
                             // 记录关键文件
-                            if (entry.Name.EndsWith(".dll") || entry.Name.EndsWith(".so") || entry.Name.EndsWith(".vdf"))
+                            if (entry.Name.Contains("metamod.2.bgt.dll") || 
+                                entry.Name == "server.dll" || 
+                                entry.Name.EndsWith(".so") || 
+                                entry.Name.EndsWith(".vdf"))
                             {
                                 DebugLogger.Debug("Metamod-Install", $"  解压文件: {entry.FullName} -> {destinationPath}");
                             }
@@ -258,11 +275,19 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 // 列出安装的主要文件
                 if (Directory.Exists(metamodPath))
                 {
-                    var binPath = Path.Combine(metamodPath, "bin", "win64", "metamod.dll");
-                    if (File.Exists(binPath))
+                    // 检查关键文件
+                    var metamodBgtDll = Path.Combine(metamodPath, "bin", "metamod.2.bgt.dll");
+                    if (File.Exists(metamodBgtDll))
                     {
-                        var fileInfo = new FileInfo(binPath);
-                        DebugLogger.Info("Metamod-Install", $"  已安装: metamod.dll ({fileInfo.Length / 1024:F0} KB)");
+                        var fileInfo = new FileInfo(metamodBgtDll);
+                        DebugLogger.Info("Metamod-Install", $"  已安装: bin/metamod.2.bgt.dll ({fileInfo.Length / 1024:F0} KB)");
+                    }
+                    
+                    var serverDll = Path.Combine(metamodPath, "bin", "win64", "server.dll");
+                    if (File.Exists(serverDll))
+                    {
+                        var fileInfo = new FileInfo(serverDll);
+                        DebugLogger.Info("Metamod-Install", $"  已安装: bin/win64/server.dll ({fileInfo.Length / 1024:F0} KB)");
                     }
                     
                     // 列出目录结构
