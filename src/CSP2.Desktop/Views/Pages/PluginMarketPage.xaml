@@ -77,8 +77,68 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Metamod 卡片 -->
+                    <!-- CounterStrikeSharp 卡片 -->
                     <Border Grid.Column="0"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="⚡"
+                                           FontSize="24"
+                                           Margin="0,0,12,0"
+                                           VerticalAlignment="Center"/>
+                                <StackPanel>
+                                    <TextBlock Text="CounterStrikeSharp"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="基于C#的CS2插件框架（会自动安装Metamod）"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="13">
+                                    <Run Text="状态: "/>
+                                    <Run Text="{Binding CssInstalled, Converter={StaticResource BoolToStatusTextConverter}}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" 
+                                           FontSize="13"
+                                           Margin="0,4,0,0"
+                                           Visibility="{Binding CssInstalled, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="版本: "/>
+                                    <Run Text="{Binding CssVersion, FallbackValue=unknown}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Text="💡 依赖 Metamod 会自动安装"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           FontSize="12"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <Button Grid.Row="2"
+                                    Content="{Binding CssInstalled, Converter={StaticResource BoolToInstallTextConverter}}"
+                                    Command="{Binding InstallCssCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding IsInstallingCss, Converter={StaticResource InverseBoolConverter}}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,12,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Metamod 卡片 -->
+                    <Border Grid.Column="2"
                             Background="{StaticResource SurfaceBrush}"
                             BorderBrush="{StaticResource BorderBrush}"
                             BorderThickness="1"
@@ -128,66 +188,6 @@
                                     Command="{Binding InstallMetamodCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     IsEnabled="{Binding IsInstallingMetamod, Converter={StaticResource InverseBoolConverter}}"
-                                    HorizontalAlignment="Stretch"
-                                    Margin="0,12,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- CounterStrikeSharp 卡片 -->
-                    <Border Grid.Column="2"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="12"
-                            Padding="16">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <TextBlock Text="⚡"
-                                           FontSize="24"
-                                           Margin="0,0,12,0"
-                                           VerticalAlignment="Center"/>
-                                <StackPanel>
-                                    <TextBlock Text="CounterStrikeSharp"
-                                               FontSize="16"
-                                               FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="基于C#的CS2插件框架"
-                                               FontSize="12"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="1" Margin="0,12,0,0">
-                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="13">
-                                    <Run Text="状态: "/>
-                                    <Run Text="{Binding CssInstalled, Converter={StaticResource BoolToStatusTextConverter}}"
-                                         FontWeight="SemiBold"/>
-                                </TextBlock>
-                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" 
-                                           FontSize="13"
-                                           Margin="0,4,0,0"
-                                           Visibility="{Binding CssInstalled, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <Run Text="版本: "/>
-                                    <Run Text="{Binding CssVersion, FallbackValue=unknown}"
-                                         FontWeight="SemiBold"/>
-                                </TextBlock>
-                                <TextBlock Text="依赖: Metamod:Source"
-                                           Foreground="{StaticResource WarningBrush}"
-                                           FontSize="12"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
-
-                            <Button Grid.Row="2"
-                                    Content="{Binding CssInstalled, Converter={StaticResource BoolToInstallTextConverter}}"
-                                    Command="{Binding InstallCssCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    IsEnabled="{Binding IsInstallingCss, Converter={StaticResource InverseBoolConverter}}"
                                     HorizontalAlignment="Stretch"
                                     Margin="0,12,0,0"/>
                         </Grid>
