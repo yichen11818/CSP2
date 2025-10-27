@@ -221,6 +221,8 @@ public class CSSFrameworkProvider : IFrameworkProvider
             DebugLogger.Info("CSS-Install", "开始解压文件...");
             
             int totalFiles = 0;
+            int metamodFilesCount = 0; // 统计放到 metamod 目录的文件
+            
             using (var archive = ZipFile.OpenRead(zipPath))
             {
                 int filesExtracted = 0;
@@ -236,6 +238,10 @@ public class CSSFrameworkProvider : IFrameworkProvider
                     // 直接使用 ZIP 内的路径结构
                     var destinationPath = Path.Combine(csgoPath, entry.FullName);
                     
+                    // 检测是否是 metamod 目录下的文件
+                    var isMetamodFile = entry.FullName.StartsWith("addons/metamod/", StringComparison.OrdinalIgnoreCase) ||
+                                       entry.FullName.StartsWith("addons\\metamod\\", StringComparison.OrdinalIgnoreCase);
+                    
                     // 创建目录
                     var directory = Path.GetDirectoryName(destinationPath);
                     if (!string.IsNullOrEmpty(directory))
@@ -248,8 +254,15 @@ public class CSSFrameworkProvider : IFrameworkProvider
                     {
                         entry.ExtractToFile(destinationPath, overwrite: true);
                         
+                        // 统计 metamod 文件
+                        if (isMetamodFile)
+                        {
+                            metamodFilesCount++;
+                            DebugLogger.Info("CSS-Install", $"  添加 Metamod 插件: {entry.FullName}");
+                        }
+                        
                         // 记录关键文件
-                        if (entry.Name.EndsWith(".dll") || entry.Name.EndsWith(".so") || entry.Name == "version.txt")
+                        if (!isMetamodFile && (entry.Name.EndsWith(".dll") || entry.Name.EndsWith(".so") || entry.Name == "version.txt"))
                         {
                             DebugLogger.Debug("CSS-Install", $"  解压文件: {entry.FullName} -> {destinationPath}");
                         }
@@ -273,6 +286,12 @@ public class CSSFrameworkProvider : IFrameworkProvider
             }
             
             DebugLogger.Info("CSS-Install", $"解压完成，共 {totalFiles} 个文件");
+            
+            // 如果有文件放到了 metamod 目录，记录日志
+            if (metamodFilesCount > 0)
+            {
+                DebugLogger.Info("CSS-Install", $"✓ 已添加 {metamodFilesCount} 个文件到 Metamod 目录（CSS 作为 Metamod 插件运行）");
+            }
             
             // 列出安装的主要文件
             if (Directory.Exists(cssPath))
