@@ -13,11 +13,13 @@ namespace CSP2.Providers.Frameworks.CounterStrikeSharp;
 public class CSSFrameworkProvider : IFrameworkProvider
 {
     private readonly HttpClient _httpClient;
+    private readonly IDownloadManager? _downloadManager;
     private const string GithubApiUrl = "https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/latest";
     private const string GithubReleasesUrl = "https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases";
 
-    public CSSFrameworkProvider()
+    public CSSFrameworkProvider(IDownloadManager? downloadManager = null)
     {
+        _downloadManager = downloadManager;
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromMinutes(10) // 下载可能需要较长时间
@@ -85,9 +87,29 @@ public class CSSFrameworkProvider : IFrameworkProvider
         return "unknown";
     }
 
-    public async Task<InstallResult> InstallAsync(string serverPath, string? version = null, 
+    public async Task<InstallResult> InstallAsync(string serverPath, string? version = null,
         IProgress<InstallProgress>? progress = null)
     {
+        // 创建下载任务
+        string? downloadTaskId = null;
+        DownloadTask? downloadTask = null;
+        
+        if (_downloadManager != null)
+        {
+            downloadTask = new DownloadTask
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "CounterStrikeSharp",
+                Description = "基于C#的CS2插件开发框架",
+                TaskType = DownloadTaskType.Framework,
+                Status = DownloadTaskStatus.Pending,
+                Progress = 0
+            };
+            downloadTaskId = downloadTask.Id;
+            _downloadManager.AddTask(downloadTask);
+            _downloadManager.UpdateTaskStatus(downloadTaskId, DownloadTaskStatus.Downloading, null);
+        }
+        
         try
         {
             progress?.Report(new InstallProgress
@@ -98,11 +120,15 @@ public class CSSFrameworkProvider : IFrameworkProvider
                 TotalSteps = 5,
                 Message = "正在获取版本信息..."
             });
+            
+            _downloadManager?.UpdateTaskProgress(downloadTaskId!, 0, "正在获取版本信息...");
 
             // 1. 获取 Release 信息
             var releaseInfo = await GetReleaseInfoAsync(version);
             if (releaseInfo == null)
             {
+                _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Failed,
+                    "无法获取 CounterStrikeSharp 版本信息，请检查网络连接");
                 return InstallResult.CreateFailure("无法获取 CounterStrikeSharp 版本信息，请检查网络连接");
             }
 
@@ -117,6 +143,8 @@ public class CSSFrameworkProvider : IFrameworkProvider
                 TotalSteps = 5,
                 Message = "正在查找下载链接..."
             });
+            
+            _downloadManager?.UpdateTaskProgress(downloadTaskId!, 10, $"找到版本: {targetVersion}");
 
             // 2. 查找正确的下载文件（Windows）
             var assets = releaseInfo.Value.GetProperty("assets");
@@ -139,6 +167,8 @@ public class CSSFrameworkProvider : IFrameworkProvider
             if (string.IsNullOrEmpty(downloadUrl) || string.IsNullOrEmpty(fileName))
             {
                 DebugLogger.Error("CSS-Install", "未找到 Windows 版本的下载文件");
+                _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Failed,
+                    "未找到 Windows 版本的下载文件");
                 return InstallResult.CreateFailure("未找到 Windows 版本的下载文件");
             }
             
@@ -165,6 +195,12 @@ public class CSSFrameworkProvider : IFrameworkProvider
                 response.EnsureSuccessStatusCode();
                 var totalBytes = response.Content.Headers.ContentLength ?? 0;
                 
+                // 更新下载任务的总大小
+                if (_downloadManager != null && downloadTask != null)
+                {
+                    downloadTask.TotalSize = totalBytes;
+                }
+                
                 using (var contentStream = await response.Content.ReadAsStreamAsync())
                 using (var fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                 {
@@ -180,14 +216,24 @@ public class CSSFrameworkProvider : IFrameworkProvider
                         if (totalBytes > 0)
                         {
                             var downloadPercent = (double)totalRead / totalBytes * 100;
+                            var overallPercent = 20 + (downloadPercent * 0.4); // 20-60%
+                            
                             progress?.Report(new InstallProgress
                             {
-                                Percentage = 20 + (downloadPercent * 0.4), // 20-60%
+                                Percentage = overallPercent,
                                 CurrentStep = "下载中",
                                 CurrentStepIndex = 2,
                                 TotalSteps = 5,
                                 Message = $"已下载: {totalRead / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
                             });
+                            
+                            // 更新下载管理器进度
+                            if (_downloadManager != null && downloadTask != null)
+                            {
+                                downloadTask.DownloadedSize = totalRead;
+                                _downloadManager.UpdateTaskProgress(downloadTaskId!, overallPercent,
+                                    $"下载中: {totalRead / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB");
+                            }
                         }
                     }
                 }
@@ -344,11 +390,19 @@ public class CSSFrameworkProvider : IFrameworkProvider
             });
 
             DebugLogger.Info("CSS-Install", $"✓ CounterStrikeSharp {targetVersion} 安装成功！");
+            
+            // 标记下载任务为完成
+            _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Completed, null);
+            
             return InstallResult.CreateSuccess($"CounterStrikeSharp {targetVersion} 安装成功");
         }
         catch (Exception ex)
         {
             DebugLogger.Error("CSS-Install", $"安装失败: {ex.Message}", ex);
+            
+            // 标记下载任务为失败
+            _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Failed, $"安装失败: {ex.Message}");
+            
             return InstallResult.CreateFailure($"安装失败: {ex.Message}", ex);
         }
     }
@@ -447,33 +501,414 @@ public class CSSFrameworkProvider : IFrameworkProvider
     public async Task<InstallResult> InstallPluginAsync(string serverPath, PluginInfo pluginInfo, 
         IProgress<InstallProgress>? progress = null)
     {
+        string? downloadTaskId = null;
+        string? zipPath = null;
+
         try
         {
+            DebugLogger.Info("Plugin-Install", $"开始安装插件: {pluginInfo.Name} (ID: {pluginInfo.Id})");
+
+            // 步骤 1: 验证下载信息
             progress?.Report(new InstallProgress
             {
                 Percentage = 0,
-                CurrentStep = $"开始安装插件: {pluginInfo.Name}",
+                CurrentStep = "准备下载",
                 CurrentStepIndex = 1,
-                TotalSteps = 3
+                TotalSteps = 4,
+                Message = $"正在准备安装 {pluginInfo.Name}..."
             });
 
-            // TODO: 实现实际的插件下载和安装逻辑
-            await Task.Delay(500); // 模拟安装
+            if (pluginInfo.Download == null || string.IsNullOrEmpty(pluginInfo.DownloadUrl))
+            {
+                return InstallResult.CreateFailure("缺少下载信息");
+            }
 
+            // 步骤 2: 下载插件
+            progress?.Report(new InstallProgress
+            {
+                Percentage = 10,
+                CurrentStep = "下载插件",
+                CurrentStepIndex = 2,
+                TotalSteps = 4,
+                Message = "正在从 GitHub 下载插件包..."
+            });
+
+            var tempDir = Path.Combine(Path.GetTempPath(), "csp2_plugin_downloads");
+            Directory.CreateDirectory(tempDir);
+            zipPath = Path.Combine(tempDir, $"{pluginInfo.Id}_{Guid.NewGuid()}.zip");
+
+            DebugLogger.Info("Plugin-Install", $"下载 URL: {pluginInfo.DownloadUrl}");
+            DebugLogger.Info("Plugin-Install", $"临时文件: {zipPath}");
+
+            // 使用 DownloadManager 下载（如果可用）
+            if (_downloadManager != null)
+            {
+                downloadTaskId = Guid.NewGuid().ToString();
+                var downloadProgress = new Progress<ProgressInfo>(p =>
+                {
+                    progress?.Report(new InstallProgress
+                    {
+                        Percentage = 10 + (p.Percentage * 0.4), // 10-50%
+                        CurrentStep = "下载插件",
+                        CurrentStepIndex = 2,
+                        TotalSteps = 4,
+                        Message = $"下载进度: {p.Percentage:F1}% ({p.DownloadedBytes / 1024 / 1024:F1} MB / {p.TotalBytes / 1024 / 1024:F1} MB)"
+                    });
+                });
+
+                var downloadTask = new DownloadTask
+                {
+                    Id = downloadTaskId,
+                    Url = pluginInfo.DownloadUrl,
+                    TargetPath = zipPath,
+                    Name = $"插件: {pluginInfo.Name}",
+                    Description = $"从 GitHub 下载插件 {pluginInfo.Name}",
+                    TotalBytes = pluginInfo.DownloadSize
+                };
+
+                _downloadManager.EnqueueDownload(downloadTask, downloadProgress);
+
+                // 等待下载完成
+                while (_downloadManager.GetTaskStatus(downloadTaskId) == DownloadTaskStatus.Pending ||
+                       _downloadManager.GetTaskStatus(downloadTaskId) == DownloadTaskStatus.Downloading)
+                {
+                    await Task.Delay(100);
+                }
+
+                if (_downloadManager.GetTaskStatus(downloadTaskId) != DownloadTaskStatus.Completed)
+                {
+                    return InstallResult.CreateFailure("下载失败");
+                }
+            }
+            else
+            {
+                // 直接使用 HttpClient 下载
+                using var response = await _httpClient.GetAsync(pluginInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+
+                var totalBytes = response.Content.Headers.ContentLength ?? 0;
+                using var fileStream = File.Create(zipPath);
+                using var httpStream = await response.Content.ReadAsStreamAsync();
+
+                var buffer = new byte[8192];
+                long downloadedBytes = 0;
+                int bytesRead;
+
+                while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    downloadedBytes += bytesRead;
+
+                    if (totalBytes > 0)
+                    {
+                        var percentage = (double)downloadedBytes / totalBytes * 100;
+                        progress?.Report(new InstallProgress
+                        {
+                            Percentage = 10 + (percentage * 0.4), // 10-50%
+                            CurrentStep = "下载插件",
+                            CurrentStepIndex = 2,
+                            TotalSteps = 4,
+                            Message = $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
+                        });
+                    }
+                }
+            }
+
+            DebugLogger.Info("Plugin-Install", $"下载完成，文件大小: {new FileInfo(zipPath).Length / 1024 / 1024:F1} MB");
+
+            // 步骤 3: 解压和安装
+            progress?.Report(new InstallProgress
+            {
+                Percentage = 50,
+                CurrentStep = "解压插件",
+                CurrentStepIndex = 3,
+                TotalSteps = 4,
+                Message = "正在解压插件文件..."
+            });
+
+            var cssPath = Path.Combine(serverPath, "game", "csgo", "addons", "counterstrikesharp");
+            if (!Directory.Exists(cssPath))
+            {
+                return InstallResult.CreateFailure("CounterStrikeSharp 框架未安装");
+            }
+
+            using (var archive = ZipFile.OpenRead(zipPath))
+            {
+                var totalEntries = archive.Entries.Count;
+                DebugLogger.Info("Plugin-Install", $"ZIP 文件包含 {totalEntries} 个条目");
+
+                // 检查是否使用高级映射配置
+                if (pluginInfo.Installation?.Mappings != null && pluginInfo.Installation.Mappings.Length > 0)
+                {
+                    DebugLogger.Info("Plugin-Install", $"使用高级文件映射配置（{pluginInfo.Installation.Mappings.Length} 个映射规则）");
+                    await InstallPluginWithMappings(serverPath, archive, pluginInfo.Installation.Mappings, progress);
+                }
+                else
+                {
+                    // 简单安装模式
+                    DebugLogger.Info("Plugin-Install", "使用简单安装模式");
+                    await InstallPluginSimple(serverPath, archive, pluginInfo.Installation, progress);
+                }
+            }
+
+            // 步骤 4: 完成
             progress?.Report(new InstallProgress
             {
                 Percentage = 100,
                 CurrentStep = "安装完成",
-                CurrentStepIndex = 3,
-                TotalSteps = 3
+                CurrentStepIndex = 4,
+                TotalSteps = 4,
+                Message = $"插件 {pluginInfo.Name} 安装成功"
             });
+
+            DebugLogger.Info("Plugin-Install", $"✓ 插件 {pluginInfo.Name} 安装成功");
+
+            // 清理下载文件
+            try
+            {
+                if (File.Exists(zipPath))
+                {
+                    File.Delete(zipPath);
+                    DebugLogger.Info("Plugin-Install", "临时文件已清理");
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Warning("Plugin-Install", $"清理临时文件失败: {ex.Message}");
+            }
+
+            if (downloadTaskId != null)
+            {
+                _downloadManager?.UpdateTaskStatus(downloadTaskId, DownloadTaskStatus.Completed, null);
+            }
 
             return InstallResult.CreateSuccess($"插件 {pluginInfo.Name} 安装成功");
         }
         catch (Exception ex)
         {
+            DebugLogger.Error("Plugin-Install", $"安装插件失败: {ex.Message}", ex);
+
+            // 清理临时文件
+            if (!string.IsNullOrEmpty(zipPath) && File.Exists(zipPath))
+            {
+                try { File.Delete(zipPath); } catch { }
+            }
+
+            if (downloadTaskId != null)
+            {
+                _downloadManager?.UpdateTaskStatus(downloadTaskId, DownloadTaskStatus.Failed, ex.Message);
+            }
+
             return InstallResult.CreateFailure($"安装失败: {ex.Message}", ex);
         }
+    }
+
+    /// <summary>
+    /// 使用高级文件映射规则安装插件
+    /// </summary>
+    private async Task InstallPluginWithMappings(string serverPath, ZipArchive archive, 
+        FileMapping[] mappings, IProgress<InstallProgress>? progress)
+    {
+        var totalEntries = archive.Entries.Count;
+        var processedEntries = 0;
+
+        foreach (var mapping in mappings)
+        {
+            DebugLogger.Info("Plugin-Install", $"处理映射: {mapping.Source} -> {mapping.Target}");
+
+            var matchingEntries = archive.Entries
+                .Where(e => !string.IsNullOrEmpty(e.Name) && MatchesPattern(e.FullName, mapping.Source))
+                .ToList();
+
+            DebugLogger.Info("Plugin-Install", $"  匹配到 {matchingEntries.Count} 个文件");
+
+            foreach (var entry in matchingEntries)
+            {
+                // 计算目标路径
+                var relativePath = GetRelativePath(entry.FullName, mapping.Source);
+                var targetPath = Path.Combine(serverPath, mapping.Target, relativePath);
+
+                // 创建目录
+                var targetDir = Path.GetDirectoryName(targetPath);
+                if (!string.IsNullOrEmpty(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                // 检查是否被排除
+                if (mapping.Exclude != null && mapping.Exclude.Any(pattern => MatchesPattern(relativePath, pattern)))
+                {
+                    DebugLogger.Debug("Plugin-Install", $"  跳过（已排除）: {entry.FullName}");
+                    continue;
+                }
+
+                // 解压文件
+                entry.ExtractToFile(targetPath, overwrite: true);
+                DebugLogger.Debug("Plugin-Install", $"  提取: {entry.FullName} -> {relativePath}");
+
+                processedEntries++;
+
+                if (processedEntries % 10 == 0)
+                {
+                    var percentage = (double)processedEntries / totalEntries * 100;
+                    progress?.Report(new InstallProgress
+                    {
+                        Percentage = 50 + (percentage * 0.4), // 50-90%
+                        CurrentStep = "解压插件",
+                        CurrentStepIndex = 3,
+                        TotalSteps = 4,
+                        Message = $"已解压: {processedEntries} / {totalEntries} 个文件"
+                    });
+                }
+            }
+        }
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 简单模式安装插件
+    /// </summary>
+    private async Task InstallPluginSimple(string serverPath, ZipArchive archive, 
+        InstallationInfo? installation, IProgress<InstallProgress>? progress)
+    {
+        var targetPath = installation?.TargetPath ?? "game/csgo/addons/counterstrikesharp/plugins";
+        var filePatterns = installation?.Files ?? new[] { "*" };
+
+        var fullTargetPath = Path.Combine(serverPath, targetPath);
+        Directory.CreateDirectory(fullTargetPath);
+
+        var totalEntries = archive.Entries.Count;
+        var processedEntries = 0;
+
+        foreach (var entry in archive.Entries)
+        {
+            if (string.IsNullOrEmpty(entry.Name))
+                continue;
+
+            // 检查文件是否匹配模式
+            if (!filePatterns.Any(pattern => MatchesPattern(entry.FullName, pattern)))
+                continue;
+
+            var destinationPath = Path.Combine(fullTargetPath, entry.FullName);
+            var directory = Path.GetDirectoryName(destinationPath);
+            
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            entry.ExtractToFile(destinationPath, overwrite: true);
+
+            processedEntries++;
+
+            if (processedEntries % 10 == 0)
+            {
+                var percentage = (double)processedEntries / totalEntries * 100;
+                progress?.Report(new InstallProgress
+                {
+                    Percentage = 50 + (percentage * 0.4), // 50-90%
+                    CurrentStep = "解压插件",
+                    CurrentStepIndex = 3,
+                    TotalSteps = 4,
+                    Message = $"已解压: {processedEntries} 个文件"
+                });
+            }
+        }
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 匹配文件路径模式（支持 * 和 ** 通配符）
+    /// </summary>
+    private bool MatchesPattern(string path, string pattern)
+    {
+        // 规范化路径分隔符
+        path = path.Replace('\\', '/');
+        pattern = pattern.Replace('\\', '/');
+
+        // 处理 ** 通配符（匹配任意层级目录）
+        if (pattern.Contains("**"))
+        {
+            var parts = pattern.Split("**", StringSplitOptions.RemoveEmptyEntries);
+            
+            if (parts.Length == 0)
+                return true; // ** 匹配所有
+
+            if (parts.Length == 1)
+            {
+                // **/pattern 或 pattern/**
+                if (pattern.StartsWith("**"))
+                    return path.EndsWith(parts[0].TrimStart('/')) || MatchesSimplePattern(path, parts[0].TrimStart('/'));
+                else
+                    return path.StartsWith(parts[0].TrimEnd('/')) || MatchesSimplePattern(path, parts[0].TrimEnd('/'));
+            }
+
+            // prefix/**/suffix
+            return path.StartsWith(parts[0].TrimEnd('/')) && path.EndsWith(parts[1].TrimStart('/'));
+        }
+
+        // 处理简单的 * 通配符
+        return MatchesSimplePattern(path, pattern);
+    }
+
+    /// <summary>
+    /// 匹配简单的单层通配符模式
+    /// </summary>
+    private bool MatchesSimplePattern(string path, string pattern)
+    {
+        if (pattern == "*" || pattern == "*/*")
+            return true;
+
+        // 转换为正则表达式
+        var regexPattern = "^" + System.Text.RegularExpressions.Regex.Escape(pattern)
+            .Replace("\\*", ".*")
+            .Replace("\\?", ".") + "$";
+
+        return System.Text.RegularExpressions.Regex.IsMatch(path, regexPattern, 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    }
+
+    /// <summary>
+    /// 获取相对路径
+    /// </summary>
+    private string GetRelativePath(string fullPath, string basePath)
+    {
+        fullPath = fullPath.Replace('\\', '/');
+        basePath = basePath.Replace('\\', '/');
+
+        // 移除通配符
+        basePath = basePath.TrimEnd('*');
+        basePath = basePath.TrimEnd('/');
+
+        if (fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+        {
+            var relative = fullPath.Substring(basePath.Length).TrimStart('/');
+            return relative;
+        }
+
+        // 如果不以 basePath 开头，尝试提取最后的路径部分
+        var basePathParts = basePath.Split('/');
+        var fullPathParts = fullPath.Split('/');
+
+        // 找到匹配的起始点
+        for (int i = 0; i < basePathParts.Length && i < fullPathParts.Length; i++)
+        {
+            if (basePathParts[i] == fullPathParts[i] || basePathParts[i] == "*")
+            {
+                if (i == basePathParts.Length - 1)
+                {
+                    return string.Join("/", fullPathParts.Skip(i + 1));
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return Path.GetFileName(fullPath);
     }
 
     public async Task<bool> UninstallPluginAsync(string serverPath, InstalledPlugin plugin)

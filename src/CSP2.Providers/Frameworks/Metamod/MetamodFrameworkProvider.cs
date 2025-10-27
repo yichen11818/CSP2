@@ -14,12 +14,14 @@ namespace CSP2.Providers.Frameworks.Metamod;
 public class MetamodFrameworkProvider : IFrameworkProvider
 {
     private readonly HttpClient _httpClient;
+    private readonly IDownloadManager? _downloadManager;
     private const string MetamodDropBaseUrl = "https://mms.alliedmods.net/mmsdrop/2.0/";
     private const string MetamodLatestWindowsInfoUrl = "https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-windows";
     private const string MetamodLatestLinuxInfoUrl = "https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-linux";
 
-    public MetamodFrameworkProvider()
+    public MetamodFrameworkProvider(IDownloadManager? downloadManager = null)
     {
+        _downloadManager = downloadManager;
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromMinutes(10)
@@ -102,6 +104,26 @@ public class MetamodFrameworkProvider : IFrameworkProvider
     public async Task<InstallResult> InstallAsync(string serverPath, string? version = null, 
         IProgress<InstallProgress>? progress = null)
     {
+        // 创建下载任务
+        string? downloadTaskId = null;
+        DownloadTask? downloadTask = null;
+        
+        if (_downloadManager != null)
+        {
+            downloadTask = new DownloadTask
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "Metamod:Source",
+                Description = "CS2 插件加载器基础框架",
+                TaskType = DownloadTaskType.Framework,
+                Status = DownloadTaskStatus.Pending,
+                Progress = 0
+            };
+            downloadTaskId = downloadTask.Id;
+            _downloadManager.AddTask(downloadTask);
+            _downloadManager.UpdateTaskStatus(downloadTaskId, DownloadTaskStatus.Downloading, null);
+        }
+        
         try
         {
             progress?.Report(new InstallProgress
@@ -112,6 +134,8 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 TotalSteps = 5,
                 Message = "正在连接到 AlliedModders..."
             });
+            
+            _downloadManager?.UpdateTaskProgress(downloadTaskId!, 0, "正在连接到 AlliedModders...");
 
             // 1. 获取实际的文件名和版本号
             var isWindows = !OperatingSystem.IsLinux();
@@ -120,6 +144,8 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             if (string.IsNullOrEmpty(downloadUrl) || string.IsNullOrEmpty(fileName))
             {
                 DebugLogger.Error("Metamod-Install", "无法获取 Metamod:Source 版本信息");
+                _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Failed, 
+                    "无法获取 Metamod:Source 版本信息，请检查网络连接");
                 return InstallResult.CreateFailure("无法获取 Metamod:Source 版本信息，请检查网络连接");
             }
 
@@ -135,6 +161,8 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 TotalSteps = 5,
                 Message = $"准备下载: {fileName}"
             });
+            
+            _downloadManager?.UpdateTaskProgress(downloadTaskId!, 10, $"找到版本: {versionStr}");
 
             // 2. 下载文件
             var tempDir = Path.Combine(Path.GetTempPath(), "CSP2", "metamod");
@@ -157,6 +185,12 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 response.EnsureSuccessStatusCode();
                 var totalBytes = response.Content.Headers.ContentLength ?? 0;
                 
+                // 更新下载任务的总大小
+                if (_downloadManager != null && downloadTask != null)
+                {
+                    downloadTask.TotalSize = totalBytes;
+                }
+                
                 using (var contentStream = await response.Content.ReadAsStreamAsync())
                 using (var fileStream = new FileStream(archivePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                 {
@@ -172,14 +206,24 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                         if (totalBytes > 0)
                         {
                             var downloadPercent = (double)totalRead / totalBytes * 100;
+                            var overallPercent = 15 + (downloadPercent * 0.35); // 15-50%
+                            
                             progress?.Report(new InstallProgress
                             {
-                                Percentage = 15 + (downloadPercent * 0.35), // 15-50%
+                                Percentage = overallPercent,
                                 CurrentStep = "下载中",
                                 CurrentStepIndex = 2,
                                 TotalSteps = 5,
                                 Message = $"已下载: {totalRead / 1024:F0} KB / {totalBytes / 1024:F0} KB"
                             });
+                            
+                            // 更新下载管理器进度
+                            if (_downloadManager != null && downloadTask != null)
+                            {
+                                downloadTask.DownloadedSize = totalRead;
+                                _downloadManager.UpdateTaskProgress(downloadTaskId!, overallPercent, 
+                                    $"下载中: {totalRead / 1024:F0} KB / {totalBytes / 1024:F0} KB");
+                            }
                         }
                     }
                 }
@@ -193,6 +237,8 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 TotalSteps = 5,
                 Message = "正在解压文件..."
             });
+            
+            _downloadManager?.UpdateTaskProgress(downloadTaskId!, 50, "下载完成，正在解压...");
 
             // 3. 解压到服务器 csgo 目录（ZIP里已包含 addons/ 结构）
             var csgoPath = Path.Combine(serverPath, "game", "csgo");
@@ -343,11 +389,19 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             });
 
             DebugLogger.Info("Metamod-Install", $"✓ Metamod:Source {versionStr} 安装成功！");
+            
+            // 标记下载任务为完成
+            _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Completed, null);
+            
             return InstallResult.CreateSuccess("Metamod:Source 安装成功");
         }
         catch (Exception ex)
         {
             DebugLogger.Error("Metamod-Install", $"安装失败: {ex.Message}", ex);
+            
+            // 标记下载任务为失败
+            _downloadManager?.UpdateTaskStatus(downloadTaskId!, DownloadTaskStatus.Failed, $"安装失败: {ex.Message}");
+            
             return InstallResult.CreateFailure($"安装失败: {ex.Message}", ex);
         }
     }

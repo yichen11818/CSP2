@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace CSP2.Desktop.ViewModels;
 
@@ -33,9 +34,15 @@ public partial class DebugConsoleViewModel : ObservableObject
     private bool _showError = true;
 
     private readonly List<DebugLogEntry> _allLogs = new();
+    private readonly List<DebugLogEntry> _pendingLogs = new();
+    private readonly System.Threading.Timer _batchTimer;
+    private readonly object _lockObject = new();
 
     public DebugConsoleViewModel()
     {
+        // 初始化批量更新定时器（每100ms批量处理一次）
+        _batchTimer = new System.Threading.Timer(ProcessPendingLogs, null, 100, 100);
+        
         // 订阅全局日志记录器
         DebugLogger.LogReceived += OnLogReceived;
         
@@ -44,7 +51,7 @@ public partial class DebugConsoleViewModel : ObservableObject
     }
     
     /// <summary>
-    /// 加载历史日志
+    /// 加载历史日志（批量加载）
     /// </summary>
     private void LoadHistoryLogs()
     {
@@ -54,6 +61,8 @@ public partial class DebugConsoleViewModel : ObservableObject
             
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
+                var filteredLogs = new List<DebugLogEntry>();
+                
                 foreach (var logEvent in history)
                 {
                     var entry = new DebugLogEntry
@@ -70,8 +79,14 @@ public partial class DebugConsoleViewModel : ObservableObject
                     // 应用过滤
                     if (ShouldShowLog(entry))
                     {
-                        Logs.Add(entry);
+                        filteredLogs.Add(entry);
                     }
+                }
+                
+                // 批量添加到UI集合（只显示最后5000条）
+                foreach (var log in filteredLogs.TakeLast(5000))
+                {
+                    Logs.Add(log);
                 }
             });
             
@@ -82,41 +97,79 @@ public partial class DebugConsoleViewModel : ObservableObject
             DebugLogger.Error("DebugConsoleViewModel", "加载历史日志失败", ex);
         }
     }
+    
+    /// <summary>
+    /// 清理资源
+    /// </summary>
+    public void Dispose()
+    {
+        _batchTimer?.Dispose();
+        DebugLogger.LogReceived -= OnLogReceived;
+    }
 
     /// <summary>
-    /// 接收日志
+    /// 接收日志（批量缓存）
     /// </summary>
     private void OnLogReceived(object? sender, DebugLogEventArgs e)
     {
-        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+        var entry = new DebugLogEntry
         {
-            var entry = new DebugLogEntry
-            {
-                Timestamp = e.Timestamp,
-                Level = e.Level,
-                Category = e.Category,
-                Message = e.Message,
-                Exception = e.Exception
-            };
+            Timestamp = e.Timestamp,
+            Level = e.Level,
+            Category = e.Category,
+            Message = e.Message,
+            Exception = e.Exception
+        };
 
+        lock (_lockObject)
+        {
             _allLogs.Add(entry);
-
-            // 应用过滤
-            if (ShouldShowLog(entry))
-            {
-                Logs.Add(entry);
-
-                // 限制显示的日志数量
-                if (Logs.Count > 5000)
-                {
-                    Logs.RemoveAt(0);
-                }
-            }
+            _pendingLogs.Add(entry);
 
             // 限制全部日志数量
             if (_allLogs.Count > 10000)
             {
                 _allLogs.RemoveAt(0);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 批量处理待处理的日志（定时器回调）
+    /// </summary>
+    private void ProcessPendingLogs(object? state)
+    {
+        List<DebugLogEntry> logsToAdd;
+        
+        lock (_lockObject)
+        {
+            if (_pendingLogs.Count == 0)
+                return;
+
+            // 复制待处理日志并清空
+            logsToAdd = new List<DebugLogEntry>(_pendingLogs);
+            _pendingLogs.Clear();
+        }
+
+        // 在UI线程批量添加
+        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            // 暂停集合变更通知以提高性能
+            var logsCollection = Logs as ObservableCollection<DebugLogEntry>;
+            
+            foreach (var entry in logsToAdd)
+            {
+                // 应用过滤
+                if (ShouldShowLog(entry))
+                {
+                    Logs.Add(entry);
+                }
+            }
+
+            // 限制显示的日志数量
+            while (Logs.Count > 5000)
+            {
+                Logs.RemoveAt(0);
             }
         });
     }
@@ -157,24 +210,34 @@ public partial class DebugConsoleViewModel : ObservableObject
     [RelayCommand]
     private void ClearLogs()
     {
-        Logs.Clear();
-        _allLogs.Clear();
+        lock (_lockObject)
+        {
+            Logs.Clear();
+            _allLogs.Clear();
+            _pendingLogs.Clear();
+        }
     }
 
     /// <summary>
-    /// 刷新过滤
+    /// 刷新过滤（延迟执行以避免频繁刷新）
     /// </summary>
     [RelayCommand]
     private void RefreshFilter()
     {
-        Logs.Clear();
-        foreach (var log in _allLogs)
+        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            if (ShouldShowLog(log))
+            lock (_lockObject)
             {
-                Logs.Add(log);
+                var filteredLogs = _allLogs.Where(ShouldShowLog).ToList();
+                
+                // 批量重建集合
+                Logs.Clear();
+                foreach (var log in filteredLogs.TakeLast(5000)) // 只显示最后5000条
+                {
+                    Logs.Add(log);
+                }
             }
-        }
+        }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
     /// <summary>

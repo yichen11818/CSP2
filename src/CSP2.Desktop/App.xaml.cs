@@ -154,15 +154,16 @@ public partial class App : Application
                     services.AddSingleton(sp =>
                     {
                         var logger = sp.GetRequiredService<ILogger<ProviderRegistry>>();
+                        var downloadManager = sp.GetRequiredService<IDownloadManager>();
                         var registry = new ProviderRegistry(logger);
                         
                         // 注册平台Provider
                         var windowsProvider = new WindowsPlatformProvider();
                         registry.RegisterPlatformProvider(windowsProvider);
                         
-                        // 注册框架Provider
-                        var metamodProvider = new MetamodFrameworkProvider();
-                        var cssProvider = new CSSFrameworkProvider();
+                        // 注册框架Provider（注入下载管理器）
+                        var metamodProvider = new MetamodFrameworkProvider(downloadManager);
+                        var cssProvider = new CSSFrameworkProvider(downloadManager);
                         registry.RegisterFrameworkProvider(metamodProvider);
                         registry.RegisterFrameworkProvider(cssProvider);
                         

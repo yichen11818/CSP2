@@ -229,19 +229,52 @@ public class InstallationInfo
     public string Type { get; set; } = "extract";
 
     /// <summary>
-    /// 目标路径（相对于服务器根目录）
+    /// 目标路径（相对于服务器根目录）- 用于简单安装
     /// </summary>
     public string TargetPath { get; set; } = string.Empty;
 
     /// <summary>
-    /// 需要复制的文件列表
+    /// 需要复制的文件列表 - 用于简单安装
     /// </summary>
     public string[]? Files { get; set; }
+
+    /// <summary>
+    /// 文件映射规则 - 用于复杂安装（优先级高于 TargetPath + Files）
+    /// </summary>
+    public FileMapping[]? Mappings { get; set; }
 
     /// <summary>
     /// 是否需要重启服务器
     /// </summary>
     public bool RequiresRestart { get; set; } = true;
+}
+
+/// <summary>
+/// 文件映射规则
+/// </summary>
+public class FileMapping
+{
+    /// <summary>
+    /// 源路径模式（ZIP内的路径，支持通配符 * 和 **）
+    /// 例如: "gamedata/*", "MyPlugin/*.dll", "configs/**/*"
+    /// </summary>
+    public required string Source { get; set; }
+
+    /// <summary>
+    /// 目标路径（相对于服务器根目录）
+    /// 例如: "game/csgo/addons/counterstrikesharp/gamedata"
+    /// </summary>
+    public required string Target { get; set; }
+
+    /// <summary>
+    /// 是否递归复制子目录（默认 true）
+    /// </summary>
+    public bool Recursive { get; set; } = true;
+
+    /// <summary>
+    /// 排除的文件模式（可选）
+    /// </summary>
+    public string[]? Exclude { get; set; }
 }
 
 /// <summary>

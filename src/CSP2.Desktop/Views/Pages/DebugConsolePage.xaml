@@ -59,58 +59,86 @@
             </Grid>
         </Border>
 
-        <!-- 日志列表 -->
+        <!-- 日志列表 (使用ListBox启用虚拟化) -->
         <Border Grid.Row="1" Background="{DynamicResource BackgroundBrush}">
-            <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" 
-                          HorizontalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Logs}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="{DynamicResource BorderBrush}" 
-                                    BorderThickness="0,0,0,1" Padding="10,5">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+            <ListBox x:Name="LogListBox" 
+                     ItemsSource="{Binding Logs}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     VirtualizingPanel.CacheLength="20,20"
+                     VirtualizingPanel.CacheLengthUnit="Item"
+                     BorderThickness="0"
+                     Background="Transparent">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="10,5">
+                                        <ContentPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                                    <!-- 时间戳 -->
-                                    <TextBlock Grid.Column="0" 
-                                               Text="{Binding Timestamp, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}" 
-                                               FontFamily="Consolas" FontSize="11"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <!-- 时间戳 -->
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding Timestamp, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}" 
+                                       FontFamily="Consolas" FontSize="11"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
 
-                                    <!-- 级别 -->
-                                    <TextBlock Grid.Column="1" 
-                                               Text="{Binding Level}" 
-                                               FontWeight="Bold" FontSize="11"
-                                               Foreground="{Binding Level, Converter={StaticResource LogLevelToColorConverter}}"
-                                               Margin="10,0,0,0"/>
+                            <!-- 级别 -->
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding Level}" 
+                                       FontWeight="Bold" FontSize="11"
+                                       Foreground="{Binding Level, Converter={StaticResource LogLevelToColorConverter}}"
+                                       Margin="10,0,0,0"/>
 
-                                    <!-- 分类 -->
-                                    <TextBlock Grid.Column="2" 
-                                               Text="{Binding Category}" 
-                                               FontFamily="Consolas" FontSize="11"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"
-                                               Margin="10,0,0,0"/>
+                            <!-- 分类 -->
+                            <TextBlock Grid.Column="2" 
+                                       Text="{Binding Category}" 
+                                       FontFamily="Consolas" FontSize="11"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="10,0,0,0"/>
 
-                                    <!-- 消息 -->
-                                    <StackPanel Grid.Column="3" Margin="10,0,0,0">
-                                        <TextBlock Text="{Binding Message}" 
-                                                   TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
-                                        <TextBlock Text="{Binding Exception}" 
-                                                   TextWrapping="Wrap" FontFamily="Consolas" FontSize="10"
-                                                   Foreground="Red" Margin="0,5,0,0"
-                                                   Visibility="{Binding Exception, Converter={StaticResource StringToVisibilityConverter}}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                            <!-- 消息 -->
+                            <StackPanel Grid.Column="3" Margin="10,0,0,0">
+                                <TextBlock Text="{Binding Message}" 
+                                           TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
+                                <TextBlock Text="{Binding Exception}" 
+                                           TextWrapping="Wrap" FontFamily="Consolas" FontSize="10"
+                                           Foreground="Red" Margin="0,5,0,0"
+                                           Visibility="{Binding Exception, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Border>
     </Grid>
 </UserControl>
