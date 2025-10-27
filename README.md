@@ -147,10 +147,15 @@ csp2/
 ├── src/
 │   ├── CSP2.Core/              # Core library (interfaces and services)
 │   ├── CSP2.Providers/         # Official Provider implementations
-│   ├── CSP2.Desktop/           # WPF desktop application
-│   └── CSP2.SDK/               # Extension development SDK
+│   └── CSP2.Desktop/           # WPF desktop application
+├── plugin-repository/          # Plugin marketplace repository (Git submodule)
+│   ├── plugins/                # Plugin metadata files
+│   ├── manifest.json           # Auto-generated plugin manifest
+│   └── schemas/                # JSON Schema definitions
 ├── tests/                      # Unit tests
 ├── docs/                       # Documentation
+├── data/                       # Runtime data (servers, settings)
+├── providers/                  # Third-party providers
 ├── .github/                    # GitHub configuration
 └── README.md
 ```
@@ -176,7 +181,7 @@ Future plans to migrate to **Avalonia UI** for cross-platform support.
 A: Current version only supports Windows. Linux support will be available in v2.0.
 
 ### Q: Where does the plugin data come from?
-A: From our maintained [plugin repository](https://github.com/yichen11818/csp2-plugins) (planned)
+A: From our maintained [plugin repository](https://github.com/yichen11818/csp2-plugin-repository), which is included as a Git submodule. The repository automatically tracks and indexes CS2 plugins from GitHub.
 
 
 ---

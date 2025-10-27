@@ -148,10 +148,15 @@ csp2/
 ├── src/
 │   ├── CSP2.Core/              # 核心库（接口和服务）
 │   ├── CSP2.Providers/         # 官方 Provider 实现
-│   ├── CSP2.Desktop/           # WPF 桌面应用
-│   └── CSP2.SDK/               # 扩展开发 SDK
+│   └── CSP2.Desktop/           # WPF 桌面应用
+├── plugin-repository/          # 插件市场仓库（Git 子模块）
+│   ├── plugins/                # 插件元数据文件
+│   ├── manifest.json           # 自动生成的插件清单
+│   └── schemas/                # JSON Schema 定义
 ├── tests/                      # 单元测试
 ├── docs/                       # 文档
+├── data/                       # 运行时数据（服务器、设置）
+├── providers/                  # 第三方 Provider
 ├── .github/                    # GitHub 配置
 └── README.md
 ```
@@ -179,7 +184,7 @@ A: 当前版本仅支持 Windows。Linux 支持将在 v2.0 版本中提供。
 
 
 ### Q: 插件数据从哪里来？
-A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugins)（计划中）
+A: 从我们维护的 [插件仓库](https://github.com/yichen11818/csp2-plugin-repository)，该仓库作为 Git 子模块包含在项目中。仓库会自动跟踪和索引 GitHub 上的 CS2 插件。
 
 ---
 
