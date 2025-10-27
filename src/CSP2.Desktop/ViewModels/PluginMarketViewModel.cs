@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
+using CSP2.Core.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
@@ -15,6 +16,7 @@ public partial class PluginMarketViewModel : ObservableObject
     private readonly IPluginRepositoryService _pluginRepositoryService;
     private readonly IPluginManager _pluginManager;
     private readonly IServerManager _serverManager;
+    private readonly ProviderRegistry _providerRegistry;
     private readonly ILogger<PluginMarketViewModel> _logger;
 
     [ObservableProperty]
@@ -38,6 +40,25 @@ public partial class PluginMarketViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    // 框架相关属性
+    [ObservableProperty]
+    private bool _cssInstalled;
+
+    [ObservableProperty]
+    private bool _metamodInstalled;
+
+    [ObservableProperty]
+    private string? _cssVersion;
+
+    [ObservableProperty]
+    private string? _metamodVersion;
+
+    [ObservableProperty]
+    private bool _isInstallingCss;
+
+    [ObservableProperty]
+    private bool _isInstallingMetamod;
+
     public ObservableCollection<string> Categories { get; } = new()
     {
         "全部",
@@ -53,11 +74,13 @@ public partial class PluginMarketViewModel : ObservableObject
         IPluginRepositoryService pluginRepositoryService,
         IPluginManager pluginManager,
         IServerManager serverManager,
+        ProviderRegistry providerRegistry,
         ILogger<PluginMarketViewModel> logger)
     {
         _pluginRepositoryService = pluginRepositoryService;
         _pluginManager = pluginManager;
         _serverManager = serverManager;
+        _providerRegistry = providerRegistry;
         _logger = logger;
 
         _logger.LogInformation("PluginMarketViewModel 初始化");
@@ -89,16 +112,37 @@ public partial class PluginMarketViewModel : ObservableObject
             _logger.LogInformation("加载了 {Count} 个服务器", servers.Count);
 
             // 加载插件列表
-            DebugLogger.Debug("LoadDataAsync", "加载插件列表");
+            DebugLogger.Debug("LoadDataAsync", "开始调用 GetManifestAsync");
             var manifest = await _pluginRepositoryService.GetManifestAsync();
+            
+            DebugLogger.Info("LoadDataAsync", $"GetManifestAsync 返回，包含 {manifest?.Plugins?.Count ?? 0} 个插件");
+            
+            if (manifest == null)
+            {
+                DebugLogger.Error("LoadDataAsync", "manifest 为 null！");
+                return;
+            }
+            
+            if (manifest.Plugins == null)
+            {
+                DebugLogger.Error("LoadDataAsync", "manifest.Plugins 为 null！");
+                manifest.Plugins = new List<PluginInfo>();
+            }
+            
             Plugins.Clear();
+            DebugLogger.Debug("LoadDataAsync", $"开始添加 {manifest.Plugins.Count} 个插件到集合");
+            
             foreach (var plugin in manifest.Plugins)
             {
                 Plugins.Add(plugin);
+                DebugLogger.Debug("LoadDataAsync", $"  添加插件: {plugin.Name} (ID: {plugin.Id})");
             }
+            
             _logger.LogInformation("加载了 {Count} 个插件", manifest.Plugins.Count);
+            DebugLogger.Info("LoadDataAsync", $"插件加载完成，Plugins.Count = {Plugins.Count}");
 
             // 初始化过滤列表
+            DebugLogger.Debug("LoadDataAsync", "开始应用过滤");
             ApplyFilter();
         }
         catch (Exception ex)
@@ -118,29 +162,50 @@ public partial class PluginMarketViewModel : ObservableObject
     /// </summary>
     private void ApplyFilter()
     {
+        DebugLogger.Debug("ApplyFilter", $"开始过滤，总插件数: {Plugins.Count}");
+        
         var filtered = Plugins.AsEnumerable();
 
         // 按分类过滤
         if (SelectedCategory != "全部")
         {
+            var beforeCount = filtered.Count();
             filtered = filtered.Where(p => 
                 p.Category?.Equals(SelectedCategory, StringComparison.OrdinalIgnoreCase) == true);
+            var afterCount = filtered.Count();
+            DebugLogger.Debug("ApplyFilter", $"分类过滤 '{SelectedCategory}': {beforeCount} -> {afterCount}");
         }
 
         // 按搜索文本过滤
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
+            var beforeCount = filtered.Count();
             filtered = filtered.Where(p =>
                 p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 (p.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
                 (p.DescriptionZh?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true) ||
-                (p.Author?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true));
+                (p.Author?.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true));
+            var afterCount = filtered.Count();
+            DebugLogger.Debug("ApplyFilter", $"搜索文本过滤 '{SearchText}': {beforeCount} -> {afterCount}");
         }
 
         FilteredPlugins.Clear();
-        foreach (var plugin in filtered)
+        var filteredList = filtered.ToList();
+        foreach (var plugin in filteredList)
         {
             FilteredPlugins.Add(plugin);
+        }
+        
+        DebugLogger.Info("ApplyFilter", $"过滤完成，显示 {FilteredPlugins.Count} 个插件");
+        
+        if (FilteredPlugins.Count > 0)
+        {
+            var pluginNames = string.Join(", ", FilteredPlugins.Take(5).Select(p => p.Name));
+            DebugLogger.Debug("ApplyFilter", $"前5个插件: {pluginNames}...");
+        }
+        else
+        {
+            DebugLogger.Warning("ApplyFilter", "过滤后无插件显示！");
         }
     }
 
@@ -214,6 +279,191 @@ public partial class PluginMarketViewModel : ObservableObject
     partial void OnSelectedCategoryChanged(string value)
     {
         ApplyFilter();
+    }
+
+    /// <summary>
+    /// 服务器变化时，检查框架安装状态
+    /// </summary>
+    async partial void OnSelectedServerChanged(Server? value)
+    {
+        if (value != null)
+        {
+            await CheckFrameworksStatusAsync();
+        }
+    }
+
+    /// <summary>
+    /// 检查框架安装状态
+    /// </summary>
+    private async Task CheckFrameworksStatusAsync()
+    {
+        if (SelectedServer == null)
+            return;
+
+        try
+        {
+            // 检查 Metamod
+            var metamodProvider = _providerRegistry.GetFrameworkProvider("metamod");
+            if (metamodProvider != null)
+            {
+                MetamodInstalled = await metamodProvider.IsInstalledAsync(SelectedServer.InstallPath);
+                MetamodVersion = await metamodProvider.GetInstalledVersionAsync(SelectedServer.InstallPath);
+                DebugLogger.Info("CheckFrameworks", $"Metamod 安装状态: {MetamodInstalled}, 版本: {MetamodVersion}");
+            }
+
+            // 检查 CounterStrikeSharp
+            var cssProvider = _providerRegistry.GetFrameworkProvider("counterstrikesharp");
+            if (cssProvider != null)
+            {
+                CssInstalled = await cssProvider.IsInstalledAsync(SelectedServer.InstallPath);
+                CssVersion = await cssProvider.GetInstalledVersionAsync(SelectedServer.InstallPath);
+                DebugLogger.Info("CheckFrameworks", $"CSS 安装状态: {CssInstalled}, 版本: {CssVersion}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "检查框架状态失败");
+            DebugLogger.Error("CheckFrameworks", $"检查框架状态失败: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// 安装 Metamod
+    /// </summary>
+    [RelayCommand]
+    private async Task InstallMetamodAsync()
+    {
+        if (SelectedServer == null)
+        {
+            _logger.LogWarning("未选择服务器");
+            return;
+        }
+
+        if (IsInstallingMetamod)
+            return;
+
+        IsInstallingMetamod = true;
+        DebugLogger.Info("InstallMetamod", $"开始安装 Metamod 到服务器: {SelectedServer.Name}");
+
+        try
+        {
+            var provider = _providerRegistry.GetFrameworkProvider("metamod");
+            if (provider == null)
+            {
+                DebugLogger.Error("InstallMetamod", "未找到 Metamod Provider");
+                return;
+            }
+
+            var progress = new Progress<InstallProgress>(p =>
+            {
+                DebugLogger.Debug("InstallMetamod", $"进度: {p.Percentage:F1}% - {p.Message}");
+            });
+
+            var result = await provider.InstallAsync(SelectedServer.InstallPath, null, progress);
+
+            if (result.Success)
+            {
+                _logger.LogInformation("Metamod 安装成功");
+                DebugLogger.Info("InstallMetamod", "Metamod 安装成功");
+                await CheckFrameworksStatusAsync();
+            }
+            else
+            {
+                _logger.LogError("Metamod 安装失败: {Error}", result.ErrorMessage);
+                DebugLogger.Error("InstallMetamod", $"安装失败: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "安装 Metamod 时发生异常");
+            DebugLogger.Error("InstallMetamod", $"安装异常: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsInstallingMetamod = false;
+        }
+    }
+
+    /// <summary>
+    /// 安装 CounterStrikeSharp
+    /// </summary>
+    [RelayCommand]
+    private async Task InstallCssAsync()
+    {
+        if (SelectedServer == null)
+        {
+            _logger.LogWarning("未选择服务器");
+            return;
+        }
+
+        if (IsInstallingCss)
+            return;
+
+        IsInstallingCss = true;
+        DebugLogger.Info("InstallCss", $"开始安装 CounterStrikeSharp 到服务器: {SelectedServer.Name}");
+
+        try
+        {
+            // 检查 Metamod 依赖
+            if (!MetamodInstalled)
+            {
+                DebugLogger.Info("InstallCss", "CounterStrikeSharp 依赖 Metamod，先安装 Metamod");
+                
+                var metamodProvider = _providerRegistry.GetFrameworkProvider("metamod");
+                if (metamodProvider != null)
+                {
+                    var metamodProgress = new Progress<InstallProgress>(p =>
+                    {
+                        DebugLogger.Debug("InstallCss", $"[Metamod依赖] {p.Percentage:F1}% - {p.Message}");
+                    });
+
+                    var metamodResult = await metamodProvider.InstallAsync(SelectedServer.InstallPath, null, metamodProgress);
+                    if (!metamodResult.Success)
+                    {
+                        _logger.LogError("安装 Metamod 依赖失败: {Error}", metamodResult.ErrorMessage);
+                        DebugLogger.Error("InstallCss", $"Metamod 依赖安装失败: {metamodResult.ErrorMessage}");
+                        return;
+                    }
+
+                    await CheckFrameworksStatusAsync();
+                }
+            }
+
+            var cssProvider = _providerRegistry.GetFrameworkProvider("counterstrikesharp");
+            if (cssProvider == null)
+            {
+                DebugLogger.Error("InstallCss", "未找到 CounterStrikeSharp Provider");
+                return;
+            }
+
+            var progress = new Progress<InstallProgress>(p =>
+            {
+                DebugLogger.Debug("InstallCss", $"进度: {p.Percentage:F1}% - {p.Message}");
+            });
+
+            var result = await cssProvider.InstallAsync(SelectedServer.InstallPath, null, progress);
+
+            if (result.Success)
+            {
+                _logger.LogInformation("CounterStrikeSharp 安装成功");
+                DebugLogger.Info("InstallCss", "CounterStrikeSharp 安装成功");
+                await CheckFrameworksStatusAsync();
+            }
+            else
+            {
+                _logger.LogError("CounterStrikeSharp 安装失败: {Error}", result.ErrorMessage);
+                DebugLogger.Error("InstallCss", $"安装失败: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "安装 CounterStrikeSharp 时发生异常");
+            DebugLogger.Error("InstallCss", $"安装异常: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsInstallingCss = false;
+        }
     }
 }
 

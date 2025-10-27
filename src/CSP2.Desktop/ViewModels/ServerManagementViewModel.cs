@@ -170,23 +170,32 @@ public partial class ServerManagementViewModel : ObservableObject
             var installPath = dialog.InstallPath;
             var config = dialog.ServerConfig;
             
-            DebugLogger.Debug("AddServerAsync", $"服务器配置: Name={name}, Port={config.Port}, Path={installPath}");
+            DebugLogger.Debug("AddServerAsync", $"【DEBUG】服务器配置: Name={name}, Port={config.Port}, Path={installPath}");
+            _logger.LogDebug("【DEBUG】ViewModel: 准备添加服务器");
             
-            _logger.LogInformation("正在添加服务器: {ServerName}, 路径: {InstallPath}, 端口: {Port}", 
+            _logger.LogInformation("【DEBUG】正在添加服务器: {ServerName}, 路径: {InstallPath}, 端口: {Port}", 
                 name, installPath, config.Port);
             
+            DebugLogger.Info("AddServerAsync", "【DEBUG】调用 ServerManager.AddServerAsync");
             var server = await _serverManager.AddServerAsync(name, installPath, config);
+            DebugLogger.Info("AddServerAsync", $"【DEBUG】AddServerAsync 返回，Server ID: {server.Id}");
             
             // 手动添加的服务器，不由CSP2管理
+            _logger.LogDebug("【DEBUG】设置服务器来源为 Manual");
             server.InstallSource = ServerInstallSource.Manual;
             server.IsManagedByCSP2 = false;
-            await _serverManager.UpdateServerAsync(server);
             
+            DebugLogger.Info("AddServerAsync", "【DEBUG】调用 UpdateServerAsync 更新服务器信息");
+            var updateResult = await _serverManager.UpdateServerAsync(server);
+            DebugLogger.Info("AddServerAsync", $"【DEBUG】UpdateServerAsync 返回: {updateResult}");
+            
+            _logger.LogDebug("【DEBUG】添加到 UI 的 Servers 集合，当前大小: {Count}", Servers.Count);
             Servers.Add(server);
+            _logger.LogDebug("【DEBUG】添加后 Servers 集合大小: {Count}", Servers.Count);
             
-            _logger.LogInformation("成功添加服务器: ID={ServerId}, 名称={ServerName}", 
+            _logger.LogInformation("【DEBUG】成功添加服务器: ID={ServerId}, 名称={ServerName}", 
                 server.Id, server.Name);
-            DebugLogger.Info("AddServerAsync", $"服务器添加成功: {server.Id}");
+            DebugLogger.Info("AddServerAsync", $"【DEBUG】服务器添加成功: {server.Id}");
             ShowSuccess($"已添加服务器: {name}");
         }
         catch (InvalidOperationException ex)

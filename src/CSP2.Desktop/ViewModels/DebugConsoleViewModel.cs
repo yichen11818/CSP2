@@ -37,6 +37,49 @@ public partial class DebugConsoleViewModel : ObservableObject
     {
         // 订阅全局日志记录器
         DebugLogger.LogReceived += OnLogReceived;
+        
+        // 加载历史日志
+        LoadHistoryLogs();
+    }
+    
+    /// <summary>
+    /// 加载历史日志
+    /// </summary>
+    private void LoadHistoryLogs()
+    {
+        try
+        {
+            var history = DebugLogger.GetHistory();
+            
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (var logEvent in history)
+                {
+                    var entry = new DebugLogEntry
+                    {
+                        Timestamp = logEvent.Timestamp,
+                        Level = logEvent.Level,
+                        Category = logEvent.Category,
+                        Message = logEvent.Message,
+                        Exception = logEvent.Exception
+                    };
+
+                    _allLogs.Add(entry);
+
+                    // 应用过滤
+                    if (ShouldShowLog(entry))
+                    {
+                        Logs.Add(entry);
+                    }
+                }
+            });
+            
+            DebugLogger.Debug("DebugConsoleViewModel", $"已加载 {history.Count} 条历史日志");
+        }
+        catch (Exception ex)
+        {
+            DebugLogger.Error("DebugConsoleViewModel", "加载历史日志失败", ex);
+        }
     }
 
     /// <summary>
@@ -200,20 +243,51 @@ public static class DebugLogger
 {
     public static event EventHandler<DebugLogEventArgs>? LogReceived;
     public static bool IsDebugMode { get; set; }
+    
+    // 历史日志缓冲区 - 保存最近的日志用于后续订阅者
+    private static readonly List<DebugLogEventArgs> _historyBuffer = new();
+    private static readonly object _bufferLock = new object();
+    private const int MaxHistorySize = 5000;
+
+    /// <summary>
+    /// 获取历史日志（用于初始化订阅者）
+    /// </summary>
+    public static IReadOnlyList<DebugLogEventArgs> GetHistory()
+    {
+        lock (_bufferLock)
+        {
+            return _historyBuffer.ToList();
+        }
+    }
 
     public static void Log(LogLevel level, string category, string message, Exception? exception = null)
     {
         if (!IsDebugMode && level < LogLevel.Information)
             return;
 
-        LogReceived?.Invoke(null, new DebugLogEventArgs
+        var logEvent = new DebugLogEventArgs
         {
             Timestamp = DateTime.Now,
             Level = level,
             Category = category,
             Message = message,
             Exception = exception?.ToString()
-        });
+        };
+
+        // 添加到历史缓冲区
+        lock (_bufferLock)
+        {
+            _historyBuffer.Add(logEvent);
+            
+            // 限制缓冲区大小
+            if (_historyBuffer.Count > MaxHistorySize)
+            {
+                _historyBuffer.RemoveAt(0);
+            }
+        }
+
+        // 触发事件通知订阅者
+        LogReceived?.Invoke(null, logEvent);
     }
 
     public static void Debug(string category, string message) =>

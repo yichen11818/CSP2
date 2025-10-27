@@ -188,30 +188,67 @@ public class ServerManager : IServerManager
     /// </summary>
     public async Task RestoreServerStatesAsync()
     {
-        _logger.LogInformation("开始恢复服务器状态...");
+        _logger.LogInformation("【DEBUG】开始恢复服务器状态...");
+        _logger.LogDebug("【DEBUG】恢复前 _servers 缓存大小: {Count}", _servers.Count);
         
+        // 🔧 修复：先从配置文件加载服务器列表
+        if (_servers.Count == 0)
+        {
+            _logger.LogDebug("【DEBUG】缓存为空，先加载服务器列表");
+            _servers = await _configService.LoadServersAsync();
+            _logger.LogDebug("【DEBUG】加载完成，共 {Count} 个服务器", _servers.Count);
+        }
+        
+        // 如果没有服务器，直接返回，不要保存空列表
+        if (_servers.Count == 0)
+        {
+            _logger.LogInformation("【DEBUG】没有服务器需要恢复状态");
+            return;
+        }
+        
+        bool hasChanges = false;
         foreach (var server in _servers)
         {
             // 将所有非Stopped状态的服务器重置为Stopped
             // 因为应用重启后，之前的进程引用已失效
             if (server.Status != ServerStatus.Stopped && server.Status != ServerStatus.Crashed)
             {
-                _logger.LogWarning("恢复服务器状态: {Name} {OldStatus} -> Stopped", 
+                _logger.LogWarning("【DEBUG】恢复服务器状态: {Name} {OldStatus} -> Stopped", 
                     server.Name, server.Status);
                 ChangeServerStatus(server, ServerStatus.Stopped);
+                hasChanges = true;
             }
         }
         
-        await _configService.SaveServersAsync(_servers);
-        _logger.LogInformation("服务器状态恢复完成");
+        // 只有在状态有变化时才保存
+        if (hasChanges)
+        {
+            _logger.LogDebug("【DEBUG】检测到状态变化，保存配置");
+            await _configService.SaveServersAsync(_servers);
+        }
+        else
+        {
+            _logger.LogDebug("【DEBUG】所有服务器状态正常，无需保存");
+        }
+        
+        _logger.LogInformation("【DEBUG】服务器状态恢复完成，共 {Count} 个服务器", _servers.Count);
     }
 
     public async Task<List<Server>> GetServersAsync()
     {
+        _logger.LogDebug("【DEBUG】GetServersAsync: 当前 _servers 缓存大小: {Count}", _servers.Count);
+        
         if (_servers.Count == 0)
         {
+            _logger.LogDebug("【DEBUG】缓存为空，从配置服务加载服务器列表");
             _servers = await _configService.LoadServersAsync();
+            _logger.LogDebug("【DEBUG】加载完成，_servers 大小: {Count}", _servers.Count);
         }
+        else
+        {
+            _logger.LogDebug("【DEBUG】使用缓存的服务器列表");
+        }
+        
         return _servers;
     }
 
@@ -223,12 +260,12 @@ public class ServerManager : IServerManager
 
     public async Task<Server> AddServerAsync(string name, string installPath, ServerConfig? config = null)
     {
-        _logger.LogDebug("开始添加服务器: Name={Name}, Path={Path}", name, installPath);
+        _logger.LogDebug("【DEBUG】开始添加服务器: Name={Name}, Path={Path}", name, installPath);
         
         // 验证服务器路径
         if (!await ValidateServerInstallationAsync(installPath))
         {
-            _logger.LogError("服务器路径验证失败: {Path}", installPath);
+            _logger.LogError("【DEBUG】服务器路径验证失败: {Path}", installPath);
             throw new InvalidOperationException($"Invalid server path or CS2 server files not found: {installPath}\n" +
                 "Please ensure the path contains valid CS2 server files, or use InstallServerAsync to install the server.");
         }
@@ -243,12 +280,20 @@ public class ServerManager : IServerManager
             CreatedAt = DateTime.Now
         };
 
-        _logger.LogDebug("生成服务器ID: {Id}", server.Id);
+        _logger.LogDebug("【DEBUG】生成服务器ID: {Id}", server.Id);
+        _logger.LogDebug("【DEBUG】添加前 _servers 列表大小: {Count}", _servers.Count);
+        
         _servers.Add(server);
-        await _configService.SaveServersAsync(_servers);
-        _logger.LogDebug("服务器配置已保存");
+        
+        _logger.LogDebug("【DEBUG】添加后 _servers 列表大小: {Count}", _servers.Count);
+        _logger.LogDebug("【DEBUG】准备保存服务器配置...");
+        
+        var saveResult = await _configService.SaveServersAsync(_servers);
+        
+        _logger.LogDebug("【DEBUG】保存结果: {Result}", saveResult ? "成功" : "失败");
+        _logger.LogDebug("【DEBUG】服务器配置已保存");
 
-        _logger.LogInformation("已添加服务器: {Name} ({Id})", name, server.Id);
+        _logger.LogInformation("【DEBUG】已添加服务器: {Name} ({Id})", name, server.Id);
         return server;
     }
 
@@ -308,16 +353,23 @@ public class ServerManager : IServerManager
 
     public async Task<bool> UpdateServerAsync(Server server)
     {
+        _logger.LogDebug("【DEBUG】UpdateServerAsync: 更新服务器 {Id}", server.Id);
+        
         var index = _servers.FindIndex(s => s.Id == server.Id);
         if (index == -1)
         {
+            _logger.LogWarning("【DEBUG】服务器不在列表中: {Id}", server.Id);
             return false;
         }
 
+        _logger.LogDebug("【DEBUG】找到服务器，索引: {Index}", index);
         _servers[index] = server;
-        await _configService.SaveServersAsync(_servers);
+        
+        _logger.LogDebug("【DEBUG】准备保存更新后的服务器列表，共 {Count} 个", _servers.Count);
+        var saveResult = await _configService.SaveServersAsync(_servers);
+        _logger.LogDebug("【DEBUG】保存结果: {Result}", saveResult ? "成功" : "失败");
 
-        _logger.LogInformation("已更新服务器: {Name} ({Id})", server.Name, server.Id);
+        _logger.LogInformation("【DEBUG】已更新服务器: {Name} ({Id})", server.Name, server.Id);
         return true;
     }
 

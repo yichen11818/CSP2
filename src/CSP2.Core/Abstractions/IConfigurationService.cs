@@ -38,6 +38,12 @@ public interface IConfigurationService
     /// </summary>
     /// <returns>数据目录路径</returns>
     string GetDataDirectory();
+
+    /// <summary>
+    /// 同步加载应用设置（用于初始化场景）
+    /// </summary>
+    /// <returns>应用设置</returns>
+    AppSettings LoadSettings();
 }
 
 /// <summary>
@@ -134,9 +140,15 @@ public class SteamCmdSettings
 public class RepositorySettings
 {
     /// <summary>
-    /// 仓库URL
+    /// 主仓库URL（优先使用）
+    /// 留空则使用默认官方源
     /// </summary>
     public string Url { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 镜像源URL列表（作为降级备选）
+    /// </summary>
+    public string[] MirrorUrls { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// 缓存过期时间（秒）

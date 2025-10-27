@@ -72,6 +72,37 @@ public class PluginManifest
     /// <summary>
     /// 分类列表
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<CategoryInfo> Categories { get; set; } = new();
+}
+
+/// <summary>
+/// 分类信息
+/// </summary>
+public class CategoryInfo
+{
+    /// <summary>
+    /// 分类ID（小写，用于匹配）
+    /// </summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 分类名称（英文）
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 分类名称（中文）
+    /// </summary>
+    public string? NameZh { get; set; }
+
+    /// <summary>
+    /// 分类描述（英文）
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// 分类描述（中文）
+    /// </summary>
+    public string? DescriptionZh { get; set; }
 }
 

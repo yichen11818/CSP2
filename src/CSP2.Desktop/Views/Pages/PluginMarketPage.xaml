@@ -8,9 +8,16 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:PluginMarketViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
+    
+    <UserControl.Resources>
+        <converters:BoolToStatusTextConverter x:Key="BoolToStatusTextConverter"/>
+        <converters:BoolToInstallTextConverter x:Key="BoolToInstallTextConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </UserControl.Resources>
 
     <Grid Margin="32">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -45,8 +52,152 @@
                     VerticalAlignment="Top"/>
         </Grid>
 
-        <!-- 过滤栏 -->
+        <!-- 框架管理区域 -->
         <Border Grid.Row="1" 
+                Style="{StaticResource CardStyle}"
+                Padding="20"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="🔧 插件框架管理"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           Margin="0,0,0,16"/>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Metamod 卡片 -->
+                    <Border Grid.Column="0"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="🔌"
+                                           FontSize="24"
+                                           Margin="0,0,12,0"
+                                           VerticalAlignment="Center"/>
+                                <StackPanel>
+                                    <TextBlock Text="Metamod:Source"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="插件加载器基础框架"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="13">
+                                    <Run Text="状态: "/>
+                                    <Run Text="{Binding MetamodInstalled, Converter={StaticResource BoolToStatusTextConverter}}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" 
+                                           FontSize="13"
+                                           Margin="0,4,0,0"
+                                           Visibility="{Binding MetamodInstalled, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="版本: "/>
+                                    <Run Text="{Binding MetamodVersion, FallbackValue=unknown}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <Button Grid.Row="2"
+                                    Content="{Binding MetamodInstalled, Converter={StaticResource BoolToInstallTextConverter}}"
+                                    Command="{Binding InstallMetamodCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding IsInstallingMetamod, Converter={StaticResource InverseBoolConverter}}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,12,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- CounterStrikeSharp 卡片 -->
+                    <Border Grid.Column="2"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="⚡"
+                                           FontSize="24"
+                                           Margin="0,0,12,0"
+                                           VerticalAlignment="Center"/>
+                                <StackPanel>
+                                    <TextBlock Text="CounterStrikeSharp"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="基于C#的CS2插件框架"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="13">
+                                    <Run Text="状态: "/>
+                                    <Run Text="{Binding CssInstalled, Converter={StaticResource BoolToStatusTextConverter}}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" 
+                                           FontSize="13"
+                                           Margin="0,4,0,0"
+                                           Visibility="{Binding CssInstalled, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="版本: "/>
+                                    <Run Text="{Binding CssVersion, FallbackValue=unknown}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock Text="依赖: Metamod:Source"
+                                           Foreground="{StaticResource WarningBrush}"
+                                           FontSize="12"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <Button Grid.Row="2"
+                                    Content="{Binding CssInstalled, Converter={StaticResource BoolToInstallTextConverter}}"
+                                    Command="{Binding InstallCssCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding IsInstallingCss, Converter={StaticResource InverseBoolConverter}}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,12,0,0"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- 过滤栏 -->
+        <Border Grid.Row="2" 
                 Style="{StaticResource CardStyle}"
                 Padding="20"
                 Margin="0,0,0,24">
@@ -136,7 +287,7 @@
         </Border>
 
         <!-- 插件列表 -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding FilteredPlugins}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -172,6 +323,7 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
                                 <!-- 插件名称 -->
@@ -194,7 +346,7 @@
                                                    FontSize="12"
                                                    Margin="0,0,4,0"
                                                    VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Author}"
+                                        <TextBlock Text="{Binding Author.Name}"
                                                    FontSize="13"
                                                    Foreground="{StaticResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
@@ -211,8 +363,47 @@
                                     </Border>
                                 </Grid>
 
+                                <!-- 统计信息（下载量和评分） -->
+                                <Grid Grid.Row="2" Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 下载量 -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="⬇"
+                                                   FontSize="11"
+                                                   Margin="0,0,4,0"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock FontSize="12"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center">
+                                            <Run Text="{Binding Downloads.Total, Mode=OneWay, FallbackValue=0}"/>
+                                            <Run Text="次下载"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!-- 评分 -->
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="⭐"
+                                                   FontSize="11"
+                                                   Margin="0,0,4,0"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="12"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center">
+                                            <Run Text="{Binding Rating.Average, Mode=OneWay, StringFormat=F1, FallbackValue=0.0}"/>
+                                            <Run Text="(" Foreground="#999"/>
+                                            <Run Text="{Binding Rating.Count, Mode=OneWay, FallbackValue=0}" Foreground="#999"/>
+                                            <Run Text=")" Foreground="#999"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+
                                 <!-- 描述 -->
-                                <TextBlock Grid.Row="2"
+                                <TextBlock Grid.Row="3"
                                            Text="{Binding DescriptionZh}"
                                            FontSize="14"
                                            Foreground="{StaticResource TextSecondaryBrush}"
@@ -222,23 +413,26 @@
                                            LineHeight="20"
                                            Margin="0,12,0,0"/>
 
-                                <!-- 标签 -->
-                                <StackPanel Grid.Row="3" 
-                                            Orientation="Horizontal"
-                                            Margin="0,16,0,0">
+                                <!-- 标签和徽章 -->
+                                <WrapPanel Grid.Row="4" 
+                                           Margin="0,16,0,0"
+                                           Orientation="Horizontal">
+                                    <!-- 框架标签 -->
                                     <Border Background="{StaticResource PrimaryPaleBrush}"
                                             CornerRadius="12"
                                             Padding="10,6"
-                                            Margin="0,0,8,0">
+                                            Margin="0,0,6,6">
                                         <TextBlock Text="{Binding Framework}"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource PrimaryDarkBrush}"/>
                                     </Border>
 
+                                    <!-- 推荐标记 -->
                                     <Border Background="{StaticResource WarningLightBrush}"
                                             CornerRadius="12"
                                             Padding="10,6"
+                                            Margin="0,0,6,6"
                                             Visibility="{Binding Featured, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{StaticResource StarIcon}"
@@ -253,10 +447,50 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
-                                </StackPanel>
+
+                                    <!-- 已验证标记 -->
+                                    <Border Background="#E8F5E9"
+                                            CornerRadius="12"
+                                            Padding="10,6"
+                                            Margin="0,0,6,6"
+                                            Visibility="{Binding Verified, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="✓"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Margin="0,0,4,0"
+                                                       Foreground="#2E7D32"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="已验证"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#2E7D32"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- 官方支持标记 -->
+                                    <Border Background="#E3F2FD"
+                                            CornerRadius="12"
+                                            Padding="10,6"
+                                            Margin="0,0,6,6"
+                                            Visibility="{Binding OfficialSupport, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⚡"
+                                                       FontSize="11"
+                                                       Margin="0,0,4,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="官方支持"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#1565C0"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </WrapPanel>
 
                                 <!-- 安装按钮 -->
-                                <Button Grid.Row="4"
+                                <Button Grid.Row="5"
                                         Content="{converters:Localization PluginMarket.Install}"
                                         Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                         CommandParameter="{Binding}"
@@ -271,7 +505,7 @@
         </ScrollViewer>
 
         <!-- 空状态提示 -->
-        <Border Grid.Row="2" 
+        <Border Grid.Row="3" 
                 VerticalAlignment="Center" 
                 HorizontalAlignment="Center"
                 Visibility="{Binding FilteredPlugins.Count, Converter={StaticResource CountToVisibilityConverter}}">
@@ -305,7 +539,7 @@
         </Border>
 
         <!-- 加载提示 -->
-        <Grid Grid.Row="2"
+        <Grid Grid.Row="3"
               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
               Background="#80FFFFFF">
             <Border Background="{StaticResource CardBackgroundBrush}"
