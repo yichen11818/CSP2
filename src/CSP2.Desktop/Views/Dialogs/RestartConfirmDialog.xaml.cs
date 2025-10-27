@@ -91,3 +91,4 @@ public partial class RestartConfirmDialog : Window
         return result == true && dialog.ShouldRestart;
     }
 }
+
