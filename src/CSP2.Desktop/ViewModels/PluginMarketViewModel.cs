@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSP2.Core.Abstractions;
+using CSP2.Core.Logging;
 using CSP2.Core.Models;
 using CSP2.Core.Services;
 using Microsoft.Extensions.Logging;
@@ -335,7 +336,7 @@ public partial class PluginMarketViewModel : ObservableObject
     {
         if (SelectedServer == null)
         {
-            _logger.LogWarning("未选择服务器");
+            MessageBox.Show("请先选择一个服务器", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -345,19 +346,28 @@ public partial class PluginMarketViewModel : ObservableObject
         IsInstallingMetamod = true;
         DebugLogger.Info("InstallMetamod", $"开始安装 Metamod 到服务器: {SelectedServer.Name}");
 
+        // 创建进度对话框
+        var progressDialog = new Views.Dialogs.FrameworkInstallProgressDialog("Metamod:Source");
+        
         try
         {
             var provider = _providerRegistry.GetFrameworkProvider("metamod");
             if (provider == null)
             {
                 DebugLogger.Error("InstallMetamod", "未找到 Metamod Provider");
+                MessageBox.Show("未找到 Metamod 安装程序", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             var progress = new Progress<InstallProgress>(p =>
             {
                 DebugLogger.Debug("InstallMetamod", $"进度: {p.Percentage:F1}% - {p.Message}");
+                progressDialog.UpdateProgress(p);
             });
+
+            // 显示进度对话框（非模态）
+            progressDialog.Owner = Application.Current.MainWindow;
+            progressDialog.Show();
 
             var result = await provider.InstallAsync(SelectedServer.InstallPath, null, progress);
 
@@ -365,18 +375,25 @@ public partial class PluginMarketViewModel : ObservableObject
             {
                 _logger.LogInformation("Metamod 安装成功");
                 DebugLogger.Info("InstallMetamod", "Metamod 安装成功");
+                progressDialog.ShowSuccess("Metamod:Source 安装成功！");
                 await CheckFrameworksStatusAsync();
+                
+                // 延迟关闭对话框
+                await Task.Delay(1500);
+                progressDialog.Close();
             }
             else
             {
                 _logger.LogError("Metamod 安装失败: {Error}", result.ErrorMessage);
                 DebugLogger.Error("InstallMetamod", $"安装失败: {result.ErrorMessage}");
+                progressDialog.ShowError(result.ErrorMessage ?? "未知错误");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装 Metamod 时发生异常");
             DebugLogger.Error("InstallMetamod", $"安装异常: {ex.Message}", ex);
+            progressDialog.ShowError($"安装异常: {ex.Message}");
         }
         finally
         {
@@ -392,7 +409,7 @@ public partial class PluginMarketViewModel : ObservableObject
     {
         if (SelectedServer == null)
         {
-            _logger.LogWarning("未选择服务器");
+            MessageBox.Show("请先选择一个服务器", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -402,43 +419,87 @@ public partial class PluginMarketViewModel : ObservableObject
         IsInstallingCss = true;
         DebugLogger.Info("InstallCss", $"开始安装 CounterStrikeSharp 到服务器: {SelectedServer.Name}");
 
+        // 创建进度对话框
+        var progressDialog = new Views.Dialogs.FrameworkInstallProgressDialog("CounterStrikeSharp");
+        progressDialog.Owner = Application.Current.MainWindow;
+        progressDialog.Show();
+
         try
         {
             // 检查 Metamod 依赖
             if (!MetamodInstalled)
             {
                 DebugLogger.Info("InstallCss", "CounterStrikeSharp 依赖 Metamod，先安装 Metamod");
+                progressDialog.ShowInstallingDependency("Metamod:Source");
                 
                 var metamodProvider = _providerRegistry.GetFrameworkProvider("metamod");
-                if (metamodProvider != null)
+                if (metamodProvider == null)
                 {
-                    var metamodProgress = new Progress<InstallProgress>(p =>
-                    {
-                        DebugLogger.Debug("InstallCss", $"[Metamod依赖] {p.Percentage:F1}% - {p.Message}");
-                    });
-
-                    var metamodResult = await metamodProvider.InstallAsync(SelectedServer.InstallPath, null, metamodProgress);
-                    if (!metamodResult.Success)
-                    {
-                        _logger.LogError("安装 Metamod 依赖失败: {Error}", metamodResult.ErrorMessage);
-                        DebugLogger.Error("InstallCss", $"Metamod 依赖安装失败: {metamodResult.ErrorMessage}");
-                        return;
-                    }
-
-                    await CheckFrameworksStatusAsync();
+                    var errorMsg = "无法找到 Metamod 安装程序，无法继续安装";
+                    DebugLogger.Error("InstallCss", errorMsg);
+                    progressDialog.ShowError(errorMsg);
+                    return;
                 }
+
+                var metamodProgress = new Progress<InstallProgress>(p =>
+                {
+                    DebugLogger.Debug("InstallCss", $"[Metamod依赖] {p.Percentage:F1}% - {p.Message}");
+                    // 依赖安装进度映射到 0-50%
+                    var mappedProgress = new InstallProgress
+                    {
+                        Percentage = p.Percentage * 0.5,
+                        CurrentStep = $"安装依赖: {p.CurrentStep}",
+                        Message = p.Message,
+                        CurrentStepIndex = p.CurrentStepIndex,
+                        TotalSteps = p.TotalSteps
+                    };
+                    progressDialog.UpdateProgress(mappedProgress);
+                });
+
+                var metamodResult = await metamodProvider.InstallAsync(SelectedServer.InstallPath, null, metamodProgress);
+                if (!metamodResult.Success)
+                {
+                    var errorMsg = $"Metamod 依赖安装失败: {metamodResult.ErrorMessage}";
+                    _logger.LogError(errorMsg);
+                    DebugLogger.Error("InstallCss", errorMsg);
+                    progressDialog.ShowError(errorMsg);
+                    return;
+                }
+
+                await CheckFrameworksStatusAsync();
+                DebugLogger.Info("InstallCss", "✓ Metamod 依赖安装成功，继续安装 CSS");
             }
 
             var cssProvider = _providerRegistry.GetFrameworkProvider("counterstrikesharp");
             if (cssProvider == null)
             {
-                DebugLogger.Error("InstallCss", "未找到 CounterStrikeSharp Provider");
+                var errorMsg = "未找到 CounterStrikeSharp 安装程序";
+                DebugLogger.Error("InstallCss", errorMsg);
+                progressDialog.ShowError(errorMsg);
                 return;
             }
 
             var progress = new Progress<InstallProgress>(p =>
             {
                 DebugLogger.Debug("InstallCss", $"进度: {p.Percentage:F1}% - {p.Message}");
+                
+                // 如果之前安装了 Metamod，则将 CSS 安装进度映射到 50-100%
+                if (!MetamodInstalled)
+                {
+                    var mappedProgress = new InstallProgress
+                    {
+                        Percentage = 50 + (p.Percentage * 0.5),
+                        CurrentStep = p.CurrentStep,
+                        Message = p.Message,
+                        CurrentStepIndex = p.CurrentStepIndex,
+                        TotalSteps = p.TotalSteps
+                    };
+                    progressDialog.UpdateProgress(mappedProgress);
+                }
+                else
+                {
+                    progressDialog.UpdateProgress(p);
+                }
             });
 
             var result = await cssProvider.InstallAsync(SelectedServer.InstallPath, null, progress);
@@ -447,18 +508,25 @@ public partial class PluginMarketViewModel : ObservableObject
             {
                 _logger.LogInformation("CounterStrikeSharp 安装成功");
                 DebugLogger.Info("InstallCss", "CounterStrikeSharp 安装成功");
+                progressDialog.ShowSuccess("CounterStrikeSharp 安装成功！");
                 await CheckFrameworksStatusAsync();
+                
+                // 延迟关闭对话框
+                await Task.Delay(1500);
+                progressDialog.Close();
             }
             else
             {
                 _logger.LogError("CounterStrikeSharp 安装失败: {Error}", result.ErrorMessage);
                 DebugLogger.Error("InstallCss", $"安装失败: {result.ErrorMessage}");
+                progressDialog.ShowError(result.ErrorMessage ?? "未知错误");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装 CounterStrikeSharp 时发生异常");
             DebugLogger.Error("InstallCss", $"安装异常: {ex.Message}", ex);
+            progressDialog.ShowError($"安装异常: {ex.Message}");
         }
         finally
         {

@@ -1,0 +1,134 @@
+<Window x:Class="CSP2.Desktop.Views.Dialogs.FrameworkInstallProgressDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:CSP2.Desktop.Converters"
+        Title="安装框架"
+        Height="320"
+        Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="TitleStyle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="StatusStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="ProgressStyle">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{StaticResource BackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="20" ShadowDepth="0"/>
+        </Border.Effect>
+
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 图标和标题 -->
+            <StackPanel Grid.Row="0" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,20">
+                <TextBlock x:Name="IconText"
+                          Text="⏳"
+                          FontSize="32"
+                          Margin="0,0,12,0"
+                          VerticalAlignment="Center"/>
+                <TextBlock x:Name="TitleText"
+                          Text="正在安装..."
+                          Style="{StaticResource TitleStyle}"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- 当前步骤 -->
+            <TextBlock x:Name="CurrentStepText"
+                      Grid.Row="1"
+                      Text="准备开始安装"
+                      Style="{StaticResource StatusStyle}"
+                      TextAlignment="Center"
+                      Margin="0,0,0,12"/>
+
+            <!-- 进度条和百分比 -->
+            <Grid Grid.Row="2" Margin="0,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 百分比 -->
+                <TextBlock x:Name="PercentageText"
+                          Grid.Row="0"
+                          Text="0%"
+                          Style="{StaticResource ProgressStyle}"
+                          HorizontalAlignment="Center"
+                          Margin="0,0,0,12"/>
+
+                <!-- 进度条 -->
+                <Border Grid.Row="1"
+                       Background="{StaticResource SurfaceBrush}"
+                       BorderBrush="{StaticResource BorderBrush}"
+                       BorderThickness="1"
+                       CornerRadius="8"
+                       Height="40">
+                    <Grid>
+                        <Border x:Name="ProgressBar"
+                               Background="{StaticResource AccentBrush}"
+                               CornerRadius="7"
+                               HorizontalAlignment="Left"
+                               Width="0">
+                            <Border.Effect>
+                                <DropShadowEffect Color="{StaticResource AccentColor}" 
+                                                 Opacity="0.5" 
+                                                 BlurRadius="12" 
+                                                 ShadowDepth="0"/>
+                            </Border.Effect>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- 详细消息 -->
+            <TextBlock x:Name="MessageText"
+                      Grid.Row="3"
+                      Text=""
+                      FontSize="12"
+                      Foreground="{StaticResource TextTertiaryBrush}"
+                      TextAlignment="Center"
+                      TextWrapping="Wrap"
+                      Margin="0,12,0,0"/>
+
+            <!-- 取消按钮 -->
+            <Button x:Name="CancelButton"
+                   Grid.Row="4"
+                   Content="取消"
+                   Click="CancelButton_Click"
+                   Style="{StaticResource SecondaryButtonStyle}"
+                   Width="100"
+                   Height="36"
+                   HorizontalAlignment="Center"
+                   Margin="0,20,0,0"/>
+        </Grid>
+    </Border>
+</Window>
+
