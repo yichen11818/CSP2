@@ -6,6 +6,7 @@ using CSP2.Core.Models;
 using CSP2.Core.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace CSP2.Desktop.ViewModels;
 
