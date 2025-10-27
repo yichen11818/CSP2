@@ -99,3 +99,9 @@ CLAUDE.md
 
 ## Cursor IDE
 .cursor/
+
+## Plugin Repository (子项目)
+plugin-repository/node_modules/
+plugin-repository/package-lock.json
+plugin-repository/manifest.json
+plugin-repository/*.log

@@ -20,11 +20,11 @@ public class PluginRepositoryService : IPluginRepositoryService
 
     // GitHub源配置 - 可以通过配置文件修改
     private const string DEFAULT_REPOSITORY_URL = 
-        "https://raw.githubusercontent.com/your-org/csp2-plugin-repository/main/manifest.json";
+        "https://raw.githubusercontent.com/yichen11818/csp2-plugin-repository/main/manifest.json";
     
     // CDN加速源（推荐）
     private const string CDN_REPOSITORY_URL = 
-        "https://cdn.jsdelivr.net/gh/your-org/csp2-plugin-repository@main/manifest.json";
+        "https://cdn.jsdelivr.net/gh/yichen11818/csp2-plugin-repository@main/manifest.json";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

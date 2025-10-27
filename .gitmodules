@@ -1,0 +1,3 @@
+[submodule "plugin-repository"]
+	path = plugin-repository
+	url = https://github.com/yichen11818/csp2-plugin-repository.git
