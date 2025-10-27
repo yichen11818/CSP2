@@ -540,77 +540,60 @@ public class CSSFrameworkProvider : IFrameworkProvider
             DebugLogger.Info("Plugin-Install", $"下载 URL: {pluginInfo.DownloadUrl}");
             DebugLogger.Info("Plugin-Install", $"临时文件: {zipPath}");
 
-            // 使用 DownloadManager 下载（如果可用）
+            // 使用 DownloadManager 创建显示任务（如果可用）
             if (_downloadManager != null)
             {
                 downloadTaskId = Guid.NewGuid().ToString();
-                var downloadProgress = new Progress<ProgressInfo>(p =>
-                {
-                    progress?.Report(new InstallProgress
-                    {
-                        Percentage = 10 + (p.Percentage * 0.4), // 10-50%
-                        CurrentStep = "下载插件",
-                        CurrentStepIndex = 2,
-                        TotalSteps = 4,
-                        Message = $"下载进度: {p.Percentage:F1}% ({p.DownloadedBytes / 1024 / 1024:F1} MB / {p.TotalBytes / 1024 / 1024:F1} MB)"
-                    });
-                });
-
                 var downloadTask = new DownloadTask
                 {
                     Id = downloadTaskId,
-                    Url = pluginInfo.DownloadUrl,
-                    TargetPath = zipPath,
                     Name = $"插件: {pluginInfo.Name}",
                     Description = $"从 GitHub 下载插件 {pluginInfo.Name}",
-                    TotalBytes = pluginInfo.DownloadSize
+                    TaskType = DownloadTaskType.Plugin,
+                    TotalSize = pluginInfo.DownloadSize,
+                    Status = DownloadTaskStatus.Downloading
                 };
 
-                _downloadManager.EnqueueDownload(downloadTask, downloadProgress);
-
-                // 等待下载完成
-                while (_downloadManager.GetTaskStatus(downloadTaskId) == DownloadTaskStatus.Pending ||
-                       _downloadManager.GetTaskStatus(downloadTaskId) == DownloadTaskStatus.Downloading)
-                {
-                    await Task.Delay(100);
-                }
-
-                if (_downloadManager.GetTaskStatus(downloadTaskId) != DownloadTaskStatus.Completed)
-                {
-                    return InstallResult.CreateFailure("下载失败");
-                }
+                _downloadManager.AddTask(downloadTask);
             }
-            else
+
+            // 直接使用 HttpClient 下载
+            using var response = await _httpClient.GetAsync(pluginInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? 0;
+            using var fileStream = File.Create(zipPath);
+            using var httpStream = await response.Content.ReadAsStreamAsync();
+
+            var buffer = new byte[8192];
+            long downloadedBytes = 0;
+            int bytesRead;
+
+            while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0)
             {
-                // 直接使用 HttpClient 下载
-                using var response = await _httpClient.GetAsync(pluginInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                downloadedBytes += bytesRead;
 
-                var totalBytes = response.Content.Headers.ContentLength ?? 0;
-                using var fileStream = File.Create(zipPath);
-                using var httpStream = await response.Content.ReadAsStreamAsync();
-
-                var buffer = new byte[8192];
-                long downloadedBytes = 0;
-                int bytesRead;
-
-                while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0)
+                // 更新 DownloadManager 任务进度（如果可用）
+                if (_downloadManager != null && downloadTaskId != null)
                 {
-                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                    downloadedBytes += bytesRead;
+                    var percentage = totalBytes > 0 ? (double)downloadedBytes / totalBytes * 100 : 0;
+                    _downloadManager.UpdateTaskProgress(downloadTaskId, percentage, 
+                        $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB");
+                }
 
-                    if (totalBytes > 0)
+                // 报告进度
+                if (totalBytes > 0)
+                {
+                    var percentage = (double)downloadedBytes / totalBytes * 100;
+                    progress?.Report(new InstallProgress
                     {
-                        var percentage = (double)downloadedBytes / totalBytes * 100;
-                        progress?.Report(new InstallProgress
-                        {
-                            Percentage = 10 + (percentage * 0.4), // 10-50%
-                            CurrentStep = "下载插件",
-                            CurrentStepIndex = 2,
-                            TotalSteps = 4,
-                            Message = $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
-                        });
-                    }
+                        Percentage = 10 + (percentage * 0.4), // 10-50%
+                        CurrentStep = "下载插件",
+                        CurrentStepIndex = 2,
+                        TotalSteps = 4,
+                        Message = $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
+                    });
                 }
             }
 
