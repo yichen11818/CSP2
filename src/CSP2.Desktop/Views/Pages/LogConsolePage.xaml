@@ -28,10 +28,10 @@
                 <TextBlock Text="{converters:Localization LogConsole.Title}" 
                            FontSize="28" 
                            FontWeight="Bold"
-                           Foreground="#1f2937"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="{converters:Localization LogConsole.Subtitle}" 
                            FontSize="14" 
-                           Foreground="#6b7280"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,5,0,0"/>
             </StackPanel>
 
@@ -88,10 +88,10 @@
                                        Margin="0,0,10,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#9ca3af"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding RconConnected}" Value="True">
-                                                <Setter Property="Foreground" Value="#10b981"/>
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
