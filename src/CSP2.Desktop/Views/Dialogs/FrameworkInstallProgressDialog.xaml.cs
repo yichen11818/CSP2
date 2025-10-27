@@ -136,7 +136,6 @@ public partial class FrameworkInstallProgressDialog : Window
         if (_isCompleted)
         {
             // 已完成，直接关闭
-            DialogResult = true;
             Close();
         }
         else
@@ -151,7 +150,6 @@ public partial class FrameworkInstallProgressDialog : Window
             if (result == MessageBoxResult.Yes)
             {
                 _isCancelled = true;
-                DialogResult = false;
                 Close();
             }
         }
