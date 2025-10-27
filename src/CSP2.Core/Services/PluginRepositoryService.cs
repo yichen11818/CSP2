@@ -18,6 +18,14 @@ public class PluginRepositoryService : IPluginRepositoryService
     private DateTime? _lastCacheTime;
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromHours(1);
 
+    // GitHub源配置 - 可以通过配置文件修改
+    private const string DEFAULT_REPOSITORY_URL = 
+        "https://raw.githubusercontent.com/your-org/csp2-plugin-repository/main/manifest.json";
+    
+    // CDN加速源（推荐）
+    private const string CDN_REPOSITORY_URL = 
+        "https://cdn.jsdelivr.net/gh/your-org/csp2-plugin-repository@main/manifest.json";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -47,20 +55,60 @@ public class PluginRepositoryService : IPluginRepositoryService
 
     public async Task<PluginManifest> GetManifestAsync(bool forceRefresh = false)
     {
-        // 如果有缓存且未过期，直接返回
+        // 1. 如果有内存缓存且未过期，直接返回
         if (!forceRefresh && _cachedManifest != null && _lastCacheTime != null)
         {
             if (DateTime.Now - _lastCacheTime.Value < _cacheExpiration)
             {
+                _logger.LogDebug("使用内存缓存的插件清单");
                 return _cachedManifest;
             }
         }
 
-        // 尝试从本地缓存文件加载
-        if (!forceRefresh && File.Exists(_cacheFilePath))
+        // 2. 尝试从远程GitHub拉取最新清单
+        try
+        {
+            _logger.LogInformation("从远程仓库拉取插件清单: {Url}", CDN_REPOSITORY_URL);
+            
+            var response = await _httpClient.GetAsync(CDN_REPOSITORY_URL);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var manifest = JsonSerializer.Deserialize<PluginManifest>(json, JsonOptions);
+                
+                if (manifest != null && manifest.Plugins.Count > 0)
+                {
+                    // 保存到本地缓存
+                    await File.WriteAllTextAsync(_cacheFilePath, json);
+                    
+                    _cachedManifest = manifest;
+                    _lastCacheTime = DateTime.Now;
+                    
+                    _logger.LogInformation("成功从远程拉取插件清单，共 {Count} 个插件", manifest.Plugins.Count);
+                    return manifest;
+                }
+            }
+            else
+            {
+                _logger.LogWarning("远程拉取失败: HTTP {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogWarning(ex, "网络请求失败，尝试使用本地缓存");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "从远程仓库拉取失败");
+        }
+
+        // 3. 降级：尝试从本地缓存文件加载
+        if (File.Exists(_cacheFilePath))
         {
             try
             {
+                _logger.LogInformation("从本地缓存加载插件清单");
                 var json = await File.ReadAllTextAsync(_cacheFilePath);
                 var manifest = JsonSerializer.Deserialize<PluginManifest>(json, JsonOptions);
                 
@@ -68,20 +116,21 @@ public class PluginRepositoryService : IPluginRepositoryService
                 {
                     _cachedManifest = manifest;
                     _lastCacheTime = DateTime.Now;
-                    _logger.LogInformation("从缓存加载插件清单，共 {Count} 个插件", manifest.Plugins.Count);
+                    _logger.LogInformation("从本地缓存加载插件清单，共 {Count} 个插件", manifest.Plugins.Count);
                     return manifest;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "加载缓存的插件清单失败");
+                _logger.LogWarning(ex, "加载本地缓存失败");
             }
         }
 
-        // 创建默认清单（用于开发阶段）
+        // 4. 最后降级：使用内置默认清单（用于开发/离线场景）
+        _logger.LogInformation("使用内置默认插件清单");
         var defaultManifest = CreateDefaultManifest();
         
-        // 保存到缓存
+        // 保存到缓存以便下次使用
         try
         {
             var json = JsonSerializer.Serialize(defaultManifest, JsonOptions);
