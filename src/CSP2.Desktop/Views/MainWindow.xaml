@@ -96,7 +96,7 @@
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="border"
                                                           Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                          To="#ffffff15" Duration="0:0:0.15"/>
+                                                          To="#475569" Duration="0:0:0.15"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -118,17 +118,17 @@
         
         <!-- 选中的导航按钮样式 -->
         <Style x:Key="NavButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-            <Setter Property="Background" Value="#ffffff20"/>
+            <Setter Property="Background" Value="#64748b"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
     </Window.Resources>
     
     <Grid>
         <!-- 外层边框和阴影 -->
-        <Border Background="{StaticResource BackgroundBrush}" 
+        <Border Background="{DynamicResource BackgroundBrush}" 
                 CornerRadius="12"
                 BorderThickness="1"
-                BorderBrush="{StaticResource BorderBrush}">
+                BorderBrush="{DynamicResource BorderBrush}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" 
                             ShadowDepth="0" 
@@ -146,7 +146,7 @@
 
                 <!-- 左侧导航栏 -->
                 <Border Grid.Column="0" 
-                        Background="{StaticResource SidebarBackgroundBrush}"
+                        Background="{DynamicResource SidebarBackgroundBrush}"
                         CornerRadius="12,0,0,12">
                     <Border.Style>
                         <Style TargetType="Border">
@@ -194,7 +194,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Logo -->
-                        <Border Grid.Row="0" Padding="20,24" Background="{StaticResource SidebarDarkBackgroundBrush}" CornerRadius="12,0,0,0">
+                        <Border Grid.Row="0" Padding="20,24" Background="{DynamicResource SidebarDarkBackgroundBrush}" CornerRadius="12,0,0,0">
                             <Grid>
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{converters:Localization App.Name}" 
@@ -485,7 +485,7 @@
                         </Border>
 
                         <!-- 社交媒体图标 -->
-                        <Border Grid.Row="3" Padding="20,16" Background="{StaticResource SidebarDarkBackgroundBrush}" CornerRadius="0,0,0,12">
+                        <Border Grid.Row="3" Padding="20,16" Background="{DynamicResource SidebarDarkBackgroundBrush}" CornerRadius="0,0,0,12">
                             <Grid>
                                 <!-- 侧边栏展开时显示的社交媒体图标 -->
                                 <StackPanel Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -565,7 +565,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- 页面内容容器 -->
-                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="0,12,0,0">
+                    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" CornerRadius="0,12,0,0">
                         <Grid>
                             <!-- 页面内容 -->
                             <ContentControl Content="{Binding CurrentPage}" />
@@ -614,8 +614,8 @@
 
                     <!-- 状态栏 -->
                     <Border Grid.Row="1" 
-                            Background="{StaticResource BackgroundBrush}" 
-                            BorderBrush="{StaticResource BorderBrush}"
+                            Background="{DynamicResource BackgroundBrush}" 
+                            BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="0,1,0,0"
                             CornerRadius="0,0,12,0"
                             Padding="16,8">
