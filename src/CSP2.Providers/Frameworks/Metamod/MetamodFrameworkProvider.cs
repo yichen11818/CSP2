@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using CSP2.Core.Abstractions;
+using CSP2.Core.Logging;
 using CSP2.Core.Models;
 using Microsoft.Extensions.Logging;
 
@@ -13,14 +14,12 @@ namespace CSP2.Providers.Frameworks.Metamod;
 public class MetamodFrameworkProvider : IFrameworkProvider
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<MetamodFrameworkProvider>? _logger;
     private const string MetamodDropBaseUrl = "https://mms.alliedmods.net/mmsdrop/2.0/";
     private const string MetamodLatestWindowsInfoUrl = "https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-windows";
     private const string MetamodLatestLinuxInfoUrl = "https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-linux";
 
-    public MetamodFrameworkProvider(ILogger<MetamodFrameworkProvider>? logger = null)
+    public MetamodFrameworkProvider()
     {
-        _logger = logger;
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromMinutes(10)
@@ -59,8 +58,14 @@ public class MetamodFrameworkProvider : IFrameworkProvider
         var dllPath = Path.Combine(metaModPath, "bin", "win64", "metamod.dll");
         var soPath = Path.Combine(metaModPath, "bin", "linuxsteamrt64", "metamod.so");
         
-        return await Task.FromResult(Directory.Exists(metaModPath) && 
-                                     (File.Exists(dllPath) || File.Exists(soPath)));
+        var dirExists = Directory.Exists(metaModPath);
+        var dllExists = File.Exists(dllPath);
+        var soExists = File.Exists(soPath);
+        
+        DebugLogger.Debug("Metamod-Check", $"检查路径: {metaModPath}");
+        DebugLogger.Debug("Metamod-Check", $"目录存在: {dirExists}, DLL存在: {dllExists}, SO存在: {soExists}");
+        
+        return await Task.FromResult(dirExists && (dllExists || soExists));
     }
 
     public async Task<string?> GetInstalledVersionAsync(string serverPath)
@@ -100,13 +105,13 @@ public class MetamodFrameworkProvider : IFrameworkProvider
 
             if (string.IsNullOrEmpty(downloadUrl) || string.IsNullOrEmpty(fileName))
             {
-                _logger?.LogError("[Metamod-Install] 无法获取 Metamod:Source 版本信息");
+                DebugLogger.Error("Metamod-Install", "无法获取 Metamod:Source 版本信息");
                 return InstallResult.CreateFailure("无法获取 Metamod:Source 版本信息，请检查网络连接");
             }
 
-            _logger?.LogInformation("[Metamod-Install] 找到Metamod:Source版本: {Version}", versionStr);
-            _logger?.LogInformation("[Metamod-Install] 下载文件: {FileName}", fileName);
-            _logger?.LogInformation("[Metamod-Install] 下载地址: {Url}", downloadUrl);
+            DebugLogger.Info("Metamod-Install", $"找到Metamod:Source版本: {versionStr}");
+            DebugLogger.Info("Metamod-Install", $"下载文件: {fileName}");
+            DebugLogger.Info("Metamod-Install", $"下载地址: {downloadUrl}");
 
             progress?.Report(new InstallProgress
             {
@@ -122,7 +127,7 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             Directory.CreateDirectory(tempDir);
             var archivePath = Path.Combine(tempDir, fileName);
 
-            _logger?.LogInformation("[Metamod-Install] 临时下载路径: {Path}", archivePath);
+            DebugLogger.Info("Metamod-Install", $"临时下载路径: {archivePath}");
 
             progress?.Report(new InstallProgress
             {
@@ -179,15 +184,15 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             var csgoPath = Path.Combine(serverPath, "game", "csgo");
             var metamodPath = Path.Combine(csgoPath, "addons", "metamod");
             
-            _logger?.LogInformation("[Metamod-Install] 安装位置: {MetamodPath}", metamodPath);
-            _logger?.LogInformation("[Metamod-Install] 解压目标: {CsgoPath}", csgoPath);
+            DebugLogger.Info("Metamod-Install", $"安装位置: {metamodPath}");
+            DebugLogger.Info("Metamod-Install", $"解压目标: {csgoPath}");
             
             // 如果已存在，先备份
             if (Directory.Exists(metamodPath))
             {
                 var backupPath = metamodPath + ".backup." + DateTime.Now.ToString("yyyyMMddHHmmss");
                 Directory.Move(metamodPath, backupPath);
-                _logger?.LogInformation("[Metamod-Install] 已备份旧版本到: {BackupPath}", backupPath);
+                DebugLogger.Info("Metamod-Install", $"已备份旧版本到: {backupPath}");
             }
 
             // 解压文件
@@ -195,14 +200,14 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             if (isWindows)
             {
                 // Windows: ZIP 格式 - 直接解压到 csgo 目录
-                _logger?.LogInformation("[Metamod-Install] 开始解压文件...");
+                DebugLogger.Info("Metamod-Install", "开始解压文件...");
                 
                 using (var archive = ZipFile.OpenRead(archivePath))
                 {
                     int filesExtracted = 0;
                     totalFiles = archive.Entries.Count;
                     
-                    _logger?.LogInformation("[Metamod-Install] ZIP文件包含 {TotalFiles} 个条目", totalFiles);
+                    DebugLogger.Info("Metamod-Install", $"ZIP文件包含 {totalFiles} 个条目");
 
                     foreach (var entry in archive.Entries)
                     {
@@ -227,7 +232,7 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                             // 记录关键文件
                             if (entry.Name.EndsWith(".dll") || entry.Name.EndsWith(".so") || entry.Name.EndsWith(".vdf"))
                             {
-                                _logger?.LogDebug("[Metamod-Install] 解压文件: {EntryFullName} -> {DestinationPath}", entry.FullName, destinationPath);
+                                DebugLogger.Debug("Metamod-Install", $"  解压文件: {entry.FullName} -> {destinationPath}");
                             }
                         }
                         
@@ -248,7 +253,7 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                     }
                 }
                 
-                _logger?.LogInformation("[Metamod-Install] 解压完成，共 {TotalFiles} 个文件", totalFiles);
+                DebugLogger.Info("Metamod-Install", $"解压完成，共 {totalFiles} 个文件");
                 
                 // 列出安装的主要文件
                 if (Directory.Exists(metamodPath))
@@ -257,13 +262,12 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                     if (File.Exists(binPath))
                     {
                         var fileInfo = new FileInfo(binPath);
-                        _logger?.LogInformation("[Metamod-Install] 已安装: metamod.dll ({FileSize} KB)", fileInfo.Length / 1024);
+                        DebugLogger.Info("Metamod-Install", $"  已安装: metamod.dll ({fileInfo.Length / 1024:F0} KB)");
                     }
                     
                     // 列出目录结构
                     var subdirs = Directory.GetDirectories(metamodPath);
-                    var subdirNames = string.Join(", ", subdirs.Select(Path.GetFileName));
-                    _logger?.LogInformation("[Metamod-Install] 创建的子目录: {SubDirs}", subdirNames);
+                    DebugLogger.Info("Metamod-Install", $"创建的子目录: {string.Join(", ", subdirs.Select(Path.GetFileName))}");
                 }
             }
             else
@@ -271,18 +275,18 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 // Linux: tar.gz 格式
                 // 注：这需要 SharpCompress 或系统tar命令
                 // 简化处理：使用 tar 命令解压
-                _logger?.LogError("[Metamod-Install] Linux 版本暂不支持自动安装");
+                DebugLogger.Error("Metamod-Install", "Linux 版本暂不支持自动安装");
                 return InstallResult.CreateFailure("Linux 版本暂不支持自动安装，请手动安装");
             }
 
             // 4. 创建 VDF 文件（确保服务器加载 Metamod）
             var gameInfoVdfPath = Path.Combine(serverPath, "game", "csgo", "gameinfo.gi");
-            _logger?.LogInformation("[Metamod-Install] 配置 gameinfo.gi 加载 Metamod");
+            DebugLogger.Info("Metamod-Install", "配置 gameinfo.gi 加载 Metamod");
             await EnsureMetamodLoadedAsync(gameInfoVdfPath);
 
             // 5. 保存版本信息
             await SaveVersionInfoAsync(metamodPath, versionStr);
-            _logger?.LogInformation("[Metamod-Install] 版本信息已保存: {Version}", versionStr);
+            DebugLogger.Info("Metamod-Install", $"版本信息已保存: {versionStr}");
 
             progress?.Report(new InstallProgress
             {
@@ -297,11 +301,11 @@ public class MetamodFrameworkProvider : IFrameworkProvider
             try
             {
                 File.Delete(archivePath);
-                _logger?.LogInformation("[Metamod-Install] 临时文件已清理");
+                DebugLogger.Info("Metamod-Install", "临时文件已清理");
             }
             catch (Exception ex)
             {
-                _logger?.LogWarning(ex, "[Metamod-Install] 清理临时文件失败");
+                DebugLogger.Warning("Metamod-Install", $"清理临时文件失败: {ex.Message}");
             }
 
             progress?.Report(new InstallProgress
@@ -313,12 +317,12 @@ public class MetamodFrameworkProvider : IFrameworkProvider
                 Message = "Metamod:Source 安装成功"
             });
 
-            _logger?.LogInformation("[Metamod-Install] ✓ Metamod:Source {Version} 安装成功！", versionStr);
+            DebugLogger.Info("Metamod-Install", $"✓ Metamod:Source {versionStr} 安装成功！");
             return InstallResult.CreateSuccess("Metamod:Source 安装成功");
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "[Metamod-Install] 安装失败");
+            DebugLogger.Error("Metamod-Install", $"安装失败: {ex.Message}", ex);
             return InstallResult.CreateFailure($"安装失败: {ex.Message}", ex);
         }
     }

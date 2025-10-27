@@ -57,8 +57,14 @@ public class CSSFrameworkProvider : IFrameworkProvider
         var dllPath = Path.Combine(cssPath, "bin", "win64", "counterstrikesharp.dll");
         var soPath = Path.Combine(cssPath, "bin", "linuxsteamrt64", "counterstrikesharp.so");
         
-        return await Task.FromResult(Directory.Exists(cssPath) && 
-                                     (File.Exists(dllPath) || File.Exists(soPath)));
+        var dirExists = Directory.Exists(cssPath);
+        var dllExists = File.Exists(dllPath);
+        var soExists = File.Exists(soPath);
+        
+        DebugLogger.Debug("CSS-Check", $"检查路径: {cssPath}");
+        DebugLogger.Debug("CSS-Check", $"目录存在: {dirExists}, DLL存在: {dllExists}, SO存在: {soExists}");
+        
+        return await Task.FromResult(dirExists && (dllExists || soExists));
     }
 
     public async Task<string?> GetInstalledVersionAsync(string serverPath)
