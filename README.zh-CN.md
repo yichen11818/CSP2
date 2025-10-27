@@ -1,4 +1,4 @@
-# CSP2 - Counter-Strike 2 Server Panel(开发中 需要帮助)
+# CSP2 - Counter-Strike 2 Server Panel(开发中 需要帮助👋)
 
 > 🎮 开源的CS2服务器管理面板，让服务器管理变得简单高效
 

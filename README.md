@@ -1,4 +1,4 @@
-# CSP2 - Counter-Strike 2 Server Panel(working)
+# CSP2 - Counter-Strike 2 Server Panel(working,Need Help👋)
 
 > 🎮 Open-source CS2 server management panel that makes server management simple and efficient
 
