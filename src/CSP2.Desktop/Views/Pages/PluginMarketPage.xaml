@@ -544,16 +544,81 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
+
+                                    <!-- 已安装标记 -->
+                                    <Border Background="#0f766e"
+                                            BorderBrush="#14b8a6"
+                                            BorderThickness="1"
+                                            CornerRadius="12"
+                                            Padding="10,6"
+                                            Margin="0,0,6,6"
+                                            Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="✓"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Margin="0,0,4,0"
+                                                       Foreground="#5eead4"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="已安装"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#5eead4"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- 有更新标记 -->
+                                    <Border Background="#f97316"
+                                            BorderBrush="#fb923c"
+                                            BorderThickness="1"
+                                            CornerRadius="12"
+                                            Padding="10,6"
+                                            Margin="0,0,6,6"
+                                            Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🔄"
+                                                       FontSize="11"
+                                                       Margin="0,0,4,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="有更新"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
                                 </WrapPanel>
 
                                 <!-- 安装按钮 -->
                                 <Button Grid.Row="5"
-                                        Content="{converters:Localization PluginMarket.Install}"
                                         Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Margin="0,16,0,0"
-                                        HorizontalAlignment="Stretch"/>
+                                        HorizontalAlignment="Stretch"
+                                        IsEnabled="{Binding IsInstalling, Converter={StaticResource InverseBoolConverter}}">
+                                    <Button.Content>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="安装"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsInstalling}" Value="True">
+                                                            <Setter Property="Text" Value="安装中..."/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding HasUpdate}" Value="True">
+                                                            <Setter Property="Text" Value="更新"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsInstalled}" Value="True">
+                                                            <Setter Property="Text" Value="重新安装"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Button.Content>
+                                </Button>
                             </Grid>
                         </Border>
                     </DataTemplate>

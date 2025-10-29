@@ -4,6 +4,7 @@ using CSP2.Core.Abstractions;
 using CSP2.Core.Logging;
 using CSP2.Core.Models;
 using CSP2.Core.Services;
+using CSP2.Desktop.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -25,7 +26,10 @@ public partial class PluginMarketViewModel : ObservableObject
     private ObservableCollection<PluginInfo> _plugins = new();
 
     [ObservableProperty]
-    private ObservableCollection<PluginInfo> _filteredPlugins = new();
+    private ObservableCollection<PluginViewModel> _filteredPlugins = new();
+    
+    // 已安装插件的缓存
+    private List<InstalledPlugin> _installedPlugins = new();
 
     [ObservableProperty]
     private ObservableCollection<Server> _servers = new();
@@ -208,7 +212,10 @@ public partial class PluginMarketViewModel : ObservableObject
         var filteredList = filtered.ToList();
         foreach (var plugin in filteredList)
         {
-            FilteredPlugins.Add(plugin);
+            // 创建PluginViewModel并设置安装状态
+            var viewModel = new PluginViewModel(plugin);
+            UpdatePluginInstallStatus(viewModel);
+            FilteredPlugins.Add(viewModel);
         }
         
         DebugLogger.Info("ApplyFilter", $"过滤完成，显示 {FilteredPlugins.Count} 个插件");
@@ -225,10 +232,76 @@ public partial class PluginMarketViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 更新插件的安装状态
+    /// </summary>
+    private void UpdatePluginInstallStatus(PluginViewModel pluginViewModel)
+    {
+        var installedPlugin = _installedPlugins.FirstOrDefault(p => p.Id == pluginViewModel.Id);
+        
+        if (installedPlugin != null)
+        {
+            pluginViewModel.IsInstalled = true;
+            pluginViewModel.InstalledVersion = installedPlugin.Version;
+            
+            // 检查是否有更新（简单的版本字符串比较）
+            if (installedPlugin.Version != pluginViewModel.Version)
+            {
+                pluginViewModel.HasUpdate = true;
+                DebugLogger.Debug("UpdatePluginInstallStatus", 
+                    $"插件 {pluginViewModel.Name} 有更新: {installedPlugin.Version} -> {pluginViewModel.Version}");
+            }
+        }
+        else
+        {
+            pluginViewModel.IsInstalled = false;
+            pluginViewModel.InstalledVersion = null;
+            pluginViewModel.HasUpdate = false;
+        }
+    }
+
+    /// <summary>
+    /// 刷新已安装插件列表
+    /// </summary>
+    private async Task RefreshInstalledPluginsAsync()
+    {
+        if (SelectedServer == null)
+        {
+            _installedPlugins.Clear();
+            return;
+        }
+
+        try
+        {
+            _installedPlugins = await _pluginManager.GetInstalledPluginsAsync(SelectedServer.Id);
+            DebugLogger.Info("RefreshInstalledPlugins", 
+                $"已加载 {_installedPlugins.Count} 个已安装插件");
+            
+            if (_installedPlugins.Count > 0)
+            {
+                var pluginNames = string.Join(", ", _installedPlugins.Select(p => $"{p.Name} v{p.Version}"));
+                DebugLogger.Debug("RefreshInstalledPlugins", $"已安装插件列表: {pluginNames}");
+            }
+            
+            // 更新所有已显示插件的安装状态
+            foreach (var plugin in FilteredPlugins)
+            {
+                UpdatePluginInstallStatus(plugin);
+            }
+            
+            DebugLogger.Debug("RefreshInstalledPlugins", $"已更新 {FilteredPlugins.Count} 个插件的显示状态");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "刷新已安装插件列表失败");
+            DebugLogger.Error("RefreshInstalledPlugins", $"刷新失败: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
     /// 安装插件
     /// </summary>
     [RelayCommand]
-    private async Task InstallPluginAsync(PluginInfo plugin)
+    private async Task InstallPluginAsync(PluginViewModel plugin)
     {
         if (SelectedServer == null)
         {
@@ -257,6 +330,9 @@ public partial class PluginMarketViewModel : ObservableObject
             // 显示进度对话框（非模态）
             progressDialog.Show();
 
+            // 设置正在安装状态
+            plugin.IsInstalling = true;
+            
             var result = await _pluginManager.InstallPluginAsync(
                 SelectedServer.Id, 
                 plugin.Id, 
@@ -266,23 +342,50 @@ public partial class PluginMarketViewModel : ObservableObject
             {
                 _logger.LogInformation("插件 {PluginName} 安装成功", plugin.Name);
                 DebugLogger.Info("InstallPluginAsync", $"插件 {plugin.Name} 安装成功");
-                progressDialog.ShowSuccess($"插件 {plugin.Name} 安装成功！");
+                
+                // 构建成功消息
+                var successMessage = $"插件 {plugin.Name} 安装成功！";
+                if (result.InstalledDependencies.Count > 0)
+                {
+                    var dependencyNames = string.Join(", ", result.InstalledDependencies.Values);
+                    successMessage = $"插件 {plugin.Name} 及其 {result.InstalledDependencies.Count} 个依赖安装成功！\n\n已安装依赖：{dependencyNames}";
+                    DebugLogger.Info("InstallPluginAsync", $"同时安装了 {result.InstalledDependencies.Count} 个依赖插件");
+                }
+                
+                progressDialog.ShowSuccess(successMessage);
+                
+                // 刷新已安装插件列表
+                await RefreshInstalledPluginsAsync();
                 
                 // 延迟关闭对话框
-                await Task.Delay(1500);
+                await Task.Delay(2000);
                 progressDialog.Close();
                 
-                MessageBox.Show($"插件 {plugin.Name} 安装成功！\n\n" +
-                    (plugin.Installation?.RequiresRestart == true ? "请重启服务器以加载插件。" : "插件已就绪。"),
-                    "安装成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                // 构建详细消息
+                var detailMessage = $"插件 {plugin.Name} 安装成功！\n\n";
+                if (result.InstalledDependencies.Count > 0)
+                {
+                    detailMessage += $"同时自动安装了以下 {result.InstalledDependencies.Count} 个依赖插件：\n";
+                    foreach (var dep in result.InstalledDependencies)
+                    {
+                        detailMessage += $"  • {dep.Value}\n";
+                    }
+                    detailMessage += "\n";
+                }
+                detailMessage += (plugin.Installation?.RequiresRestart == true ? "请重启服务器以加载插件。" : "插件已就绪。");
+                
+                MessageBox.Show(detailMessage, "安装成功", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                _logger.LogError("插件 {PluginName} 安装失败: {Error}", plugin.Name, result.ErrorMessage);
-                DebugLogger.Error("InstallPluginAsync", $"插件安装失败: {result.ErrorMessage}");
-                progressDialog.ShowError(result.ErrorMessage ?? "未知错误");
+                var errorMsg = result.ErrorMessage ?? "未知错误";
+                _logger.LogError("插件 {PluginName} 安装失败: {Error}", plugin.Name, errorMsg);
+                DebugLogger.Error("InstallPluginAsync", $"❌ 插件 {plugin.Name} 安装失败");
+                DebugLogger.Error("InstallPluginAsync", $"   错误原因: {errorMsg}");
                 
-                MessageBox.Show($"插件安装失败：\n\n{result.ErrorMessage}", 
+                progressDialog.ShowError(errorMsg);
+                
+                MessageBox.Show($"插件安装失败：\n\n{errorMsg}", 
                     "安装失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -294,6 +397,10 @@ public partial class PluginMarketViewModel : ObservableObject
             
             MessageBox.Show($"安装插件时发生异常：\n\n{ex.Message}", 
                 "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            plugin.IsInstalling = false;
         }
     }
 
@@ -323,7 +430,7 @@ public partial class PluginMarketViewModel : ObservableObject
     }
 
     /// <summary>
-    /// 服务器变化时，检查框架安装状态
+    /// 服务器变化时，检查框架安装状态和已安装插件
     /// </summary>
     async partial void OnSelectedServerChanged(Server? value)
     {
@@ -333,6 +440,7 @@ public partial class PluginMarketViewModel : ObservableObject
         if (value != null)
         {
             await CheckFrameworksStatusAsync();
+            await RefreshInstalledPluginsAsync();
         }
         else
         {
@@ -341,6 +449,13 @@ public partial class PluginMarketViewModel : ObservableObject
             MetamodInstalled = false;
             CssVersion = null;
             MetamodVersion = null;
+            _installedPlugins.Clear();
+            
+            // 更新所有插件的安装状态
+            foreach (var plugin in FilteredPlugins)
+            {
+                UpdatePluginInstallStatus(plugin);
+            }
         }
     }
 
