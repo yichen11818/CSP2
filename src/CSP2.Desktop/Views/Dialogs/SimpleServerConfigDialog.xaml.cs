@@ -1,11 +1,11 @@
+using CSP2.Core.Logging;
 using CSP2.Core.Models;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace CSP2.Desktop.Views.Dialogs;
 
 /// <summary>
-/// 简化版服务器配置对话框
+/// 简化版服务器配置对话框 - 仅支持启动参数输入
 /// </summary>
 public partial class SimpleServerConfigDialog : Window
 {
@@ -15,129 +15,138 @@ public partial class SimpleServerConfigDialog : Window
     {
         InitializeComponent();
 
-        // 如果提供了配置，则加载现有配置
+        ServerConfig = config ?? new ServerConfig();
+        
+        // 如果提供了配置，则加载现有配置的启动参数
         if (config != null)
         {
             LoadConfig(config);
         }
-
-        ServerConfig = config ?? new ServerConfig();
+        else
+        {
+            // 新配置，显示默认启动参数
+            LoadDefaultArgs();
+        }
     }
 
     private void LoadConfig(ServerConfig config)
     {
-        // 核心配置
-        IpAddressTextBox.Text = config.IpAddress;
-        PortTextBox.Text = config.Port.ToString();
-        MapComboBox.Text = config.Map;
-        MaxPlayersTextBox.Text = config.MaxPlayers.ToString();
-        TickRateComboBox.SelectedIndex = config.TickRate == 128 ? 1 : 0;
-        GameModeComboBox.SelectedIndex = config.GameMode;
+        // 优先使用用户手动编辑的完整参数
+        if (!string.IsNullOrEmpty(config.UserEditedFullArgs))
+        {
+            LaunchArgsTextBox.Text = config.UserEditedFullArgs;
+        }
+        else
+        {
+            // 从配置生成启动参数
+            LoadDefaultArgs();
+        }
+    }
 
-        // 常用选项
-        DisableBotsCheckBox.IsChecked = config.DisableBots;
-        InsecureModeCheckBox.IsChecked = config.InsecureMode;
-        LanModeCheckBox.IsChecked = config.IsLanMode;
-        OpenConsoleInAppCheckBox.IsChecked = config.OpenConsoleInApp;
-
-        // 自定义参数
-        CustomParametersTextBox.Text = config.CustomParameters;
+    private void LoadDefaultArgs()
+    {
+        // 显示默认的启动参数作为示例
+        var defaultArgs = new List<string>
+        {
+            "-dedicated",
+            "-console",
+            "-ip 0.0.0.0",
+            "-port 27015",
+            "-maxplayers 10",
+            "-tickrate 128",
+            "+game_type 0",
+            "+game_mode 1",
+            "+mapgroup mg_active",
+            "+map de_dust2"
+        };
+        
+        LaunchArgsTextBox.Text = string.Join("\n", defaultArgs);
     }
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        // 验证输入
-        if (!ValidateInput())
+        var argsText = LaunchArgsTextBox.Text.Trim();
+        
+        // 如果用户输入了启动参数，保存它们
+        if (!string.IsNullOrWhiteSpace(argsText))
         {
-            return;
+            // 保存用户输入的完整启动参数
+            ServerConfig.UserEditedFullArgs = argsText;
+            
+            // 尝试从启动参数中解析基本信息（端口等）以便在列表中显示
+            TryParseBasicInfo(argsText);
         }
-
-        // 构建配置
-        ServerConfig = new ServerConfig
+        else
         {
-            // 核心配置
-            IpAddress = IpAddressTextBox.Text.Trim(),
-            Port = int.Parse(PortTextBox.Text),
-            Map = MapComboBox.Text,
-            MaxPlayers = int.Parse(MaxPlayersTextBox.Text),
-            TickRate = TickRateComboBox.SelectedIndex == 1 ? 128 : 64,
-            GameMode = GameModeComboBox.SelectedIndex,
-            GameType = 0, // 固定为经典模式
-
-            // 常用选项
-            DisableBots = DisableBotsCheckBox.IsChecked == true,
-            InsecureMode = InsecureModeCheckBox.IsChecked == true,
-            IsLanMode = LanModeCheckBox.IsChecked == true,
-            OpenConsoleInApp = OpenConsoleInAppCheckBox.IsChecked == true,
-
-            // 自定义参数
-            CustomParameters = CustomParametersTextBox.Text.Trim(),
-
-            // 保留高级配置（如果之前有的话）
-            ServerName = ServerConfig.ServerName,
-            ServerPassword = ServerConfig.ServerPassword,
-            RconPassword = ServerConfig.RconPassword,
-            SteamToken = ServerConfig.SteamToken,
-            QuickCommands = ServerConfig.QuickCommands
-        };
+            // 如果留空，使用默认配置
+            ServerConfig.UserEditedFullArgs = null;
+            ApplyDefaultConfig();
+        }
 
         DialogResult = true;
         Close();
+    }
+
+    /// <summary>
+    /// 尝试从启动参数中解析基本信息（用于列表显示）
+    /// </summary>
+    private void TryParseBasicInfo(string args)
+    {
+        var lines = args.Split(new[] { '\n', '\r', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].Trim();
+            
+            // 解析端口
+            if (line == "-port" && i + 1 < lines.Length)
+            {
+                if (int.TryParse(lines[i + 1], out int port))
+                    ServerConfig.Port = port;
+            }
+            // 解析地图
+            else if (line == "+map" && i + 1 < lines.Length)
+            {
+                ServerConfig.Map = lines[i + 1].Trim();
+            }
+            // 解析最大玩家数
+            else if (line == "-maxplayers" && i + 1 < lines.Length)
+            {
+                if (int.TryParse(lines[i + 1], out int maxPlayers))
+                    ServerConfig.MaxPlayers = maxPlayers;
+            }
+            // 解析Tick Rate
+            else if (line == "-tickrate" && i + 1 < lines.Length)
+            {
+                if (int.TryParse(lines[i + 1], out int tickRate))
+                    ServerConfig.TickRate = tickRate;
+            }
+            // 解析IP地址
+            else if (line == "-ip" && i + 1 < lines.Length)
+            {
+                ServerConfig.IpAddress = lines[i + 1].Trim();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 应用默认配置
+    /// </summary>
+    private void ApplyDefaultConfig()
+    {
+        ServerConfig.IpAddress = "0.0.0.0";
+        ServerConfig.Port = 27015;
+        ServerConfig.Map = "de_dust2";
+        ServerConfig.MaxPlayers = 10;
+        ServerConfig.TickRate = 128;
+        ServerConfig.GameMode = 1;
+        ServerConfig.GameType = 0;
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
         Close();
-    }
-
-    private bool ValidateInput()
-    {
-        // 验证IP地址
-        if (string.IsNullOrWhiteSpace(IpAddressTextBox.Text))
-        {
-            MessageBox.Show("请输入IP地址", 
-                "验证失败", 
-                MessageBoxButton.OK, 
-                MessageBoxImage.Warning);
-            IpAddressTextBox.Focus();
-            return false;
-        }
-
-        // 验证端口
-        if (!int.TryParse(PortTextBox.Text, out int port) || port < 1 || port > 65535)
-        {
-            MessageBox.Show("请输入有效的端口号（1-65535）", 
-                "验证失败", 
-                MessageBoxButton.OK, 
-                MessageBoxImage.Warning);
-            PortTextBox.Focus();
-            return false;
-        }
-
-        // 验证地图
-        if (string.IsNullOrWhiteSpace(MapComboBox.Text))
-        {
-            MessageBox.Show("请输入地图名称", 
-                "验证失败", 
-                MessageBoxButton.OK, 
-                MessageBoxImage.Warning);
-            MapComboBox.Focus();
-            return false;
-        }
-
-        // 验证最大玩家数
-        if (!int.TryParse(MaxPlayersTextBox.Text, out int maxPlayers) || maxPlayers < 1 || maxPlayers > 64)
-        {
-            MessageBox.Show("请输入有效的最大玩家数（1-64）", 
-                "验证失败", 
-                MessageBoxButton.OK, 
-                MessageBoxImage.Warning);
-            MaxPlayersTextBox.Focus();
-            return false;
-        }
-
-        return true;
     }
 }
 
