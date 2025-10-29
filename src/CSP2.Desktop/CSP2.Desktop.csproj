@@ -9,6 +9,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    
+    <!-- 启用 Hot Reload 功能 -->
+    <EnableHotReload>true</EnableHotReload>
+    <HotReloadEnabled>true</HotReloadEnabled>
+    
+    <!-- XAML Hot Reload 优化 -->
+    <XamlDebuggingInformation>true</XamlDebuggingInformation>
   </PropertyGroup>
 
   <ItemGroup>

@@ -19,9 +19,8 @@
 
     <ScrollViewer Style="{StaticResource ModernScrollViewer}"
                   VerticalScrollBarVisibility="Auto" 
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="32,32,20,32">
-        <Grid>
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -30,7 +29,7 @@
             </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <Grid Grid.Row="0" Margin="0,0,0,24">
+        <Grid Grid.Row="0" Margin="0,0,0,32">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -61,8 +60,8 @@
         <!-- 框架管理区域 -->
         <Border Grid.Row="1" 
                 Style="{StaticResource CardStyle}"
-                Padding="20"
-                Margin="0,0,0,16">
+                Padding="24"
+                Margin="0,0,0,20">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -75,7 +74,7 @@
                            FontSize="18"
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
-                           Margin="0,0,0,12"/>
+                           Margin="0,0,0,16"/>
 
                 <!-- 服务器选择器 -->
                 <Border Grid.Row="1"
@@ -248,8 +247,8 @@
         <!-- 过滤栏 -->
         <Border Grid.Row="2" 
                 Style="{StaticResource CardStyle}"
-                Padding="20"
-                Margin="0,0,0,24">
+                Padding="24"
+                Margin="0,0,0,28">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -273,8 +272,13 @@
                 <ComboBox Grid.Column="1"
                           ItemsSource="{Binding Servers}"
                           SelectedItem="{Binding SelectedServer}"
-                          DisplayMemberPath="Name"
-                          Style="{StaticResource ModernComboBox}"/>
+                          Style="{StaticResource ModernComboBox}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <!-- 搜索框 -->
                 <Border Grid.Column="3"
@@ -345,12 +349,12 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Padding="20"
-                            Margin="0,0,16,16"
-                            Width="300">
+                    <Border Padding="24"
+                            Margin="0,0,20,20"
+                            Width="320">
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
-                                    <Setter Property="Padding" Value="20"/>
+                                    <Setter Property="Padding" Value="24"/>
                                     <Setter Property="Cursor" Value="Hand"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">

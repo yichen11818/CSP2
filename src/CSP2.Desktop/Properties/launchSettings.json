@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "CSP2 (Hot Reload)": {
+      "commandName": "Project",
+      "hotReloadEnabled": true,
+      "hotReloadProfile": "default"
+    },
+    "CSP2 (Debug)": {
+      "commandName": "Project"
+    }
+  }
+}
+

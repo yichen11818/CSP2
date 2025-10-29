@@ -568,7 +568,7 @@
                     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" CornerRadius="0,12,0,0">
                         <Grid>
                             <!-- 页面内容 -->
-                            <ContentControl Content="{Binding CurrentPage}" />
+                            <ContentControl Content="{Binding CurrentPage}" Margin="0,40,0,0"/>
                             
                             <!-- 顶部拖动区域 -->
                             <Border Height="40" 
