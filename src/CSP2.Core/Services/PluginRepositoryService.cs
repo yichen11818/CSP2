@@ -22,11 +22,14 @@ public class PluginRepositoryService : IPluginRepositoryService
     // 默认仓库源配置（多源降级策略）
     private static readonly string[] DEFAULT_REPOSITORY_URLS = new[]
     {
-        // CDN加速源（推荐，速度快）
-        "https://cdn.jsdelivr.net/gh/yichen11818/csp2-plugin-repository@main/manifest.json",
+        
         
         // GitHub Pages（备用）
         "https://yichen11818.github.io/csp2-plugin-repository/manifest.json",
+// CDN加速源（推荐，速度快）
+        
+        "https://cdn.jsdelivr.net/gh/yichen11818/csp2-plugin-repository@main/manifest.json",
+
         
         // GitHub Raw（最后降级）
         "https://raw.githubusercontent.com/yichen11818/csp2-plugin-repository/main/manifest.json"
