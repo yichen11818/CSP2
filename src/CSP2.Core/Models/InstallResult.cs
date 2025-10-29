@@ -31,6 +31,11 @@ public class InstallResult
     public List<string> InstalledFiles { get; set; } = new();
 
     /// <summary>
+    /// 已安装的依赖插件列表（插件ID -> 插件名称）
+    /// </summary>
+    public Dictionary<string, string> InstalledDependencies { get; set; } = new();
+
+    /// <summary>
     /// 创建成功结果
     /// </summary>
     public static InstallResult CreateSuccess(string message, List<string>? installedFiles = null)
@@ -52,7 +57,7 @@ public class InstallResult
         {
             Success = false,
             Message = message,
-            ErrorMessage = exception?.Message,
+            ErrorMessage = exception?.Message ?? message,  // 如果没有异常，使用 message
             Exception = exception
         };
     }
