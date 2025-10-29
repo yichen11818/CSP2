@@ -10,7 +10,7 @@
         Width="800"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="{StaticResource BackgroundBrush}">
+        Background="{DynamicResource BackgroundBrush}">
     
     <Grid Margin="32">
         <Grid.RowDefinitions>
@@ -24,10 +24,10 @@
             <TextBlock Text="{converters:Localization Dialog.AddServerTitle}" 
                        FontSize="28" 
                        FontWeight="Bold"
-                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{converters:Localization Dialog.AddServerSubtitle}" 
                        FontSize="14" 
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        Margin="0,8,0,0"/>
         </StackPanel>
 
@@ -45,7 +45,7 @@
                         <TextBlock Text="{converters:Localization Dialog.ServerName}" 
                                    FontSize="14" 
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,8"/>
                         <TextBox x:Name="ServerNameTextBox"
                                  Text="{converters:Localization Dialog.DefaultServerName}"
@@ -56,7 +56,7 @@
                         <TextBlock Text="{converters:Localization Dialog.ServerPath}" 
                                    FontSize="14" 
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,8"/>
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
@@ -87,14 +87,14 @@
                                         <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding InstallPath}" 
                                                    FontSize="11" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         
                         <!-- 检测状态提示 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="8"
                                 Padding="12,8"
                                 Margin="0,0,0,12">
@@ -108,18 +108,18 @@
                                 <TextBlock x:Name="DetectionStatusTextBlock"
                                            Text="正在自动检测CS2服务器安装..."
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         
                         <TextBlock Text="{converters:Localization Dialog.ServerPathHint}" 
                                    FontSize="12" 
-                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    Margin="0,0,0,20"/>
 
                         <!-- 网络配置 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -127,7 +127,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.NetworkConfig}" 
                                            FontSize="16" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,16"/>
 
                                 <Grid>
@@ -138,7 +138,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{converters:Localization Dialog.IPAddress}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.IPAddress}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <TextBox x:Name="IpAddressTextBox"
                                                  Text="0.0.0.0"
                                                  Style="{StaticResource ModernTextBox}"
@@ -146,7 +146,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="{converters:Localization Dialog.Port}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.Port}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <TextBox x:Name="PortTextBox"
                                                  Text="27015"
                                                  Style="{StaticResource ModernTextBox}"
@@ -157,7 +157,7 @@
                         </Border>
 
                         <!-- 游戏配置 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -165,7 +165,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.GameConfig}" 
                                            FontSize="16" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,16"/>
 
                                 <Grid>
@@ -181,7 +181,7 @@
                                     </Grid.RowDefinitions>
 
                                     <StackPanel Grid.Row="0" Grid.Column="0">
-                                        <TextBlock Text="{converters:Localization Dialog.InitialMap}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.InitialMap}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <TextBox x:Name="MapTextBox"
                                                  Text="de_dust2"
                                                  Style="{StaticResource ModernTextBox}"
@@ -189,7 +189,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="0" Grid.Column="2">
-                                        <TextBlock Text="{converters:Localization Dialog.MaxPlayers}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.MaxPlayers}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <TextBox x:Name="MaxPlayersTextBox"
                                                  Text="10"
                                                  Style="{StaticResource ModernTextBox}"
@@ -197,7 +197,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="2" Grid.Column="0">
-                                        <TextBlock Text="{converters:Localization Dialog.TickRate}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.TickRate}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <ComboBox x:Name="TickRateComboBox"
                                                   Style="{StaticResource ModernComboBox}"
                                                   SelectedIndex="1"
@@ -208,7 +208,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="2" Grid.Column="2">
-                                        <TextBlock Text="{converters:Localization Dialog.MapGroup}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="{converters:Localization Dialog.MapGroup}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                         <TextBox x:Name="MapGroupTextBox"
                                                  Text="mg_active"
                                                  Style="{StaticResource ModernTextBox}"
@@ -225,14 +225,14 @@
             <TabItem Header="{converters:Localization Dialog.ServerIdentity}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                     <StackPanel>
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="{converters:Localization Dialog.ServerIdentityDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,0,0,16"/>
 
@@ -240,7 +240,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.ServerDisplayName}" 
                                            FontSize="13" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,6"/>
                                 <TextBox x:Name="ServerDisplayNameTextBox"
                                          Style="{StaticResource ModernTextBox}"
@@ -251,7 +251,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.SteamToken}" 
                                            FontSize="13" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,6"/>
                                 <TextBox x:Name="SteamTokenTextBox"
                                          Style="{StaticResource ModernTextBox}"
@@ -259,7 +259,7 @@
                                          ToolTip="{converters:Localization Dialog.SteamTokenTooltip}"/>
                                 <TextBlock Text="{converters:Localization Dialog.SteamTokenHint}" 
                                            FontSize="11" 
-                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,0,0,16"/>
 
@@ -267,7 +267,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.ServerPassword}" 
                                            FontSize="13" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,6"/>
                                 <PasswordBox x:Name="ServerPasswordBox"
                                              Style="{StaticResource ModernPasswordBox}"
@@ -278,7 +278,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.RconPassword}" 
                                            FontSize="13" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,6"/>
                                 <PasswordBox x:Name="RconPasswordBox"
                                              Style="{StaticResource ModernPasswordBox}"
@@ -294,7 +294,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                     <StackPanel>
                         <!-- 网络选项 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -302,7 +302,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.NetworkOptions}" 
                                            FontSize="15" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,12"/>
 
                                 <CheckBox x:Name="LanModeCheckBox"
@@ -319,7 +319,7 @@
                         </Border>
 
                         <!-- 性能选项 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -327,7 +327,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.PerformanceOptions}" 
                                            FontSize="15" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,12"/>
 
                                 <Grid>
@@ -348,7 +348,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="0">
                                         <TextBlock Text="{converters:Localization Dialog.ProcessPriority}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <ComboBox x:Name="ProcessPriorityComboBox"
                                                   Style="{StaticResource ModernComboBox}"
@@ -364,7 +364,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="2">
                                         <TextBlock Text="{converters:Localization Dialog.MaxFps}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <TextBox x:Name="MaxFpsTextBox"
                                                  Style="{StaticResource ModernTextBox}"
@@ -375,7 +375,7 @@
                                     <StackPanel Grid.Row="2" Grid.Column="0">
                                         <TextBlock Text="{converters:Localization Dialog.ThreadCount}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <TextBox x:Name="ThreadCountTextBox"
                                                  Style="{StaticResource ModernTextBox}"
@@ -401,7 +401,7 @@
                         </Border>
 
                         <!-- 游戏规则 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -409,7 +409,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.GameRules}" 
                                            FontSize="15" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,12"/>
 
                                 <Grid>
@@ -428,7 +428,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="0">
                                         <TextBlock Text="{converters:Localization Dialog.BotQuota}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <TextBox x:Name="BotQuotaTextBox"
                                                  Text="0"
@@ -440,7 +440,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="2">
                                         <TextBlock Text="{converters:Localization Dialog.BotDifficulty}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <ComboBox x:Name="BotDifficultyComboBox"
                                                   Style="{StaticResource ModernComboBox}"
@@ -457,7 +457,7 @@
                                     <StackPanel Grid.Row="2" Grid.Column="0">
                                         <TextBlock Text="{converters:Localization Dialog.KickIdleTime}" 
                                                    FontSize="13" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                                    Margin="0,0,0,6"/>
                                         <TextBox x:Name="KickIdleTimeTextBox"
                                                  Style="{StaticResource ModernTextBox}"
@@ -477,7 +477,7 @@
                         </Border>
 
                         <!-- 日志选项 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,16">
@@ -485,7 +485,7 @@
                                 <TextBlock Text="{converters:Localization Dialog.LoggingOptions}" 
                                            FontSize="15" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,12"/>
 
                                 <CheckBox x:Name="EnableLoggingCheckBox"

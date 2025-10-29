@@ -501,7 +501,9 @@
                                     </Border>
 
                                     <!-- 已验证标记 -->
-                                    <Border Background="#E8F5E9"
+                                    <Border Background="#064e3b"
+                                            BorderBrush="#10b981"
+                                            BorderThickness="1"
                                             CornerRadius="12"
                                             Padding="10,6"
                                             Margin="0,0,6,6"
@@ -511,18 +513,20 @@
                                                        FontSize="11"
                                                        FontWeight="Bold"
                                                        Margin="0,0,4,0"
-                                                       Foreground="#2E7D32"
+                                                       Foreground="#6ee7b7"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="已验证"
                                                        FontSize="11"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#2E7D32"
+                                                       Foreground="#6ee7b7"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
 
                                     <!-- 官方支持标记 -->
-                                    <Border Background="#E3F2FD"
+                                    <Border Background="#1e3a8a"
+                                            BorderBrush="#3b82f6"
+                                            BorderThickness="1"
                                             CornerRadius="12"
                                             Padding="10,6"
                                             Margin="0,0,6,6"
@@ -531,11 +535,12 @@
                                             <TextBlock Text="⚡"
                                                        FontSize="11"
                                                        Margin="0,0,4,0"
+                                                       Foreground="#93c5fd"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="官方支持"
                                                        FontSize="11"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#1565C0"
+                                                       Foreground="#93c5fd"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>

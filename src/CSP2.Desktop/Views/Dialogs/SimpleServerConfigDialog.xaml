@@ -55,8 +55,8 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,12"/>
                         
-                        <Border Background="#1e1e1e"
-                                BorderBrush="#333333"
+                        <Border Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Padding="12">
@@ -64,7 +64,7 @@
                                      Height="240"
                                      FontFamily="Consolas"
                                      FontSize="11"
-                                     Foreground="#d4d4d4"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
                                      Background="Transparent"
                                      BorderThickness="0"
                                      TextWrapping="Wrap"
@@ -84,8 +84,8 @@
                 </Border>
                 
                 <!-- 参数说明 -->
-                <Border Background="#e3f2fd"
-                        BorderBrush="{DynamicResource PrimaryBrush}"
+                <Border Background="{DynamicResource InfoLightBrush}"
+                        BorderBrush="{DynamicResource InfoBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="16">

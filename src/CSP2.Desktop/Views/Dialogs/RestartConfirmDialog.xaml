@@ -10,9 +10,9 @@
         AllowsTransparency="True"
         Background="Transparent">
 
-    <Border Background="{StaticResource SurfaceBrush}"
+    <Border Background="{DynamicResource SurfaceBrush}"
             CornerRadius="12"
-            BorderBrush="{StaticResource BorderBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" 
@@ -30,7 +30,7 @@
 
             <!-- 标题栏 -->
             <Border Grid.Row="0" 
-                    Background="{StaticResource PrimaryBrush}"
+                    Background="{DynamicResource PrimaryBrush}"
                     CornerRadius="12,12,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -89,12 +89,12 @@
                 <TextBlock x:Name="MessageTextBlock"
                            Text="{converters:Localization Dialog.RestartMessage}"
                            FontSize="14"
-                           Foreground="{StaticResource TextPrimaryBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            TextWrapping="Wrap"
                            LineHeight="22"
                            Margin="0,0,0,15"/>
 
-                <Border Background="{StaticResource HoverBackgroundBrush}"
+                <Border Background="{DynamicResource HoverBackgroundBrush}"
                         CornerRadius="8"
                         Padding="15,12"
                         Margin="0,0,0,10">
@@ -102,11 +102,11 @@
                         <TextBlock Text="{StaticResource WarningIcon}" 
                                    Style="{StaticResource BaseIconStyle}"
                                    FontSize="16"
-                                   Foreground="{StaticResource WarningBrush}" 
+                                   Foreground="{DynamicResource WarningBrush}" 
                                    Margin="0,0,10,0"/>
                         <TextBlock Text="{converters:Localization Dialog.RestartWarning}"
                                    FontSize="13"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
@@ -114,7 +114,7 @@
 
             <!-- 按钮区域 -->
             <Border Grid.Row="2" 
-                    Background="{StaticResource HoverBackgroundBrush}"
+                    Background="{DynamicResource HoverBackgroundBrush}"
                     CornerRadius="0,0,12,12">
                 <StackPanel Orientation="Horizontal" 
                             HorizontalAlignment="Right" 

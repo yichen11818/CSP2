@@ -15,21 +15,21 @@
         <Style TargetType="TextBlock" x:Key="TitleStyle">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
         <Style TargetType="TextBlock" x:Key="StatusStyle">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         </Style>
         <Style TargetType="TextBlock" x:Key="ProgressStyle">
             <Setter Property="FontSize" Value="24"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource BackgroundBrush}"
-            BorderBrush="{StaticResource BorderBrush}"
+    <Border Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1"
             CornerRadius="12">
         <Border.Effect>
@@ -86,14 +86,14 @@
 
                 <!-- 进度条 -->
                 <Border Grid.Row="1"
-                       Background="{StaticResource SurfaceBrush}"
-                       BorderBrush="{StaticResource BorderBrush}"
+                       Background="{DynamicResource SurfaceBrush}"
+                       BorderBrush="{DynamicResource BorderBrush}"
                        BorderThickness="1"
                        CornerRadius="8"
                        Height="40">
                     <Grid>
                         <Border x:Name="ProgressBar"
-                               Background="{StaticResource AccentBrush}"
+                               Background="{DynamicResource AccentBrush}"
                                CornerRadius="7"
                                HorizontalAlignment="Left"
                                Width="0">
@@ -113,7 +113,7 @@
                       Grid.Row="3"
                       Text=""
                       FontSize="12"
-                      Foreground="{StaticResource TextTertiaryBrush}"
+                      Foreground="{DynamicResource TextTertiaryBrush}"
                       TextAlignment="Center"
                       TextWrapping="Wrap"
                       Margin="0,12,0,0"/>

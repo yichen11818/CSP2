@@ -211,7 +211,7 @@
                                                Margin="0,8,0,0"
                                                Opacity="0.9"/>
                                 </StackPanel>
-                                <Border Background="White"
+                                <Border Background="#334155"
                                         Width="40"
                                         Height="40"
                                         CornerRadius="10"
@@ -660,7 +660,7 @@
                                 </Border>
                                 
                                 <!-- 运行服务器数量 -->
-                                <Border Background="#f3f4f6"
+                                <Border Background="#334155"
                                         CornerRadius="6"
                                         Padding="8,4"
                                         Margin="0,0,12,0"

@@ -163,23 +163,38 @@
             </Border>
         </Grid>
 
-        <!-- 服务器列表 -->
+        <!-- 服务器列表 - 现代化网格设计 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
             <ItemsControl ItemsSource="{Binding Servers}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="24"
-                                Margin="0,0,0,16">
+                        <Border Width="380" Height="180"
+                                Margin="0,0,16,16"
+                                Background="{StaticResource CardBackgroundBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="20">
                             <Border.Style>
-                                <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
-                                    <Setter Property="Padding" Value="24"/>
+                                <Style TargetType="Border">
+                                    <Setter Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.08" Color="{StaticResource ShadowColor}"/>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="Effect">
                                                 <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.12" Color="{StaticResource ShadowColor}"/>
+                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.15" Color="{StaticResource ShadowColor}"/>
                                                 </Setter.Value>
                                             </Setter>
+                                            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -188,210 +203,267 @@
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- 服务器标题和状态 -->
+                                <!-- 顶部：状态点 + 名称 + 菜单 -->
                                 <Grid Grid.Row="0">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0">
+                                    <!-- 状态指示点 -->
+                                    <Ellipse Grid.Column="0" 
+                                             Width="12" Height="12" 
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,12,0">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Fill" Value="{StaticResource Gray400Brush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Running">
+                                                        <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Stopped">
+                                                        <Setter Property="Fill" Value="{StaticResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Starting">
+                                                        <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+
+                                    <!-- 服务器名称 -->
+                                    <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding Name}" 
-                                                   FontSize="22" 
+                                                   FontSize="16" 
                                                    FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="{Binding InstallPath}" 
-                                                   FontSize="13" 
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}" 
+                                                   FontSize="11" 
                                                    Foreground="{StaticResource TextSecondaryBrush}"
-                                                   Margin="0,6,0,0"
-                                                   Opacity="0.9"/>
+                                                   Margin="0,2,0,0"/>
                                     </StackPanel>
 
-                                    <Border Grid.Column="1" 
-                                            Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                            CornerRadius="20"
-                                            Padding="16,8">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Ellipse Width="8" Height="8" 
-                                                    Fill="White" 
-                                                    Margin="0,0,8,0"
-                                                    VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}" 
-                                                       Foreground="White"
-                                                       FontSize="13"
-                                                       FontWeight="SemiBold"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-
-                                <!-- 服务器信息 -->
-                                <Grid Grid.Row="1" Margin="0,20,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" 
-                                            CornerRadius="8" Padding="12,10">
-                                        <StackPanel>
-                                            <TextBlock Text="{converters:Localization ServerMgmt.Port}" 
-                                                      FontSize="11" 
-                                                      Foreground="{StaticResource TextTertiaryBrush}"
-                                                      FontWeight="Medium"/>
-                                            <TextBlock Text="{Binding Config.Port}" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" 
-                                            CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
-                                        <StackPanel>
-                                            <TextBlock Text="{converters:Localization ServerMgmt.Map}" 
-                                                      FontSize="11" 
-                                                      Foreground="{StaticResource TextTertiaryBrush}"
-                                                      FontWeight="Medium"/>
-                                            <TextBlock Text="{Binding Config.Map}" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Grid.Column="2" Background="{StaticResource SurfaceBrush}" 
-                                            CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
-                                        <StackPanel>
-                                            <TextBlock Text="{converters:Localization ServerMgmt.MaxPlayers}" 
-                                                      FontSize="11" 
-                                                      Foreground="{StaticResource TextTertiaryBrush}"
-                                                      FontWeight="Medium"/>
-                                            <TextBlock Text="{Binding Config.MaxPlayers}" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Grid.Column="3" Background="{StaticResource SurfaceBrush}" 
-                                            CornerRadius="8" Padding="12,10" Margin="12,0,0,0">
-                                        <StackPanel>
-                                            <TextBlock Text="{converters:Localization ServerMgmt.TickRate}" 
-                                                      FontSize="11" 
-                                                      Foreground="{StaticResource TextTertiaryBrush}"
-                                                      FontWeight="Medium"/>
-                                            <TextBlock Text="{Binding Config.TickRate}" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-
-                                <!-- 操作按钮 -->
-                                <Grid Grid.Row="2" Margin="0,20,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <!-- 主要操作 -->
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                        <Button Content="{converters:Localization ServerMgmt.Start}"
-                                                Tag="{StaticResource PlayIcon}"
-                                                Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource SuccessButtonStyle}"
-                                                Padding="16,10"/>
-
-                                        <Button Content="{converters:Localization ServerMgmt.Stop}"
-                                                Tag="{StaticResource StopIcon}"
-                                                Command="{Binding DataContext.StopServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource DangerButtonStyle}"
-                                                Padding="16,10"
-                                                Margin="10,0,0,0"/>
-
-                                        <Button Content="{converters:Localization ServerMgmt.Restart}"
-                                                Tag="{StaticResource RestartIcon}"
-                                                Command="{Binding DataContext.RestartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource WarningButtonStyle}"
-                                                Padding="16,10"
-                                                Margin="10,0,0,0"/>
-                                    </StackPanel>
-                                    
-                                    <!-- 次要操作 -->
+                                    <!-- 快捷菜单 -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button Content="{converters:Localization ServerMgmt.ViewLog}"
-                                                Tag="{StaticResource ViewIcon}"
-                                                Command="{Binding DataContext.ViewServerLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Padding="16,10"/>
-
-                                        <Button Content="{converters:Localization ServerMgmt.Settings}"
-                                                Tag="{StaticResource SettingsIcon}"
+                                        <Button Tag="{StaticResource SettingsIcon}"
                                                 Command="{Binding DataContext.EditServerSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Padding="16,10"
-                                                Margin="10,0,0,0"/>
-
-                                        <Button Tag="{StaticResource DeleteIcon}"
-                                                Command="{Binding DataContext.UninstallServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                ToolTip="{converters:Localization ServerMgmt.UninstallTooltip}"
-                                                Width="44"
-                                                Height="44"
-                                                FontSize="16"
-                                                Margin="10,0,0,0">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource DangerLightBrush}"/>
-                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter Property="Opacity" Value="0.3"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-
-                                        <Button Tag="{StaticResource DeleteIcon}"
-                                                Command="{Binding DataContext.DeleteServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                ToolTip="{converters:Localization ServerMgmt.DeleteTooltip}"
-                                                Width="44"
-                                                Height="44"
-                                                FontSize="16"
-                                                Margin="10,0,0,0">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource WarningLightBrush}"/>
-                                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Width="32" Height="32"
+                                                FontSize="14"
+                                                Margin="4,0,0,0"
+                                                ToolTip="{converters:Localization ServerMgmt.Settings}"/>
                                     </StackPanel>
+                                </Grid>
+
+                                <!-- 中间：服务器信息 + 资源用量 -->
+                                <Grid Grid.Row="1" Margin="0,16,0,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 信息行 -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 端口 -->
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="端口" 
+                                                       FontSize="10" 
+                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       Margin="0,0,0,4"/>
+                                            <TextBlock Text="{Binding Config.Port}" 
+                                                       FontSize="14" 
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </StackPanel>
+
+                                        <!-- 地图 -->
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="地图" 
+                                                       FontSize="10" 
+                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       Margin="0,0,0,4"/>
+                                            <TextBlock Text="{Binding Config.Map}" 
+                                                       FontSize="14" 
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <!-- 玩家 -->
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="玩家" 
+                                                       FontSize="10" 
+                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       Margin="0,0,0,4"/>
+                                            <TextBlock FontSize="14" 
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}">
+                                                <Run Text="0"/>
+                                                <Run Text="/"/>
+                                                <Run Text="{Binding Config.MaxPlayers}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 资源用量进度条 -->
+                                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                                        <!-- CPU 使用率 -->
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="CPU" 
+                                                       FontSize="10"
+                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"/>
+                                            
+                                            <Border Grid.Column="1" 
+                                                    Height="6" 
+                                                    Background="{StaticResource SurfaceBrush}"
+                                                    CornerRadius="3">
+                                                <Border HorizontalAlignment="Left" 
+                                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource PercentageWidthConverter}, ConverterParameter=45}"
+                                                        Background="{StaticResource PrimaryBrush}"
+                                                        CornerRadius="3"/>
+                                            </Border>
+                                            
+                                            <TextBlock Grid.Column="2" 
+                                                       Text="45%" 
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Margin="8,0,0,0"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <!-- 内存使用率 -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="MEM" 
+                                                       FontSize="10"
+                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"/>
+                                            
+                                            <Border Grid.Column="1" 
+                                                    Height="6" 
+                                                    Background="{StaticResource SurfaceBrush}"
+                                                    CornerRadius="3">
+                                                <Border HorizontalAlignment="Left" 
+                                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource PercentageWidthConverter}, ConverterParameter=62}"
+                                                        Background="{StaticResource SuccessBrush}"
+                                                        CornerRadius="3"/>
+                                            </Border>
+                                            
+                                            <TextBlock Grid.Column="2" 
+                                                       Text="62%" 
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Margin="8,0,0,0"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- 底部：操作按钮 -->
+                                <Grid Grid.Row="2" Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 启动按钮 -->
+                                    <Button Grid.Column="0"
+                                            Tag="{StaticResource PlayIcon}"
+                                            Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Width="36" Height="36"
+                                            FontSize="14"
+                                            ToolTip="{converters:Localization ServerMgmt.Start}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="#10b981" Opacity="0.15"/>
+                                        </Button.Background>
+                                        <Button.Foreground>
+                                            <SolidColorBrush Color="#10b981"/>
+                                        </Button.Foreground>
+                                    </Button>
+
+                                    <!-- 停止按钮 -->
+                                    <Button Grid.Column="1"
+                                            Tag="{StaticResource StopIcon}"
+                                            Command="{Binding DataContext.StopServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Width="36" Height="36"
+                                            FontSize="14"
+                                            Margin="8,0,0,0"
+                                            ToolTip="{converters:Localization ServerMgmt.Stop}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="#ef4444" Opacity="0.15"/>
+                                        </Button.Background>
+                                        <Button.Foreground>
+                                            <SolidColorBrush Color="#ef4444"/>
+                                        </Button.Foreground>
+                                    </Button>
+
+                                    <!-- 重启按钮 -->
+                                    <Button Grid.Column="2"
+                                            Tag="{StaticResource RestartIcon}"
+                                            Command="{Binding DataContext.RestartServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Width="36" Height="36"
+                                            FontSize="14"
+                                            Margin="8,0,0,0"
+                                            ToolTip="{converters:Localization ServerMgmt.Restart}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="#fbbf24" Opacity="0.15"/>
+                                        </Button.Background>
+                                        <Button.Foreground>
+                                            <SolidColorBrush Color="#fbbf24"/>
+                                        </Button.Foreground>
+                                    </Button>
+
+                                    <!-- 日志按钮 -->
+                                    <Button Grid.Column="3"
+                                            Tag="{StaticResource ViewIcon}"
+                                            Command="{Binding DataContext.ViewServerLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Width="36" Height="36"
+                                            FontSize="14"
+                                            Margin="8,0,0,0"
+                                            ToolTip="{converters:Localization ServerMgmt.ViewLog}"/>
                                 </Grid>
                             </Grid>
                         </Border>

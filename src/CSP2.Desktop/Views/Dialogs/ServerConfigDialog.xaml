@@ -227,24 +227,24 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
                     <StackPanel>
                         <!-- 说明信息 -->
-                        <Border Background="#eff6ff"
-                                BorderBrush="#3b82f6"
+                        <Border Background="{DynamicResource InfoLightBrush}"
+                                BorderBrush="{DynamicResource InfoBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Padding="15"
                                 Margin="0,0,0,20">
                             <StackPanel>
-                                <TextBlock FontWeight="SemiBold" Foreground="#1e40af" Margin="0,0,0,8">
+                                <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource InfoBrush}" Margin="0,0,0,8">
                                     <Run Text="ℹ️ 什么是 RCON？"/>
                                 </TextBlock>
                                 <TextBlock Text="RCON (Remote Console) 是 Source 引擎服务器的远程控制协议。" 
-                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,6"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Margin="0,0,0,6"/>
                                 <TextBlock Text="• 用于远程管理服务器（发送命令、获取响应）" 
-                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,3"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Margin="0,0,0,3"/>
                                 <TextBlock Text="• 本地服务器可以直接通过 stdin 发送命令（更简单）" 
-                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13" Margin="0,0,0,3"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Margin="0,0,0,3"/>
                                 <TextBlock Text="• 推荐仅在需要远程管理时启用 RCON" 
-                                           TextWrapping="Wrap" Foreground="#1e3a8a" FontSize="13"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
                             </StackPanel>
                         </Border>
 
@@ -323,23 +323,23 @@
                         </StackPanel>
 
                         <!-- 注意事项 -->
-                        <Border Background="{StaticResource WarningLightBrush}"
-                                BorderBrush="{StaticResource WarningBrush}"
+                        <Border Background="{DynamicResource WarningLightBrush}"
+                                BorderBrush="{DynamicResource WarningBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Padding="15"
                                 Margin="0,12,0,0">
                             <StackPanel>
-                                <TextBlock FontWeight="SemiBold" Foreground="#92400e" Margin="0,0,0,8">
+                                <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,8">
                                     <Run Text="{StaticResource WarningIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
                                     <Run Text=" 重要提示"/>
                                 </TextBlock>
                                 <TextBlock Text="• 确保服务器启动参数包含 +rcon_password" 
-                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12" Margin="0,0,0,3"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,3"/>
                                 <TextBlock Text="• RCON 密码与此处配置的密码必须一致" 
-                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12" Margin="0,0,0,3"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,3"/>
                                 <TextBlock Text="• 配置后可在日志控制台页面进行连接和管理" 
-                                           TextWrapping="Wrap" Foreground="#78350f" FontSize="12"/>
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

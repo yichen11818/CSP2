@@ -9,6 +9,158 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
 
+    <UserControl.Resources>
+        <!-- 主题适配 ComboBox 样式 -->
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                        Grid.Column="2"
+                                        Focusable="false"
+                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ClickMode="Press"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="20"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Grid.Column="0" 
+                                                                Margin="12,0,0,0"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Left"/>
+                                                <Path Grid.Column="1"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                                      Fill="{DynamicResource TextSecondaryBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource BorderLightBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ContentSite"
+                                            IsHitTestVisible="False"
+                                            Content="{TemplateBinding SelectionBoxItem}"
+                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                            Margin="12,0,30,0"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Left"/>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder"
+                                            Background="{DynamicResource CardBackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Margin="0,4,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="Black" Opacity="0.3" ShadowDepth="2" BlurRadius="8"/>
+                                        </Border.Effect>
+                                        <ScrollViewer Margin="4,6" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 主题适配 ComboBoxItem 样式 -->
+        <Style x:Key="DarkComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="4"
+                                Margin="4,2">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource HoverBackgroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 主题适配主按钮样式 -->
+        <Style x:Key="DarkPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#2563eb"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1d4ed8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Border" Property="Background" Value="#475569"/>
+                                <Setter TargetName="Border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="30">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -35,57 +187,67 @@
                            Margin="0,5,0,0"/>
             </StackPanel>
 
-            <!-- 控制栏 -->
+            <!-- 控制栏 - 两行布局 -->
             <Grid Grid.Row="1" Margin="0,15,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="250"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" 
-                           Text="{converters:Localization LogConsole.Server}" 
-                           VerticalAlignment="Center"
-                           FontSize="14"
-                           Foreground="#374151"
-                           Margin="0,0,10,0"/>
+                <!-- 第一行：服务器选择和 RCON 控制 -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <ComboBox Grid.Column="1"
-                          ItemsSource="{Binding Servers}"
-                          SelectedItem="{Binding SelectedServer}"
-                          DisplayMemberPath="Name"
-                          Height="35"
-                          VerticalContentAlignment="Center"
-                          FontSize="14"/>
+                    <TextBlock Grid.Column="0" 
+                               Text="{converters:Localization LogConsole.Server}" 
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Margin="0,0,10,0"/>
 
-                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Servers}"
+                              SelectedItem="{Binding SelectedServer}"
+                              DisplayMemberPath="Name"
+                              Height="38"
+                              VerticalContentAlignment="Center"
+                              FontSize="14"
+                              Style="{StaticResource DarkComboBoxStyle}"
+                              ItemContainerStyle="{StaticResource DarkComboBoxItemStyle}"/>
+
                     <!-- RCON 控制区 -->
-                    <Border Background="#f9fafb"
-                            BorderBrush="#e5e7eb"
+                    <Border Grid.Column="3"
+                            Background="{DynamicResource CardBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="10,5"
-                            Margin="0,0,10,0">
+                            CornerRadius="8"
+                            Padding="12,8">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="13"
                                        FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,10,0">
+                                       Margin="0,0,12,0">
                                 <Run Text="{StaticResource GlobeIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
                                 <Run Text=" RCON"/>
                             </TextBlock>
                             
                             <CheckBox IsChecked="{Binding UseRCON}"
                                       Content="启用"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"
                                       VerticalAlignment="Center"
-                                      Margin="0,0,10,0"
+                                      Margin="0,0,12,0"
                                       ToolTip="通过 RCON 协议发送命令（远程服务器）"/>
                             
                             <TextBlock Text="{Binding RconStatus}"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,10,0">
+                                       Margin="0,0,12,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
@@ -103,14 +265,14 @@
                                     Visibility="{Binding RconConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                     Background="{StaticResource PrimaryBrush}"
                                     Foreground="White"
-                                    Padding="8,4"
+                                    Padding="10,5"
                                     BorderThickness="0"
                                     Cursor="Hand"
                                     FontSize="12"
-                                    Height="24">
+                                    Height="26">
                                 <Button.Resources>
                                     <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="4"/>
+                                        <Setter Property="CornerRadius" Value="5"/>
                                     </Style>
                                 </Button.Resources>
                             </Button>
@@ -120,94 +282,110 @@
                                     Visibility="{Binding RconConnected, Converter={StaticResource BoolToVisibilityConverter}}"
                                     Background="#ef4444"
                                     Foreground="White"
-                                    Padding="8,4"
+                                    Padding="10,5"
                                     BorderThickness="0"
                                     Cursor="Hand"
                                     FontSize="12"
-                                    Height="24">
+                                    Height="26">
                                 <Button.Resources>
                                     <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="4"/>
+                                        <Setter Property="CornerRadius" Value="5"/>
                                     </Style>
                                 </Button.Resources>
                             </Button>
                         </StackPanel>
                     </Border>
-                    
-                    <!-- 配置提示 -->
-                    <TextBlock Grid.Column="3" 
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryTextBrush}"
-                               VerticalAlignment="Center"
-                               Margin="10,0,0,0"
-                               ToolTip="点击服务器管理页面的'编辑设置'按钮，在 RCON 配置标签页中设置">
-                        <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
-                        <Run Text=" 在服务器管理页面配置 RCON"/>
-                    </TextBlock>
+                </Grid>
 
-                    <Button Content="📋 复制"
-                            Command="{Binding CopyLogsCommand}"
-                            Background="#f3f4f6"
-                            Foreground="#374151"
-                            Padding="15,8"
-                            BorderThickness="0"
-                            Cursor="Hand"
-                            FontSize="13"
-                            ToolTip="复制所有日志到剪贴板"
-                            Margin="0,0,10,0">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="6"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                    
-                    <Button Content="💾 导出"
-                            Command="{Binding ExportLogsCommand}"
-                            Background="#f3f4f6"
-                            Foreground="#374151"
-                            Padding="15,8"
-                            BorderThickness="0"
-                            Cursor="Hand"
-                            FontSize="13"
-                            ToolTip="导出日志到文件"
-                            Margin="0,0,10,0">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="6"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                    
-                    <Button Content="{converters:Localization LogConsole.Clear}"
-                            Command="{Binding ClearLogsCommand}"
-                            Background="#f3f4f6"
-                            Foreground="#374151"
-                            Padding="15,8"
-                            BorderThickness="0"
-                            Cursor="Hand"
-                            FontSize="13">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="6"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                </StackPanel>
+                <!-- 第二行：操作按钮和提示 -->
+                <Grid Grid.Row="1" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 配置提示 -->
+                    <Border Grid.Column="0" 
+                            Background="{DynamicResource InfoLightBrush}"
+                            BorderBrush="{DynamicResource InfoBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="10,8">
+                        <TextBlock FontSize="12"
+                                   Foreground="{DynamicResource InfoBrush}"
+                                   VerticalAlignment="Center"
+                                   ToolTip="点击服务器管理页面的'编辑设置'按钮，在 RCON 配置标签页中设置">
+                            <Run Text="{StaticResource LightbulbIcon}" FontFamily="{StaticResource FontAwesomeSolid}"/>
+                            <Run Text=" 提示：在服务器管理页面配置 RCON 后可远程发送命令"/>
+                        </TextBlock>
+                    </Border>
+
+                    <!-- 操作按钮组 -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0">
+                        <Button Content="📋 复制"
+                                Command="{Binding CopyLogsCommand}"
+                                Background="{DynamicResource HoverBackgroundBrush}"
+                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                Padding="15,8"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                FontSize="13"
+                                ToolTip="复制所有日志到剪贴板"
+                                Margin="0,0,8,0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        
+                        <Button Content="💾 导出"
+                                Command="{Binding ExportLogsCommand}"
+                                Background="{DynamicResource HoverBackgroundBrush}"
+                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                Padding="15,8"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                FontSize="13"
+                                ToolTip="导出日志到文件"
+                                Margin="0,0,8,0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        
+                        <Button Content="{converters:Localization LogConsole.Clear}"
+                                Command="{Binding ClearLogsCommand}"
+                                Background="{DynamicResource HoverBackgroundBrush}"
+                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                Padding="15,8"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                FontSize="13">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Grid>
 
         <!-- 日志显示区域 - 使用TextBox支持文本选择 -->
         <Border Grid.Row="1" 
-                BorderBrush="#e5e7eb" 
+                BorderBrush="{DynamicResource BorderBrush}" 
                 BorderThickness="1"
                 CornerRadius="8"
-                Background="#0f172a">
+                Background="{DynamicResource SurfaceBrush}">
             <TextBox x:Name="LogTextBox"
                      Text="{Binding LogText, Mode=OneWay}"
                      FontFamily="Consolas"
                      FontSize="13"
-                     Foreground="#e2e8f0"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
                      Background="Transparent"
                      BorderThickness="0"
                      IsReadOnly="True"
@@ -217,12 +395,7 @@
                      Padding="15"
                      AcceptsReturn="True"
                      VerticalContentAlignment="Top"
-                     TextChanged="LogTextBox_TextChanged">
-                <TextBox.Resources>
-                    <!-- 自定义滚动条样式 -->
-                    <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBar}"/>
-                </TextBox.Resources>
-            </TextBox>
+                     TextChanged="LogTextBox_TextChanged"/>
         </Border>
 
         <!-- 命令输入区域 -->
@@ -256,7 +429,9 @@
                          Height="40"
                          VerticalContentAlignment="Center"
                          Padding="12,0"
-                         BorderBrush="#e5e7eb"
+                         Background="{DynamicResource CardBackgroundBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         BorderBrush="{DynamicResource BorderBrush}"
                          BorderThickness="1"
                          PreviewKeyDown="CommandTextBox_PreviewKeyDown">
                     <TextBox.InputBindings>
@@ -272,21 +447,12 @@
                 <Button Grid.Column="2"
                         Content="{converters:Localization LogConsole.Send}"
                         Command="{Binding SendCommandCommand}"
-                        Background="{StaticResource PrimaryBrush}"
-                        Foreground="White"
+                        Style="{StaticResource DarkPrimaryButtonStyle}"
                         Padding="25,10"
-                        BorderThickness="0"
-                        Cursor="Hand"
                         FontSize="14"
                         FontWeight="SemiBold"
                         Margin="10,0,0,0"
-                        Height="40">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="6"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
+                        Height="40"/>
             </Grid>
 
             <!-- 快捷命令区域 -->
@@ -294,7 +460,7 @@
                 <TextBlock Text="⚡ 快捷命令"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Foreground="#374151"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,0,0,8"/>
                 
                 <!-- 快捷命令按钮列表 -->
@@ -307,8 +473,8 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#f9fafb"
-                                    BorderBrush="#e5e7eb"
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="6"
                                     Padding="8,6"
@@ -319,7 +485,7 @@
                                             CommandParameter="{Binding}"
                                             Background="Transparent"
                                             BorderThickness="0"
-                                            Foreground="{StaticResource PrimaryBrush}"
+                                            Foreground="{DynamicResource PrimaryBrush}"
                                             FontSize="10"
                                             Padding="4,0"
                                             Cursor="Hand"
@@ -330,7 +496,7 @@
                                                FontSize="13"
                                                VerticalAlignment="Center"
                                                Margin="4,0,8,0"
-                                               Foreground="#374151"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     
                                     <Button Content="✕"
                                             Command="{Binding DataContext.RemoveQuickCommandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -351,8 +517,8 @@
                 <!-- 添加快捷命令 -->
                 <Button Content="➕ 添加当前命令为快捷命令"
                         Command="{Binding AddQuickCommandCommand}"
-                        Background="#f3f4f6"
-                        Foreground="#374151"
+                        Background="{DynamicResource HoverBackgroundBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
                         Padding="12,8"
                         BorderThickness="0"
                         Cursor="Hand"
@@ -378,18 +544,19 @@
                        FontFamily="{StaticResource FontAwesomeSolid}"
                        FontSize="64" 
                        HorizontalAlignment="Center"
-                       Opacity="0.3"/>
+                       Foreground="{DynamicResource TextTertiaryBrush}"
+                       Opacity="0.5"/>
             <TextBlock Text="{converters:Localization LogConsole.NoLogs}" 
                        FontSize="20" 
                        FontWeight="SemiBold"
-                       Foreground="#6b7280"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"
-                       Margin="0,10,0,0"/>
+                       Margin="0,15,0,0"/>
             <TextBlock Text="{converters:Localization LogConsole.NoLogsHint}" 
                        FontSize="14" 
-                       Foreground="#9ca3af"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
                        HorizontalAlignment="Center"
-                       Margin="0,5,0,0"/>
+                       Margin="0,8,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
 
-    <Grid Margin="32">
+    <Grid Margin="24,20,24,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -17,55 +17,55 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,32">
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="{converters:Localization Settings.Title}" 
-                       FontSize="32" 
+                       FontSize="28" 
                        FontWeight="Bold"
-                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{converters:Localization Settings.Subtitle}" 
-                       FontSize="14" 
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       Margin="0,8,0,0"/>
+                       FontSize="13" 
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Margin="0,6,0,0"/>
         </StackPanel>
 
         <!-- 设置内容 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- 外观设置 -->
-                <Border Style="{StaticResource CardStyle}"
-                        Padding="28"
-                        Margin="0,0,0,20">
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20"
+                        Margin="0,0,0,16">
                     <StackPanel>
-                        <Grid Margin="0,0,0,24">
+                        <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    Background="{StaticResource PrimaryPaleBrush}"
-                                    Width="48"
-                                    Height="48"
-                                    CornerRadius="12"
-                                    Margin="0,0,16,0">
+                                    Background="{DynamicResource PrimaryPaleBrush}"
+                                    Width="44"
+                                    Height="44"
+                                    CornerRadius="10"
+                                    Margin="0,0,12,0">
                                 <TextBlock Text="🎨" 
-                                           FontSize="24"
+                                           FontSize="22"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{converters:Localization Settings.Appearance}" 
-                                           FontSize="20" 
+                                           FontSize="18" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.AppearanceDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- 主题 -->
-                        <Grid Margin="0,0,0,20">
+                        <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="220"/>
                                 <ColumnDefinition Width="*"/>
@@ -75,10 +75,10 @@
                                 <TextBlock Text="{converters:Localization Settings.Theme}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.ThemeDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -87,7 +87,7 @@
                                       SelectedItem="{Binding Theme}"
                                       Width="220"
                                       HorizontalAlignment="Left"
-                                      Style="{StaticResource ModernComboBox}"/>
+                                      Style="{DynamicResource ModernComboBox}"/>
                         </Grid>
 
                         <!-- 语言 -->
@@ -101,10 +101,10 @@
                                 <TextBlock Text="{converters:Localization Settings.Language}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.LanguageDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -113,46 +113,46 @@
                                       SelectedItem="{Binding SelectedLanguage}"
                                       Width="220"
                                       HorizontalAlignment="Left"
-                                      Style="{StaticResource ModernComboBox}"/>
+                                      Style="{DynamicResource ModernComboBox}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- 更新设置 -->
-                <Border Style="{StaticResource CardStyle}"
-                        Padding="28"
-                        Margin="0,0,0,20">
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20"
+                        Margin="0,0,0,16">
                     <StackPanel>
-                        <Grid Margin="0,0,0,24">
+                        <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    Background="{StaticResource InfoLightBrush}"
-                                    Width="48"
-                                    Height="48"
-                                    CornerRadius="12"
-                                    Margin="0,0,16,0">
+                                    Background="{DynamicResource InfoLightBrush}"
+                                    Width="44"
+                                    Height="44"
+                                    CornerRadius="10"
+                                    Margin="0,0,12,0">
                                 <TextBlock Text="🔄" 
-                                           FontSize="24"
+                                           FontSize="22"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{converters:Localization Settings.Update}" 
-                                           FontSize="20" 
+                                           FontSize="18" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.UpdateDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- 自动检查更新 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20"
                                 Margin="0,0,0,12">
@@ -166,22 +166,22 @@
                                     <TextBlock Text="{converters:Localization Settings.AutoCheckUpdates}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{converters:Localization Settings.AutoCheckUpdatesDesc}" 
                                                FontSize="13" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
 
                                 <CheckBox Grid.Column="1"
                                           IsChecked="{Binding AutoCheckUpdates}"
-                                          Style="{StaticResource ModernCheckBox}"
+                                          Style="{DynamicResource ModernCheckBox}"
                                           VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
                         <!-- 关闭时最小化到托盘 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20">
                             <Grid>
@@ -194,16 +194,16 @@
                                     <TextBlock Text="{converters:Localization Settings.MinimizeToTray}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{converters:Localization Settings.MinimizeToTrayDesc}" 
                                                FontSize="13" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
 
                                 <CheckBox Grid.Column="1"
                                           IsChecked="{Binding MinimizeToTray}"
-                                          Style="{StaticResource ModernCheckBox}"
+                                          Style="{DynamicResource ModernCheckBox}"
                                           VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
@@ -211,45 +211,45 @@
                 </Border>
 
                 <!-- SteamCMD设置 -->
-                <Border Style="{StaticResource CardStyle}"
+                <Border Style="{DynamicResource CardStyle}"
                         Padding="28">
                     <StackPanel>
-                        <Grid Margin="0,0,0,24">
+                        <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    Background="{StaticResource WarningLightBrush}"
-                                    Width="48"
-                                    Height="48"
-                                    CornerRadius="12"
-                                    Margin="0,0,16,0">
+                                    Background="{DynamicResource WarningLightBrush}"
+                                    Width="44"
+                                    Height="44"
+                                    CornerRadius="10"
+                                    Margin="0,0,12,0">
                                 <TextBlock Text="{StaticResource SettingsIcon}" 
                                            FontFamily="{StaticResource FontAwesomeSolid}"
-                                           FontSize="24"
+                                           FontSize="20"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{converters:Localization Settings.SteamCmd}" 
-                                           FontSize="20" 
+                                           FontSize="18" 
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.SteamCmdDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- 状态信息 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="10"
-                                Padding="20"
-                                Margin="0,0,0,20">
+                                Padding="16"
+                                Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -258,13 +258,13 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.Column="0"
-                                        Background="{StaticResource SuccessLightBrush}"
+                                        Background="{DynamicResource SuccessLightBrush}"
                                         Width="32"
                                         Height="32"
                                         CornerRadius="16"
                                         Margin="0,0,12,0">
                                     <Ellipse Width="12" Height="12" 
-                                            Fill="{StaticResource SuccessBrush}"
+                                            Fill="{DynamicResource SuccessBrush}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
                                 </Border>
@@ -273,11 +273,11 @@
                                     <TextBlock Text="{converters:Localization Settings.Status}"
                                                FontSize="13"
                                                FontWeight="Medium"
-                                               Foreground="{StaticResource TextTertiaryBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{Binding SteamCmdStatus}"
                                                FontSize="15"
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextWrapping="Wrap"
                                                Margin="0,2,0,0"/>
                                 </StackPanel>
@@ -285,14 +285,14 @@
                                 <Button Grid.Column="2"
                                         Content="🔄"
                                         Command="{Binding CheckSteamCmdStatusCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
+                                        Style="{DynamicResource IconButtonStyle}"
                                         ToolTip="{converters:Localization Settings.CheckStatus}"
                                         VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
                         <!-- 安装/卸载按钮 -->
-                        <Grid Margin="0,0,0,20">
+                        <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="16"/>
@@ -302,47 +302,47 @@
                             <Button Grid.Column="0"
                                     Content="{converters:Localization Settings.InstallSteamCmd}"
                                     Command="{Binding InstallSteamCmdCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Style="{DynamicResource PrimaryButtonStyle}"
                                     HorizontalAlignment="Stretch"/>
 
                             <Button Grid.Column="2"
                                     Content="{converters:Localization Settings.UninstallSteamCmd}"
                                     Command="{Binding UninstallSteamCmdCommand}"
-                                    Style="{StaticResource DangerButtonStyle}"
+                                    Style="{DynamicResource DangerButtonStyle}"
                                     HorizontalAlignment="Stretch"/>
                         </Grid>
 
                         <!-- 安装进度 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="10"
-                                Padding="20"
-                                Margin="0,0,0,20"
+                                Padding="16"
+                                Margin="0,0,0,12"
                                 Visibility="{Binding IsInstallingsteamCmd, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
                                 <TextBlock Text="{Binding InstallMessage}"
                                            FontSize="14"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,12"
                                            TextWrapping="Wrap"/>
                                 <ProgressBar Value="{Binding InstallProgress}"
-                                             Style="{StaticResource ModernProgressBar}"
+                                             Style="{DynamicResource ModernProgressBar}"
                                              Height="8"
                                              Maximum="100"/>
                             </StackPanel>
                         </Border>
 
                         <!-- 安装路径 -->
-                        <StackPanel Margin="0,0,0,20">
+                        <StackPanel Margin="0,0,0,12">
                             <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="{converters:Localization Settings.InstallPath}" 
                                            FontSize="15" 
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{converters:Localization Settings.InstallPathDesc}" 
                                            FontSize="13" 
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -354,18 +354,18 @@
 
                                 <TextBox Grid.Column="0"
                                          Text="{Binding SteamCmdPath}"
-                                         Style="{StaticResource ModernTextBox}"
+                                         Style="{DynamicResource ModernTextBox}"
                                          Margin="0,0,12,0"/>
 
                                 <Button Grid.Column="1"
                                         Content="{converters:Localization Settings.Browse}"
                                         Command="{Binding BrowseSteamCmdPathCommand}"
-                                        Style="{StaticResource SecondaryButtonStyle}"/>
+                                        Style="{DynamicResource SecondaryButtonStyle}"/>
                             </Grid>
                         </StackPanel>
 
                         <!-- 自动下载 -->
-                        <Border Background="{StaticResource SurfaceBrush}"
+                        <Border Background="{DynamicResource SurfaceBrush}"
                                 CornerRadius="10"
                                 Padding="20">
                             <Grid>
@@ -378,16 +378,16 @@
                                     <TextBlock Text="{converters:Localization Settings.AutoDownloadSteamCmd}" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{converters:Localization Settings.AutoDownloadSteamCmdDesc}" 
                                                FontSize="13" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
 
                                 <CheckBox Grid.Column="1"
                                           IsChecked="{Binding AutoDownloadSteamCmd}"
-                                          Style="{StaticResource ModernCheckBox}"
+                                          Style="{DynamicResource ModernCheckBox}"
                                           VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
@@ -396,32 +396,30 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- 底部按钮 -->
+        <!-- 底部操作栏 -->
         <Border Grid.Row="2" 
-                Background="{StaticResource BackgroundBrush}"
-                BorderBrush="{StaticResource BorderBrush}"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,1,0,0"
-                Padding="0,20,0,0"
-                Margin="0,24,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0"
-                        Content="{converters:Localization Settings.RestoreDefaults}"
+                Padding="0,12,0,12"
+                Margin="0,16,0,0">
+            <StackPanel Orientation="Horizontal" 
+                       HorizontalAlignment="Right">
+                <Button Content="{converters:Localization Settings.RestoreDefaults}"
                         Command="{Binding ResetSettingsCommand}"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Padding="24,12"
-                        HorizontalAlignment="Left"/>
+                        Style="{DynamicResource SecondaryButtonStyle}"
+                        Tag="{StaticResource RefreshIcon}"
+                        Padding="20,10"
+                        MinWidth="130"
+                        Margin="0,0,10,0"/>
 
-                <Button Grid.Column="1"
-                        Content="{converters:Localization Settings.Save}"
+                <Button Content="{converters:Localization Settings.Save}"
                         Command="{Binding SaveSettingsCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Padding="32,12"/>
-            </Grid>
+                        Style="{DynamicResource PrimaryButtonStyle}"
+                        Tag="{StaticResource SaveIcon}"
+                        Padding="24,10"
+                        MinWidth="130"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

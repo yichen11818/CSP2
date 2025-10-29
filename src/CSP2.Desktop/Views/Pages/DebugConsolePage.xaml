@@ -31,14 +31,25 @@
 
                 <!-- 过滤器 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="{converters:Localization DebugConsole.Title}" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="{converters:Localization DebugConsole.Title}" 
+                               FontSize="18" FontWeight="Bold" 
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
                     
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
                     
-                    <CheckBox Content="Debug" IsChecked="{Binding ShowDebug}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="Info" IsChecked="{Binding ShowInfo}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="Warning" IsChecked="{Binding ShowWarning}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="Error" IsChecked="{Binding ShowError}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="Debug" IsChecked="{Binding ShowDebug}" 
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="Info" IsChecked="{Binding ShowInfo}" 
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="Warning" IsChecked="{Binding ShowWarning}" 
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="Error" IsChecked="{Binding ShowError}" 
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                     
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="0,0,10,0"/>
                     
@@ -49,12 +60,20 @@
 
                 <!-- 操作按钮 -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <CheckBox Content="{converters:Localization DebugConsole.AutoScroll}" IsChecked="{Binding AutoScroll}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="{converters:Localization DebugConsole.AutoScroll}" 
+                              IsChecked="{Binding AutoScroll}" 
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                     
-                    <Button Content="{converters:Localization DebugConsole.Export}" Command="{Binding ExportLogsCommand}" 
-                            Padding="10,5" ToolTip="{converters:Localization DebugConsole.ExportTooltip}" Margin="0,0,10,0"/>
-                    <Button Content="{converters:Localization DebugConsole.Clear}" Command="{Binding ClearLogsCommand}" 
-                            Padding="10,5" ToolTip="{converters:Localization DebugConsole.ClearTooltip}"/>
+                    <Button Content="{converters:Localization DebugConsole.Export}" 
+                            Command="{Binding ExportLogsCommand}" 
+                            Padding="10,5" 
+                            ToolTip="{converters:Localization DebugConsole.ExportTooltip}" 
+                            Margin="0,0,10,0"/>
+                    <Button Content="{converters:Localization DebugConsole.Clear}" 
+                            Command="{Binding ClearLogsCommand}" 
+                            Padding="10,5" 
+                            ToolTip="{converters:Localization DebugConsole.ClearTooltip}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -129,10 +148,12 @@
                             <!-- 消息 -->
                             <StackPanel Grid.Column="3" Margin="10,0,0,0">
                                 <TextBlock Text="{Binding Message}" 
-                                           TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
+                                           TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           TextAlignment="Left"/>
                                 <TextBlock Text="{Binding Exception}" 
                                            TextWrapping="Wrap" FontFamily="Consolas" FontSize="10"
-                                           Foreground="Red" Margin="0,5,0,0"
+                                           Foreground="{DynamicResource DangerBrush}" Margin="0,5,0,0"
                                            Visibility="{Binding Exception, Converter={StaticResource StringToVisibilityConverter}}"/>
                             </StackPanel>
                         </Grid>
