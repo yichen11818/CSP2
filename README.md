@@ -20,6 +20,7 @@ CSP2 is an open-source desktop management tool for CS2 server administrators, in
 - 📊 **Real-time Monitoring**: View server logs and status in real-time
 - 🔌 **Plugin Management**: Browse, install, and update plugins with support for multiple frameworks
 - 🖥️ **Multi-Server**: Manage multiple server instances simultaneously
+- ⚙️ **Simple Configuration**: Direct launch arguments input for maximum flexibility
 - 🔧 **Extensible**: Based on Provider mechanism, community can contribute new features
 - 🎨 **Modern UI**: Clean and beautiful user interface
 
