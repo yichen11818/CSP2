@@ -76,6 +76,12 @@ public class ServerConfig
     /// </summary>
     public string CustomParameters { get; set; } = string.Empty;
     
+    /// <summary>
+    /// 用户手动编辑的完整启动参数（如果用户通过UI手动编辑了启动参数，会保存到这里）
+    /// 如果此字段有值，将优先使用它而不是自动生成参数
+    /// </summary>
+    public string? UserEditedFullArgs { get; set; } = null;
+    
     // ============ 内部使用（不暴露给用户UI）============
     
     /// <summary>

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CSP2.Core.Abstractions;
 using CSP2.Core.Models;
+using CSP2.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace CSP2.Core.Services;
@@ -468,7 +469,7 @@ public class ServerManager : IServerManager
                 return false;
             }
 
-            var arguments = BuildStartupArguments(server.Config);
+            var arguments = LaunchArgumentsBuilder.BuildStartupArguments(server.Config);
             _logger.LogDebug("启动参数: {Args}", arguments);
             
             var workingDirectory = Path.Combine(server.InstallPath, "game", "bin", "win64");
@@ -665,107 +666,8 @@ public class ServerManager : IServerManager
         }
     }
 
-    /// <summary>
-    /// 构建服务器启动参数（简化版）
-    /// </summary>
-    private string BuildStartupArguments(ServerConfig config)
-    {
-        var args = new List<string>
-        {
-            // ========== 核心必需参数 ==========
-            "-dedicated",
-            "-norestart",
-            "-console",  // 默认总是启用控制台
-            $"-ip {config.IpAddress}",
-            $"-port {config.Port}",
-            $"-maxplayers {config.MaxPlayers}",
-            $"-tickrate {config.TickRate}",
-            $"+game_type {config.GameType}",
-            $"+game_mode {config.GameMode}",
-            $"+mapgroup {config.MapGroup}",
-            $"+map {config.Map}"
-        };
-
-        // ========== 常用选项 ==========
-        
-        // BOT 设置
-        if (config.DisableBots)
-        {
-            args.Add("+bot_quota 0");
-        }
-        
-        // Insecure 模式（用于自定义地图）
-        if (config.InsecureMode)
-        {
-            args.Add("-insecure");
-        }
-        
-        // 局域网模式
-        if (config.IsLanMode)
-        {
-            args.Add("+sv_lan 1");
-        }
-        else
-        {
-            args.Add("+sv_lan 0");
-        }
-        
-        // 应用内控制台模式
-        // 注意：目前CS2的-hideconsole参数不工作，即使启用此选项，CS2控制台窗口仍会弹出
-        // 但日志会被重定向到应用内控制台，便于监控和保存
-        if (config.OpenConsoleInApp)
-        {
-            // 启用调试日志，确保日志输出到stdout（被应用捕获）
-            args.Add("-condebug");
-            // 尝试隐藏CS2控制台窗口（目前此参数在CS2中不工作）
-            // args.Add("-hideconsole");  // 暂时注释，因为CS2不支持
-        }
-
-        // ========== 高级配置（可选，建议使用 autoexec.cfg）==========
-        
-        // 服务器名称（如果配置了）
-        if (!string.IsNullOrEmpty(config.ServerName))
-        {
-            args.Add($"+hostname \"{config.ServerName}\"");
-        }
-
-        // 服务器密码（如果配置了）
-        if (!string.IsNullOrEmpty(config.ServerPassword))
-        {
-            args.Add($"+sv_password \"{config.ServerPassword}\"");
-        }
-
-        // RCON密码（如果配置了）
-        if (!string.IsNullOrEmpty(config.RconPassword))
-        {
-            args.Add($"+rcon_password \"{config.RconPassword}\"");
-        }
-
-        // Steam令牌（如果配置了）
-        if (!string.IsNullOrEmpty(config.SteamToken))
-        {
-            args.Add($"+sv_setsteamaccount {config.SteamToken}");
-        }
-
-        // ========== 日志设置（默认启用）==========
-        args.Add("+log on");
-        args.Add("+sv_logfile 1");
-        args.Add("+mp_logdetail 3");
-        args.Add("+sv_logecho 1");
-
-        // ========== 自定义参数（用户完全控制）==========
-        
-        // 自定义参数字符串（新方式）
-        if (!string.IsNullOrWhiteSpace(config.CustomParameters))
-        {
-            args.Add(config.CustomParameters.Trim());
-        }
-
-        var finalArgs = string.Join(" ", args);
-        _logger.LogDebug("构建的启动参数: {Args}", finalArgs);
-        
-        return finalArgs;
-    }
+    // BuildStartupArguments 方法已移至 LaunchArgumentsBuilder 工具类
+    // 以便在UI和服务中共享使用
 
     private void StartReadingOutput(ServerProcess serverProcess)
     {
