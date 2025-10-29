@@ -101,55 +101,62 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
-                        <ToggleButton x:Name="toggleButton"
-                                    Grid.Column="2"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Focusable="False"
-                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                    ClickMode="Press">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border x:Name="border"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="8"
-                                            SnapsToDevicePixels="True">
-                                        <Grid>
-                                            <ContentPresenter HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center"
-                                                            Margin="12,0,0,0"/>
-                                            <Path x:Name="arrow"
-                                                Data="M 0 0 L 4 4 L 8 0 Z"
-                                                Fill="{DynamicResource Gray500Brush}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Margin="0,0,12,0"/>
-                                        </Grid>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource PrimaryLightBrush}"/>
-                                        </Trigger>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-                                            <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                        </ToggleButton>
-                        <ContentPresenter x:Name="contentPresenter"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Margin="12,0,30,0"
-                                        Content="{TemplateBinding SelectionBoxItem}"
-                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                        ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                                        IsHitTestVisible="False"/>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border x:Name="border"
+                                Grid.ColumnSpan="2"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <ToggleButton x:Name="toggleButton"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Focusable="False"
+                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                        </Border>
+                        
+                        <!-- 使用 ContentPresenter 支持 ItemTemplate 和 DisplayMemberPath -->
+                        <Grid Grid.Column="0" Margin="12,0,8,0" IsHitTestVisible="False">
+                            <!-- 当没有选择任何项时显示 -->
+                            <TextBlock x:Name="placeholderText"
+                                     Text=""
+                                     Foreground="{DynamicResource TextTertiaryBrush}"
+                                     VerticalAlignment="Center"
+                                     Visibility="Collapsed"/>
+                            
+                            <!-- 显示选中的项 -->
+                            <ContentPresenter x:Name="contentPresenter"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Content="{TemplateBinding SelectionBoxItem}"
+                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                            ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"/>
+                        </Grid>
+                        
+                        <Path x:Name="arrow"
+                              Grid.Column="1"
+                              Data="M 0 0 L 4 4 L 8 0 Z"
+                              Fill="{DynamicResource Gray500Brush}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Margin="8,0,12,0"
+                              IsHitTestVisible="False"/>
+                        
                         <Popup x:Name="PART_Popup"
+                               Grid.ColumnSpan="2"
                                AllowsTransparency="True"
                                Placement="Bottom"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
@@ -159,7 +166,8 @@
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Margin="0,4,0,0"
-                                    Padding="0,4">
+                                    Padding="0,4"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.15" Color="{DynamicResource ShadowColor}"/>
                                 </Border.Effect>
@@ -169,6 +177,15 @@
                             </Border>
                         </Popup>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource PrimaryLightBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

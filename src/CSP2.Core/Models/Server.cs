@@ -59,6 +59,26 @@ public class Server
     /// 是否由CSP2管理文件（用于判断是否可以卸载）
     /// </summary>
     public bool IsManagedByCSP2 { get; set; } = false;
+
+    /// <summary>
+    /// 判断两个服务器对象是否相等（基于 Id）
+    /// </summary>
+    public override bool Equals(object? obj)
+    {
+        if (obj is Server other)
+        {
+            return Id == other.Id;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 获取哈希码（基于 Id）
+    /// </summary>
+    public override int GetHashCode()
+    {
+        return Id?.GetHashCode() ?? 0;
+    }
 }
 
 /// <summary>

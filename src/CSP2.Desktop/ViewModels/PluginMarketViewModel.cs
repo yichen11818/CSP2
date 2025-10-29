@@ -109,9 +109,22 @@ public partial class PluginMarketViewModel : ObservableObject
             foreach (var server in servers)
             {
                 Servers.Add(server);
+                DebugLogger.Debug("LoadDataAsync", $"  添加服务器: {server.Name} (ID: {server.Id})");
             }
-            SelectedServer = servers.FirstOrDefault();
-            _logger.LogInformation("加载了 {Count} 个服务器", servers.Count);
+            
+            var firstServer = servers.FirstOrDefault();
+            if (firstServer != null)
+            {
+                DebugLogger.Info("LoadDataAsync", $"设置默认选择服务器: {firstServer.Name} (ID: {firstServer.Id})");
+                SelectedServer = firstServer;
+            }
+            else
+            {
+                DebugLogger.Warning("LoadDataAsync", "没有可用的服务器！");
+            }
+            
+            _logger.LogInformation("加载了 {Count} 个服务器，当前选择: {SelectedServer}", 
+                servers.Count, SelectedServer?.Name ?? "null");
 
             // 加载插件列表
             DebugLogger.Debug("LoadDataAsync", "开始调用 GetManifestAsync");
@@ -314,9 +327,20 @@ public partial class PluginMarketViewModel : ObservableObject
     /// </summary>
     async partial void OnSelectedServerChanged(Server? value)
     {
+        _logger.LogInformation("服务器选择已变更: {ServerName}", value?.Name ?? "null");
+        DebugLogger.Info("OnSelectedServerChanged", $"新选择的服务器: {value?.Name ?? "null"} (ID: {value?.Id ?? "null"})");
+        
         if (value != null)
         {
             await CheckFrameworksStatusAsync();
+        }
+        else
+        {
+            // 清空框架状态
+            CssInstalled = false;
+            MetamodInstalled = false;
+            CssVersion = null;
+            MetamodVersion = null;
         }
     }
 

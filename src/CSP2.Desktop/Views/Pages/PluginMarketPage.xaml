@@ -271,7 +271,7 @@
 
                 <ComboBox Grid.Column="1"
                           ItemsSource="{Binding Servers}"
-                          SelectedItem="{Binding SelectedServer}"
+                          SelectedItem="{Binding SelectedServer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           Style="{StaticResource ModernComboBox}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>

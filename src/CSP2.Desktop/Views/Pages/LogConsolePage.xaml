@@ -212,7 +212,8 @@
 
                     <ComboBox Grid.Column="1"
                               ItemsSource="{Binding Servers}"
-                              SelectedItem="{Binding SelectedServer}"
+                              SelectedItem="{Binding SelectedServer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsSynchronizedWithCurrentItem="True"
                               DisplayMemberPath="Name"
                               Height="38"
                               VerticalContentAlignment="Center"
