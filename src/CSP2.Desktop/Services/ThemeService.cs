@@ -90,12 +90,19 @@ public class ThemeService
         // 定义主题颜色
         var colors = GetThemeColors(theme);
         
-        // 更新颜色资源
+        // 更新 Color 资源（这些是在 Colors.xaml 中定义的）
         foreach (var color in colors)
         {
             if (app.Resources.Contains(color.Key))
             {
-                app.Resources[color.Key] = new SolidColorBrush(color.Value);
+                app.Resources[color.Key] = color.Value;
+            }
+            
+            // 同时更新对应的 Brush 资源
+            var brushKey = color.Key.Replace("Color", "Brush");
+            if (app.Resources.Contains(brushKey))
+            {
+                app.Resources[brushKey] = new SolidColorBrush(color.Value);
             }
         }
     }
@@ -110,44 +117,62 @@ public class ThemeService
             "Dark" => new Dictionary<string, Color>
             {
                 // 背景色
-                ["BackgroundBrush"] = Color.FromRgb(0x1e, 0x1e, 0x1e),
-                ["SurfaceBrush"] = Color.FromRgb(0x2d, 0x2d, 0x2d),
-                ["CardBackgroundBrush"] = Color.FromRgb(0x25, 0x25, 0x25),
-                ["HoverBackgroundBrush"] = Color.FromRgb(0x3c, 0x3c, 0x3c),
-                ["SidebarBackgroundBrush"] = Color.FromRgb(0x0f, 0x17, 0x2a),
-                ["SidebarDarkBackgroundBrush"] = Color.FromRgb(0x0c, 0x14, 0x21),
+                ["BackgroundColor"] = Color.FromRgb(0x1e, 0x1e, 0x1e),
+                ["SurfaceColor"] = Color.FromRgb(0x2d, 0x2d, 0x2d),
+                ["CardBackgroundColor"] = Color.FromRgb(0x25, 0x25, 0x25),
+                ["HoverBackgroundColor"] = Color.FromRgb(0x3c, 0x3c, 0x3c),
+                ["SidebarBackgroundColor"] = Color.FromRgb(0x0f, 0x17, 0x2a),
+                ["SidebarDarkBackgroundColor"] = Color.FromRgb(0x0c, 0x14, 0x21),
                 
                 // 文字色
-                ["TextPrimaryBrush"] = Color.FromRgb(0xe5, 0xe7, 0xeb),
-                ["TextSecondaryBrush"] = Color.FromRgb(0x9c, 0xa3, 0xaf),
-                ["TextTertiaryBrush"] = Color.FromRgb(0x6b, 0x72, 0x80),
-                ["TextDisabledBrush"] = Color.FromRgb(0x4b, 0x55, 0x63),
+                ["TextPrimaryColor"] = Color.FromRgb(0xe5, 0xe7, 0xeb),
+                ["TextSecondaryColor"] = Color.FromRgb(0x9c, 0xa3, 0xaf),
+                ["TextTertiaryColor"] = Color.FromRgb(0x6b, 0x72, 0x80),
+                ["TextDisabledColor"] = Color.FromRgb(0x4b, 0x55, 0x63),
                 
                 // 边框色
-                ["BorderBrush"] = Color.FromRgb(0x37, 0x41, 0x51),
-                ["BorderLightBrush"] = Color.FromRgb(0x4b, 0x55, 0x63),
-                ["BorderDarkBrush"] = Color.FromRgb(0x1f, 0x29, 0x37),
+                ["BorderColor"] = Color.FromRgb(0x37, 0x41, 0x51),
+                ["BorderLightColor"] = Color.FromRgb(0x4b, 0x55, 0x63),
+                ["BorderDarkColor"] = Color.FromRgb(0x1f, 0x29, 0x37),
+                
+                // 主题色
+                ["PrimaryPaleColor"] = Color.FromRgb(0x31, 0x2e, 0x81),
+                
+                // 功能色浅色版本（深色主题）
+                ["SuccessLightColor"] = Color.FromRgb(0x06, 0x4e, 0x3b),
+                ["WarningLightColor"] = Color.FromRgb(0x78, 0x35, 0x0f),
+                ["DangerLightColor"] = Color.FromRgb(0x7f, 0x1d, 0x1d),
+                ["InfoLightColor"] = Color.FromRgb(0x16, 0x4e, 0x63),
             },
             _ => new Dictionary<string, Color>
             {
                 // 浅色主题（默认）
-                ["BackgroundBrush"] = Color.FromRgb(0xfa, 0xfa, 0xfa),
-                ["SurfaceBrush"] = Color.FromRgb(0xff, 0xff, 0xff),
-                ["CardBackgroundBrush"] = Color.FromRgb(0xff, 0xff, 0xff),
-                ["HoverBackgroundBrush"] = Color.FromRgb(0xf8, 0xfa, 0xfc),
-                ["SidebarBackgroundBrush"] = Color.FromRgb(0x1e, 0x29, 0x3b),
-                ["SidebarDarkBackgroundBrush"] = Color.FromRgb(0x0f, 0x17, 0x2a),
+                ["BackgroundColor"] = Color.FromRgb(0xfa, 0xfa, 0xfa),
+                ["SurfaceColor"] = Color.FromRgb(0xff, 0xff, 0xff),
+                ["CardBackgroundColor"] = Color.FromRgb(0xff, 0xff, 0xff),
+                ["HoverBackgroundColor"] = Color.FromRgb(0xf8, 0xfa, 0xfc),
+                ["SidebarBackgroundColor"] = Color.FromRgb(0x1e, 0x29, 0x3b),
+                ["SidebarDarkBackgroundColor"] = Color.FromRgb(0x0f, 0x17, 0x2a),
                 
                 // 文字色
-                ["TextPrimaryBrush"] = Color.FromRgb(0x1f, 0x29, 0x37),
-                ["TextSecondaryBrush"] = Color.FromRgb(0x6b, 0x72, 0x80),
-                ["TextTertiaryBrush"] = Color.FromRgb(0x9c, 0xa3, 0xaf),
-                ["TextDisabledBrush"] = Color.FromRgb(0xd1, 0xd5, 0xdb),
+                ["TextPrimaryColor"] = Color.FromRgb(0x1f, 0x29, 0x37),
+                ["TextSecondaryColor"] = Color.FromRgb(0x6b, 0x72, 0x80),
+                ["TextTertiaryColor"] = Color.FromRgb(0x9c, 0xa3, 0xaf),
+                ["TextDisabledColor"] = Color.FromRgb(0xd1, 0xd5, 0xdb),
                 
                 // 边框色
-                ["BorderBrush"] = Color.FromRgb(0xe5, 0xe7, 0xeb),
-                ["BorderLightBrush"] = Color.FromRgb(0xf3, 0xf4, 0xf6),
-                ["BorderDarkBrush"] = Color.FromRgb(0xd1, 0xd5, 0xdb),
+                ["BorderColor"] = Color.FromRgb(0xe5, 0xe7, 0xeb),
+                ["BorderLightColor"] = Color.FromRgb(0xf3, 0xf4, 0xf6),
+                ["BorderDarkColor"] = Color.FromRgb(0xd1, 0xd5, 0xdb),
+                
+                // 主题色
+                ["PrimaryPaleColor"] = Color.FromRgb(0xe0, 0xe7, 0xff),
+                
+                // 功能色浅色版本（浅色主题）- 使用浅色背景
+                ["SuccessLightColor"] = Color.FromRgb(0xd1, 0xfa, 0xe5),  // 浅绿色
+                ["WarningLightColor"] = Color.FromRgb(0xfe, 0xf3, 0xc7),  // 浅黄色
+                ["DangerLightColor"] = Color.FromRgb(0xfe, 0xe2, 0xe2),   // 浅红色
+                ["InfoLightColor"] = Color.FromRgb(0xd1, 0xf5, 0xff),     // 浅蓝色
             }
         };
     }
