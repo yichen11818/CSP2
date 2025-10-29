@@ -29,6 +29,7 @@
     <system:String x:Key="ViewIcon">&#xf06e;</system:String>          <!-- fa-eye -->
     <system:String x:Key="SearchIcon">&#xf002;</system:String>        <!-- fa-magnifying-glass -->
     <system:String x:Key="FolderIcon">&#xf07b;</system:String>        <!-- fa-folder -->
+    <system:String x:Key="SaveIcon">&#xf0c7;</system:String>          <!-- fa-floppy-disk -->
     
     <!-- 状态图标 -->
     <system:String x:Key="OnlineIcon">&#xf058;</system:String>        <!-- fa-circle-check -->
