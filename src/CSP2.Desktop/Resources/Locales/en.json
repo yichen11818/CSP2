@@ -103,8 +103,8 @@
     "Browse": "📁 Browse",
     "AutoDownloadSteamCmd": "Auto download SteamCMD",
     "AutoDownloadSteamCmdDesc": "Automatically download SteamCMD if not installed",
-    "RestoreDefaults": "↺ Restore Defaults",
-    "Save": "💾 Save Settings",
+    "RestoreDefaults": " Restore Defaults",
+    "Save": " Save Settings",
     "MinimizeToTray": "Minimize to tray on close",
     "MinimizeToTrayDesc": "Minimize to system tray instead of exiting when clicking close button"
   },

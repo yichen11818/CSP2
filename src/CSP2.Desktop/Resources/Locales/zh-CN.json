@@ -103,8 +103,8 @@
     "Browse": "📁 浏览",
     "AutoDownloadSteamCmd": "自动下载 SteamCMD",
     "AutoDownloadSteamCmdDesc": "如果未安装，自动下载 SteamCMD",
-    "RestoreDefaults": "↺ 恢复默认",
-    "Save": "💾 保存设置",
+    "RestoreDefaults": " 恢复默认",
+    "Save": " 保存设置",
     "MinimizeToTray": "关闭时最小化到托盘",
     "MinimizeToTrayDesc": "点击关闭按钮时最小化到系统托盘而不是退出程序"
   },
