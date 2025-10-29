@@ -6,7 +6,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml"/>
-                <ResourceDictionary Source="Resources/Styles/DarkTheme.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/IconStyles.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/ButtonStyles.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml"/>
@@ -21,6 +20,7 @@
             <converters:LogLevelToColorConverter x:Key="LogLevelToColorConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter"/>
+            <converters:PercentageWidthConverter x:Key="PercentageWidthConverter"/>
             <converters:ScrollBarOpacityConverter x:Key="ScrollBarOpacityConverter"/>
             <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter"/>
         </ResourceDictionary>

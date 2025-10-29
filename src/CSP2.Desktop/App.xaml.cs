@@ -92,6 +92,17 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // 设置控制台编码为UTF-8，解决中文乱码问题
+        try
+        {
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
+            System.Console.InputEncoding = System.Text.Encoding.UTF8;
+        }
+        catch
+        {
+            // 如果没有控制台窗口，忽略错误
+        }
+
         // 检查单实例
         bool createdNew;
         _mutex = new Mutex(true, MutexName, out createdNew);
