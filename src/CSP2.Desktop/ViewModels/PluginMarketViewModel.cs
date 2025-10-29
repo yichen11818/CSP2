@@ -221,6 +221,7 @@ public partial class PluginMarketViewModel : ObservableObject
         {
             _logger.LogWarning("安装插件失败: 未选择服务器");
             DebugLogger.Warning("InstallPluginAsync", "请先选择一个服务器");
+            MessageBox.Show("请先在左侧选择一个服务器", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -228,12 +229,20 @@ public partial class PluginMarketViewModel : ObservableObject
             plugin.Name, SelectedServer.Name);
         DebugLogger.Info("InstallPluginAsync", $"安装插件: {plugin.Name} -> {SelectedServer.Name}");
 
+        // 创建进度对话框
+        var progressDialog = new Views.Dialogs.FrameworkInstallProgressDialog($"插件: {plugin.Name}");
+        progressDialog.Owner = Application.Current.MainWindow;
+        
         try
         {
-            var progress = new Progress<ProgressInfo>(p =>
+            var progress = new Progress<InstallProgress>(p =>
             {
                 DebugLogger.Debug("InstallPluginAsync", $"安装进度: {p.Percentage}% - {p.Message}");
+                progressDialog.UpdateProgress(p);
             });
+
+            // 显示进度对话框（非模态）
+            progressDialog.Show();
 
             var result = await _pluginManager.InstallPluginAsync(
                 SelectedServer.Id, 
@@ -244,17 +253,34 @@ public partial class PluginMarketViewModel : ObservableObject
             {
                 _logger.LogInformation("插件 {PluginName} 安装成功", plugin.Name);
                 DebugLogger.Info("InstallPluginAsync", $"插件 {plugin.Name} 安装成功");
+                progressDialog.ShowSuccess($"插件 {plugin.Name} 安装成功！");
+                
+                // 延迟关闭对话框
+                await Task.Delay(1500);
+                progressDialog.Close();
+                
+                MessageBox.Show($"插件 {plugin.Name} 安装成功！\n\n" +
+                    (plugin.Installation?.RequiresRestart == true ? "请重启服务器以加载插件。" : "插件已就绪。"),
+                    "安装成功", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
                 _logger.LogError("插件 {PluginName} 安装失败: {Error}", plugin.Name, result.ErrorMessage);
                 DebugLogger.Error("InstallPluginAsync", $"插件安装失败: {result.ErrorMessage}");
+                progressDialog.ShowError(result.ErrorMessage ?? "未知错误");
+                
+                MessageBox.Show($"插件安装失败：\n\n{result.ErrorMessage}", 
+                    "安装失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "安装插件 {PluginName} 时发生异常", plugin.Name);
             DebugLogger.Error("InstallPluginAsync", $"安装插件失败: {ex.Message}", ex);
+            progressDialog.ShowError($"安装异常: {ex.Message}");
+            
+            MessageBox.Show($"安装插件时发生异常：\n\n{ex.Message}", 
+                "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

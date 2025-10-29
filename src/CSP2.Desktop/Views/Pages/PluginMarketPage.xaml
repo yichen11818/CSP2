@@ -540,7 +540,7 @@
                                 <!-- 安装按钮 -->
                                 <Button Grid.Row="5"
                                         Content="{converters:Localization PluginMarket.Install}"
-                                        Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                        Command="{Binding DataContext.InstallPluginCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Margin="0,16,0,0"

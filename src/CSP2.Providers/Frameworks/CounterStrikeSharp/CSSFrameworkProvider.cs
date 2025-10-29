@@ -558,44 +558,56 @@ public class CSSFrameworkProvider : IFrameworkProvider
             }
 
             // 直接使用 HttpClient 下载
-            using var response = await _httpClient.GetAsync(pluginInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            var totalBytes = response.Content.Headers.ContentLength ?? 0;
-            using var fileStream = File.Create(zipPath);
-            using var httpStream = await response.Content.ReadAsStreamAsync();
-
-            var buffer = new byte[8192];
-            long downloadedBytes = 0;
-            int bytesRead;
-
-            while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0)
+            using (var response = await _httpClient.GetAsync(pluginInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead))
             {
-                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                downloadedBytes += bytesRead;
+                response.EnsureSuccessStatusCode();
 
-                // 更新 DownloadManager 任务进度（如果可用）
-                if (_downloadManager != null && downloadTaskId != null)
+                var totalBytes = response.Content.Headers.ContentLength ?? 0;
+                
+                using (var fileStream = File.Create(zipPath))
+                using (var httpStream = await response.Content.ReadAsStreamAsync())
                 {
-                    var percentage = totalBytes > 0 ? (double)downloadedBytes / totalBytes * 100 : 0;
-                    _downloadManager.UpdateTaskProgress(downloadTaskId, percentage, 
-                        $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB");
-                }
+                    var buffer = new byte[8192];
+                    long downloadedBytes = 0;
+                    int bytesRead;
 
-                // 报告进度
-                if (totalBytes > 0)
-                {
-                    var percentage = (double)downloadedBytes / totalBytes * 100;
-                    progress?.Report(new InstallProgress
+                    while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0)
                     {
-                        Percentage = 10 + (percentage * 0.4), // 10-50%
-                        CurrentStep = "下载插件",
-                        CurrentStepIndex = 2,
-                        TotalSteps = 4,
-                        Message = $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
-                    });
+                        await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                        downloadedBytes += bytesRead;
+
+                        // 更新 DownloadManager 任务进度（如果可用）
+                        if (_downloadManager != null && downloadTaskId != null)
+                        {
+                            var percentage = totalBytes > 0 ? (double)downloadedBytes / totalBytes * 100 : 0;
+                            _downloadManager.UpdateTaskProgress(downloadTaskId, percentage, 
+                                $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB");
+                        }
+
+                        // 报告进度
+                        if (totalBytes > 0)
+                        {
+                            var percentage = (double)downloadedBytes / totalBytes * 100;
+                            progress?.Report(new InstallProgress
+                            {
+                                Percentage = 10 + (percentage * 0.4), // 10-50%
+                                CurrentStep = "下载插件",
+                                CurrentStepIndex = 2,
+                                TotalSteps = 4,
+                                Message = $"已下载: {downloadedBytes / 1024 / 1024:F1} MB / {totalBytes / 1024 / 1024:F1} MB"
+                            });
+                        }
+                    }
+                    
+                    // 确保所有数据都写入磁盘
+                    await fileStream.FlushAsync();
                 }
+                // fileStream 在此处自动关闭和释放
             }
+            // response 在此处自动关闭和释放
+            
+            // 等待一小段时间，确保文件系统完全释放文件句柄
+            await Task.Delay(100);
 
             DebugLogger.Info("Plugin-Install", $"下载完成，文件大小: {new FileInfo(zipPath).Length / 1024 / 1024:F1} MB");
 
@@ -646,18 +658,10 @@ public class CSSFrameworkProvider : IFrameworkProvider
 
             DebugLogger.Info("Plugin-Install", $"✓ 插件 {pluginInfo.Name} 安装成功");
 
-            // 清理下载文件
-            try
+            // 清理下载文件（使用重试机制）
+            if (File.Exists(zipPath))
             {
-                if (File.Exists(zipPath))
-                {
-                    File.Delete(zipPath);
-                    DebugLogger.Info("Plugin-Install", "临时文件已清理");
-                }
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Warning("Plugin-Install", $"清理临时文件失败: {ex.Message}");
+                await TryDeleteFileWithRetry(zipPath, maxRetries: 3);
             }
 
             if (downloadTaskId != null)
@@ -671,10 +675,10 @@ public class CSSFrameworkProvider : IFrameworkProvider
         {
             DebugLogger.Error("Plugin-Install", $"安装插件失败: {ex.Message}", ex);
 
-            // 清理临时文件
+            // 清理临时文件（使用重试机制）
             if (!string.IsNullOrEmpty(zipPath) && File.Exists(zipPath))
             {
-                try { File.Delete(zipPath); } catch { }
+                await TryDeleteFileWithRetry(zipPath, maxRetries: 3);
             }
 
             if (downloadTaskId != null)
@@ -965,6 +969,46 @@ public class CSSFrameworkProvider : IFrameworkProvider
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// 尝试删除文件，如果失败则重试
+    /// </summary>
+    private async Task TryDeleteFileWithRetry(string filePath, int maxRetries = 3)
+    {
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                // 等待文件句柄释放
+                if (attempt > 1)
+                {
+                    await Task.Delay(200 * attempt); // 递增等待时间
+                    
+                    // 强制垃圾回收
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+                
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                    DebugLogger.Info("Plugin-Install", $"临时文件已清理 (尝试 {attempt}/{maxRetries})");
+                    return; // 成功删除，退出
+                }
+            }
+            catch (IOException ex) when (attempt < maxRetries)
+            {
+                DebugLogger.Warning("Plugin-Install", $"清理临时文件失败 (尝试 {attempt}/{maxRetries}): {ex.Message}，将重试...");
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Warning("Plugin-Install", $"清理临时文件失败: {ex.Message}");
+                break; // 非 IO 异常，不重试
+            }
+        }
+        
+        DebugLogger.Warning("Plugin-Install", $"无法删除临时文件: {filePath}，请手动清理");
     }
 }
 
